@@ -1,0 +1,28 @@
+.main {
+  display: flex;
+  padding: 30px 80px 30px 40px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title-text {
+  font-size: 42px;
+  font-weight: bold;
+}
+
+.pages {
+  display: flex;
+  gap: 40px;
+}
+
+.btn {
+  background-color: transparent;
+  border: none;
+  font-size: 18px;
+  color: var( --main-text-color );
+  cursor: pointer;
+}
+
+.btn:hover {
+  box-shadow: 0 3px 0 0 orange;
+}
