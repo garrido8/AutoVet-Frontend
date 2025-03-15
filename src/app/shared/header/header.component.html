@@ -1,37 +1,47 @@
+<header class="main" id="main">
+  <h1 class="title-text" id="title-text">
+    AutoVet
+  </h1>
 
-<div class="main" id="main">
-  <div class="title" id="title">
-    <span class="title-text" id="title-text">
-      AutoVet
-    </span>
-  </div>
+  <nav class="pages" id="pages" aria-label="Main Navigation">
 
+    <button
+      class="btn home-btn"
+      id="home-btn"
+      routerLink="/home"
+      routerLinkActive="active"
+      aria-current="page"
+    >
+      Inicio
+    </button>
 
-  <div class="pages" id="pages">
+    <button
+      class="btn chatbot-btn"
+      id="chatbot-btn"
+      routerLink="/chat"
+      routerLinkActive="active"
+    >
+      ChatBot
+    </button>
 
-    <div class="home" id="home">
-      <button class="btn home-btn" id="home-btn" routerLink="/home" routerLinkActive="active">
-        Inicio
-      </button>
-    </div>
+    <button
+      class="btn foods-btn"
+      id="foods-btn"
+      routerLink="/foods"
+      routerLinkActive="active"
+    >
+      Alimentos
+    </button>
 
-    <div class="chatbot" id="chatbot">
-      <button class="btn chatbot-btn" id="chatbot-btn" routerLink="/chat" routerLinkActive="active">
-        ChatBot
-      </button>
-    </div>
+    <button
+      class="btn contact-btn"
+      id="contact-btn"
+      routerLink="/contact"
+      routerLinkActive="active"
+    >
+      Contacto
+    </button>
 
-    <div class="foods" id="foods">
-      <button class="btn foods-btn" id="foods-btn" routerLink="/foods" routerLinkActive="active">
-        Alimentos
-      </button>
-    </div>
+  </nav>
 
-    <div class="contact" id="contact">
-      <button class="btn contact-btn" id="contact-btn" routerLink="/contact" routerLinkActive="active">
-        Contacto
-      </button>
-    </div>
-
-  </div>
-</div>
+</header>
