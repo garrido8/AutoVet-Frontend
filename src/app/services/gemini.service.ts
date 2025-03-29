@@ -12,10 +12,11 @@ export class GeminiService {
   }
 
   async generateContent(prompt: string): Promise<string> {
+    const newPrompt: string = 'Eres un experto en veterinaria que sabes todo sobre animales y eres capaz de dar consejos sobre animales de manera profesional' + prompt
     try {
       const response = await this.ai.models.generateContent({
         model: 'gemini-2.0-flash',
-        contents: prompt,
+        contents: newPrompt,
       });
       return response.text || 'No response received';
     } catch (error) {
