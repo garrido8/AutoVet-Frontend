@@ -1,5 +1,7 @@
 import { Component, ElementRef, inject, ViewChild } from '@angular/core';
 import { GeminiService } from '../../../services/gemini.service';
+import { finalize } from 'rxjs/operators';
+import { marked } from 'marked';
 
 @Component({
   selector: 'app-diagnosis',
@@ -9,27 +11,33 @@ import { GeminiService } from '../../../services/gemini.service';
 })
 export class DiagnosisComponent {
 
-  private gemini = inject( GeminiService )
+  private gemini = inject(GeminiService);
 
-  public isLoading: boolean = false
+  public isLoading: boolean = false;
 
-  @ViewChild( 'promptValue' ) promptValue?: ElementRef
+  @ViewChild('promptValue') promptValue?: ElementRef;
 
-  public responseText: string = ''
+  public responseText: string = '';
+  public formattedResponse: string = '';
 
-  public async sendPrompt() {
+  public sendPrompt() {
     this.isLoading = true;
 
-    try {
-      // Await the response from GeminiService
-      this.responseText = await this.gemini.formalConversation(this.promptValue?.nativeElement.value);
-    } catch (error) {
-      console.error('Error generating content:', error);
-      this.responseText = 'There was an error processing your request.';
-    } finally {
-      // Set isLoading to false after the async operation is done
-      this.isLoading = false;
-    }
+    const prompt = this.promptValue?.nativeElement.value;
+
+    this.gemini.formalConversation(prompt)
+      .pipe(finalize(() => this.isLoading = false))
+      .subscribe({
+        next: response => {
+          this.responseText = response;
+          this.formattedResponse = marked(response).toString(); // Convert Markdown to HTML
+        },
+        error: err => {
+          console.error('Error generating content:', err);
+          this.responseText = 'There was an error processing your request.';
+          this.formattedResponse = ''; // Clear formatted response on error
+        }
+      });
   }
 
 }
