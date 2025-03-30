@@ -2,12 +2,18 @@ import { Component, ElementRef, inject, ViewChild } from '@angular/core';
 import { GeminiService } from '../../../services/gemini.service';
 import { finalize } from 'rxjs/operators';
 import { marked } from 'marked';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-diagnosis',
-  standalone: false,
+  standalone: true,
   templateUrl: './diagnosis.component.html',
-  styleUrl: './diagnosis.component.css'
+  styleUrl: './diagnosis.component.css',
+  imports:[
+    CommonModule,
+    FormsModule
+  ]
 })
 export class DiagnosisComponent {
 
@@ -19,6 +25,7 @@ export class DiagnosisComponent {
 
   public responseText: string = '';
   public formattedResponse: string = '';
+  public promptValueText: string = '';
 
   public sendPrompt() {
     this.isLoading = true;

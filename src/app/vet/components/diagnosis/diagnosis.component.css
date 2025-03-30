@@ -30,6 +30,18 @@
   cursor: pointer;
 }
 
+.disabled {
+  color: gray;
+  border: 1px solid gray;
+  cursor: unset;
+}
+
+.disabled:hover {
+  background-color: transparent;
+  color: gray;
+  border: 1px solid gray;
+}
+
 #prompt {
   width: 300px;
   height: 150px;

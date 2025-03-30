@@ -7,12 +7,15 @@
       id="prompt"
       class="no-resize"
       #promptValue
+      [(ngModel)]="promptValueText"
     ></textarea>
 
     <button
       class="send-btn pointer"
       id="send-btn"
       (click)="sendPrompt()"
+      [disabled]="!promptValueText.trim()"
+      [ngClass]="{ 'disabled': !promptValueText.trim() }"
     >
       Preguntar
     </button>
