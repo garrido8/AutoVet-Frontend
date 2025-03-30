@@ -1,9 +1,11 @@
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+
 import { Component, ElementRef, inject, ViewChild } from '@angular/core';
-import { GeminiService } from '../../../services/gemini.service';
 import { finalize } from 'rxjs/operators';
 import { marked } from 'marked';
-import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+
+import { GeminiService } from '../../../services/gemini.service';
 
 @Component({
   selector: 'app-diagnosis',

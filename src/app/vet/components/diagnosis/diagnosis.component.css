@@ -56,6 +56,32 @@
   resize: none;
 }
 
+.response-container {
+  width: 550px;
+  max-height: 600px;
+  height: 100%;
+  padding-right: 30px;
+  overflow-y: auto;
+}
+
+/* Style the scrollbar for this specific element */
+.response-container::-webkit-scrollbar {
+  width: 10px;
+}
+
+.response-container::-webkit-scrollbar-track {
+  background: var( --main-background );
+}
+
+.response-container::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+.response-container::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
 .modal {
   position: fixed;
   top: 0;

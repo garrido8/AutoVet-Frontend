@@ -22,7 +22,9 @@
   </div>
 
   @if ( responseText.length > 0 ) {
-    <div class="response" id="response" [innerHTML]="formattedResponse"></div>
+    <div class="response-container">
+      <div class="response" id="response" [innerHTML]="formattedResponse"></div>
+    </div>
   }
 
 </div>
