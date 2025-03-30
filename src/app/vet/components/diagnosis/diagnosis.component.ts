@@ -22,7 +22,7 @@ export class DiagnosisComponent {
 
     try {
       // Await the response from GeminiService
-      this.responseText = await this.gemini.generateContent(this.promptValue?.nativeElement.value);
+      this.responseText = await this.gemini.formalConversation(this.promptValue?.nativeElement.value);
     } catch (error) {
       console.error('Error generating content:', error);
       this.responseText = 'There was an error processing your request.';
