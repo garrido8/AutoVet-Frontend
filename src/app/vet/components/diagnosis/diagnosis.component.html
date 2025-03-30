@@ -1,18 +1,36 @@
+<div class="main-content" id="main-content">
 
-<input
-  type="text"
-  name="prompt"
-  id="prompt"
-  #promptValue
->
+  <div class="question" id="question">
+    <textarea
+      type="text"
+      name="prompt"
+      id="prompt"
+      class="no-resize"
+      #promptValue
+    ></textarea>
 
-<button
-  (click)="sendPrompt()"
->
-  Enviar
-</button>
+    <button
+      class="send-btn pointer"
+      id="send-btn"
+      (click)="sendPrompt()"
+    >
+      Preguntar
+    </button>
+  </div>
 
-@if ( responseText.length > 0 ) {
-  {{responseText}}
+  @if ( responseText.length > 0 ) {
+    <div class="response" id="response">
+      {{responseText}}
+    </div>
+  }
+
+</div>
+
+@if ( isLoading ) {
+  <div class="modal">
+    <div class="modal-content">
+      <span class="loader"></span>
+      <p class="modal-text">Cargando respuesta...</p>
+    </div>
+  </div>
 }
-
