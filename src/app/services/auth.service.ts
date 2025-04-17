@@ -1,5 +1,7 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { Client } from '../interfaces/client.interface';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
@@ -8,7 +10,9 @@ export class AuthService {
 
   private isLoggedIn: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
-  constructor() { }
+  private apiUrl = 'http://127.0.0.1:8000/clients';
+
+  private http: HttpClient = inject(HttpClient)
 
   // Getter - para que otros puedan escuchar sin modificar directamente
   getIsLoggedIn(): Observable<boolean> {
@@ -18,5 +22,9 @@ export class AuthService {
   // Setter - para cambiar el estado de login
   setIsLoggedIn(value: boolean): void {
     this.isLoggedIn.next(value);
+  }
+
+  public getUserPerEmail(email: string): Observable<Client[]> {
+    return this.http.get<Client[]>(`${this.apiUrl}?email=${email}`);
   }
 }
