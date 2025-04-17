@@ -7,7 +7,7 @@ import { ContactComponent } from './vet/components/contact/contact.component';
 
 const routes: Routes = [
   {
-    path: 'home',
+    path: 'question',
     component: DiagnosisComponent
   },
   {
@@ -22,7 +22,11 @@ const routes: Routes = [
     path: 'contact',
     component: ContactComponent
   },
-  { path: '', redirectTo: '/home', pathMatch: 'full' },
+  {
+    path: 'auth',
+    loadChildren: () => import( './auth/auth-routing.module' ).then( m => m.AuthRoutingModule )
+  },
+  { path: '', redirectTo: '/question', pathMatch: 'full' },
 ];
 
 @NgModule({
