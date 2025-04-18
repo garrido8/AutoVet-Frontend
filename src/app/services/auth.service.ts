@@ -10,7 +10,7 @@ export class AuthService {
 
   private isLoggedIn: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
-  private apiUrl = 'http://127.0.0.1:8000/clients';
+  private apiUrl = 'http://127.0.0.1:8000/clients/';
 
   private http: HttpClient = inject(HttpClient)
 
@@ -27,4 +27,10 @@ export class AuthService {
   public getUserPerEmail(email: string): Observable<Client[]> {
     return this.http.get<Client[]>(`${this.apiUrl}?email=${email}`);
   }
+
+  public addUser(client: Client): Observable<Client> {
+    console.log(client);
+    return this.http.post<Client>(this.apiUrl, client);
+  }
+
 }

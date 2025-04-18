@@ -2,6 +2,12 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  height: 80vh;
+}
+
+.title {
+  padding-bottom: 40px;
 }
 
 .input-container {
@@ -42,7 +48,27 @@ label {
   transition: background-color 0.3s, color 0.3s;
 }
 
+.submit-button:disabled {
+  color: gray;
+  border: 1px solid gray;
+  cursor: not-allowed;
+}
+
+.submit-button:disabled:hover {
+  background-color: transparent;
+  color: gray;
+}
+
 .submit-button:hover {
   background-color: white;
   color: black;
+}
+
+.register-container {
+  margin-top: 10%;
+}
+
+.go-to-register {
+  text-decoration: none;
+  color: white;
 }

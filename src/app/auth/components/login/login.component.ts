@@ -1,8 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthRoutingModule } from '../../auth-routing.module';
 import { AuthService } from '../../../services/auth.service';
+import { StyleService } from '../../../services/style.service';
+import { UserInfoService } from '../../../services/user-info.service';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -12,19 +15,31 @@ import { AuthService } from '../../../services/auth.service';
   imports: [
     CommonModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    RouterModule
   ]
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit, OnDestroy {
+
 
   private fb = inject(FormBuilder)
 
   private authService = inject(AuthService)
+  private styleService = inject( StyleService )
+  private userInfo = inject( UserInfoService )
 
   public form = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', Validators.required]
   });
+
+  ngOnInit(): void {
+    this.styleService.setHeaderOff(true);
+  }
+
+  ngOnDestroy(): void {
+    this.styleService.setHeaderOff(false);
+  }
 
   public logIn(): void {
     if (this.form.valid) {
