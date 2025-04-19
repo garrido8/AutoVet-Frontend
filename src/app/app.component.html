@@ -1,6 +1,6 @@
 @if( !headerOff ) {
-  @if (isLoggedIn) {
-    <header-component></header-component>
+  @if ( isLoggedIn ) {
+    <header-component [isClient]="isClient"></header-component>
   } @else {
     <no-login-header></no-login-header>
   }

@@ -1,6 +1,7 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { AfterViewInit, Component, inject, OnInit, Output } from '@angular/core';
 import { AuthService } from './services/auth.service';
 import { StyleService } from './services/style.service';
+import { UserInfoService } from './services/user-info.service';
 
 @Component({
   selector: 'app-root',
@@ -8,19 +9,28 @@ import { StyleService } from './services/style.service';
   standalone: false,
   styleUrl: './app.component.css'
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, AfterViewInit {
+
   title = 'vetManagement';
 
   private authService = inject(AuthService);
   private styleService = inject( StyleService );
+  private userInfoService = inject( UserInfoService );
 
   public isLoggedIn: boolean = false
 
+  // ngOnInit(): void {
+  //   this.isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+  // }
+
   public headerOff: boolean = false
 
+  @Output() public isClient: boolean = false
+
   ngOnInit(): void {
+
     this.authService.getIsLoggedIn()
-      .subscribe((isLoggedIn: boolean) => {
+    .subscribe((isLoggedIn: boolean) => {
         this.isLoggedIn = isLoggedIn;
       });
 
@@ -29,5 +39,17 @@ export class AppComponent implements OnInit {
         this.headerOff = headerOff;
       }
     )
+
+    this.userInfoService.getUserInfo()
+      .subscribe( response => {
+        if( response.email.includes('correo') ) {
+          this.isClient = true
+        }
+      })
   }
+
+  ngAfterViewInit(): void {
+    this.isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+  }
+
 }

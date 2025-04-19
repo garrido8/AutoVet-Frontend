@@ -22,6 +22,7 @@ export class AuthService {
   // Setter - para cambiar el estado de login
   setIsLoggedIn(value: boolean): void {
     this.isLoggedIn.next(value);
+    localStorage.setItem('isLoggedIn', value.toString());
   }
 
   public getUserPerEmail(email: string): Observable<Client[]> {
@@ -31,6 +32,11 @@ export class AuthService {
   public addUser(client: Client): Observable<Client> {
     console.log(client);
     return this.http.post<Client>(this.apiUrl, client);
+  }
+
+  public logout(): void {
+    this.setIsLoggedIn(false);
+    localStorage.removeItem('isLoggedIn');
   }
 
 }

@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 import { StyleService } from '../../../services/style.service';
 import { UserInfoService } from '../../../services/user-info.service';
@@ -26,6 +26,8 @@ export class RegisterComponent {
     private authService = inject(AuthService)
     private styleService = inject( StyleService )
     private userInfo = inject( UserInfoService )
+
+    private router = inject(Router)
 
     public form = this.fb.group({
       name: ['', Validators.required],
@@ -55,6 +57,7 @@ export class RegisterComponent {
         this.authService.addUser(newClient).subscribe({
           next: (createdClient) => {
             this.form.reset()
+            this.router.navigate(['/auth/login'])
           },
           error: (err) => {
             console.error('Error al crear usuario:', err);
