@@ -42,10 +42,11 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     this.userInfoService.getUserInfo()
       .subscribe( response => {
-        if( response.email.includes('correo') ) {
+        if (response ) {
           this.isClient = true
         }
       })
+
   }
 
   ngAfterViewInit(): void {

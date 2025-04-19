@@ -67,7 +67,8 @@ export class LoginComponent implements OnInit, OnDestroy {
               if( this.form.value.password === response[0].password) {
                 console.log('Login exitoso! 🎉');
                 this.authService.setIsLoggedIn(true);
-                this.userInfoService.setUserInfo( response[0] );
+                console.log(response[0]);
+                this.userInfoService.setStaffInfo( response[0] );
                 this.router.navigate( ['/question'] );
               } else {
                 console.log('Contraseña incorrecta 😬');
