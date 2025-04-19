@@ -55,6 +55,7 @@ export class LoginComponent implements OnInit, OnDestroy {
                 this.authService.setIsLoggedIn(true);
                 this.userInfoService.setUserInfo( response[0] );
                 this.router.navigate( ['/question'] );
+                localStorage.setItem('isClient', 'true');
               } else {
                 console.log('Contraseña incorrecta 😬');
               }
@@ -67,8 +68,8 @@ export class LoginComponent implements OnInit, OnDestroy {
               if( this.form.value.password === response[0].password) {
                 console.log('Login exitoso! 🎉');
                 this.authService.setIsLoggedIn(true);
-                console.log(response[0]);
                 this.userInfoService.setStaffInfo( response[0] );
+                localStorage.setItem('isClient', 'false');
                 this.router.navigate( ['/question'] );
               } else {
                 console.log('Contraseña incorrecta 😬');

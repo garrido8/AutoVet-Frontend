@@ -25,8 +25,6 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   public headerOff: boolean = false
 
-  @Output() public isClient: boolean = false
-
   ngOnInit(): void {
 
     this.authService.getIsLoggedIn()
@@ -39,13 +37,6 @@ export class AppComponent implements OnInit, AfterViewInit {
         this.headerOff = headerOff;
       }
     )
-
-    this.userInfoService.getUserInfo()
-      .subscribe( response => {
-        if (response ) {
-          this.isClient = true
-        }
-      })
 
   }
 

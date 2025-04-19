@@ -20,13 +20,14 @@ export class HeaderComponent  {
   private router = inject( Router )
 
 
-  @Input() public isClient: boolean = false
+  public isClient: boolean = localStorage.getItem('isClient') === 'true' ? true : false
 
 
   public logOut(): void {
     this.userInfo.setUserInfo( {} as Client );
     this.authService.logout();
     this.router.navigate(['/auth/login']);
+    localStorage.removeItem('isClient');
   }
 
 }
