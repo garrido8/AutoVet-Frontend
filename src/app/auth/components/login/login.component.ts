@@ -45,21 +45,36 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   public logIn(): void {
     if (this.form.valid) {
-      // console.log('Email:', this.form.value.email);
-      // console.log('Password:', this.form.value.password);
-      this.authService.getUserPerEmail(this.form.value.email!).subscribe(
-        response => {
-          if (response.length > 0) {
-            if( this.form.value.password === response[0].password) {
-              console.log('Login exitoso! 🎉');
-              this.authService.setIsLoggedIn(true);
-              this.userInfoService.setUserInfo( response[0] );
-              this.router.navigate( ['/question'] );
-            } else {
-              console.log('Contraseña incorrecta 😬');
+
+      if (this.form.value.email?.includes('correo')) {
+        this.authService.getUserPerEmail(this.form.value.email!).subscribe(
+          response => {
+            if (response.length > 0) {
+              if( this.form.value.password === response[0].password) {
+                console.log('Login exitoso! 🎉');
+                this.authService.setIsLoggedIn(true);
+                this.userInfoService.setUserInfo( response[0] );
+                this.router.navigate( ['/question'] );
+              } else {
+                console.log('Contraseña incorrecta 😬');
+              }
             }
-          }
-        })
+          })
+      } else {
+        this.authService.getStaffPerEmail(this.form.value.email!).subscribe(
+          response => {
+            if (response.length > 0) {
+              if( this.form.value.password === response[0].password) {
+                console.log('Login exitoso! 🎉');
+                this.authService.setIsLoggedIn(true);
+                this.userInfoService.setUserInfo( response[0] );
+                this.router.navigate( ['/question'] );
+              } else {
+                console.log('Contraseña incorrecta 😬');
+              }
+            }
+          })
+      }
     } else {
       console.log('Formulario inválido 😬');
       this.form.markAllAsTouched(); // Para mostrar errores si los hay

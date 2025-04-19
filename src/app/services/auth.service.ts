@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Client } from '../interfaces/client.interface';
 import { HttpClient } from '@angular/common/http';
+import { Staff } from '../interfaces/staff.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,8 @@ export class AuthService {
 
   private isLoggedIn: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
-  private apiUrl = 'http://127.0.0.1:8000/clients/';
+  private clientsUrl = 'http://127.0.0.1:8000/clients/';
+  private staffUrl = 'http://127.0.0.1:8000/staff/';
 
   private http: HttpClient = inject(HttpClient)
 
@@ -26,12 +28,16 @@ export class AuthService {
   }
 
   public getUserPerEmail(email: string): Observable<Client[]> {
-    return this.http.get<Client[]>(`${this.apiUrl}?email=${email}`);
+    return this.http.get<Client[]>(`${this.clientsUrl}?email=${email}`);
+  }
+
+  public getStaffPerEmail(email: string): Observable<Staff[]> {
+    return this.http.get<Staff[]>(`${this.staffUrl}?email=${email}`);
   }
 
   public addUser(client: Client): Observable<Client> {
     console.log(client);
-    return this.http.post<Client>(this.apiUrl, client);
+    return this.http.post<Client>(this.clientsUrl, client);
   }
 
   public logout(): void {
