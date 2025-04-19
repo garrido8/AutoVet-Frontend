@@ -4,8 +4,13 @@ import { DiagnosisComponent } from './vet/components/diagnosis/diagnosis.compone
 import { ChatbotComponent } from './vet/components/chatbot/chatbot.component';
 import { FoodsComponent } from './vet/components/foods/foods.component';
 import { ContactComponent } from './vet/components/contact/contact.component';
+import { HomeComponent } from './general/components/home/home.component';
 
 const routes: Routes = [
+  {
+    path: 'home',
+    component: HomeComponent
+  },
   {
     path: 'question',
     component: DiagnosisComponent
@@ -26,7 +31,7 @@ const routes: Routes = [
     path: 'auth',
     loadChildren: () => import( './auth/auth-routing.module' ).then( m => m.AuthRoutingModule )
   },
-  { path: '', redirectTo: '/question', pathMatch: 'full' },
+  { path: '', redirectTo: '/home', pathMatch: 'full' },
 ];
 
 @NgModule({

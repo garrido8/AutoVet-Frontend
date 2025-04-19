@@ -54,7 +54,7 @@ export class LoginComponent implements OnInit, OnDestroy {
                 console.log('Login exitoso! 🎉');
                 this.authService.setIsLoggedIn(true);
                 this.userInfoService.setUserInfo( response[0] );
-                this.router.navigate( ['/question'] );
+                this.router.navigate( ['/home'] );
                 localStorage.setItem('isClient', 'true');
               } else {
                 console.log('Contraseña incorrecta 😬');
@@ -70,7 +70,7 @@ export class LoginComponent implements OnInit, OnDestroy {
                 this.authService.setIsLoggedIn(true);
                 this.userInfoService.setStaffInfo( response[0] );
                 localStorage.setItem('isClient', 'false');
-                this.router.navigate( ['/question'] );
+                this.router.navigate( ['/home'] );
               } else {
                 console.log('Contraseña incorrecta 😬');
               }

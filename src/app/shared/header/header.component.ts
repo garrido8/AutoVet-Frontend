@@ -26,8 +26,9 @@ export class HeaderComponent  {
   public logOut(): void {
     this.userInfo.setUserInfo( {} as Client );
     this.authService.logout();
-    this.router.navigate(['/auth/login']);
     localStorage.removeItem('isClient');
+    localStorage.removeItem('isLoggedIn');
+    this.router.navigate(['/home']);
   }
 
 }
