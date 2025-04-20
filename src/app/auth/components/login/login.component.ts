@@ -1,11 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { AuthRoutingModule } from '../../auth-routing.module';
 import { AuthService } from '../../../services/auth.service';
 import { StyleService } from '../../../services/style.service';
 import { UserInfoService } from '../../../services/user-info.service';
 import { Router, RouterModule } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -28,6 +28,8 @@ export class LoginComponent implements OnInit, OnDestroy {
   private styleService = inject( StyleService )
   private userInfoService = inject( UserInfoService )
 
+  private subscriptions = new Subscription();
+
   private router = inject( Router )
 
   public form = this.fb.group({
@@ -41,13 +43,14 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.styleService.setHeaderOff(false);
+    this.subscriptions.unsubscribe();
   }
 
   public logIn(): void {
     if (this.form.valid) {
 
       if (this.form.value.email?.includes('correo')) {
-        this.authService.getUserPerEmail(this.form.value.email!).subscribe(
+        const getUser = this.authService.getUserPerEmail(this.form.value.email!).subscribe(
           response => {
             if (response.length > 0) {
               if( this.form.value.password === response[0].password) {
@@ -61,8 +64,11 @@ export class LoginComponent implements OnInit, OnDestroy {
               }
             }
           })
+
+        this.subscriptions.add(getUser);
+
       } else {
-        this.authService.getStaffPerEmail(this.form.value.email!).subscribe(
+        const getStaff = this.authService.getStaffPerEmail(this.form.value.email!).subscribe(
           response => {
             if (response.length > 0) {
               if( this.form.value.password === response[0].password) {
@@ -76,6 +82,7 @@ export class LoginComponent implements OnInit, OnDestroy {
               }
             }
           })
+        this.subscriptions.add(getStaff);
       }
     } else {
       console.log('Formulario inválido 😬');
