@@ -22,3 +22,13 @@ h3 {
   justify-content: center;
   padding-top: 30px;
 }
+
+.cards-div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 50px;
+}
+
+.description {
+  max-width: 600px;
+}
