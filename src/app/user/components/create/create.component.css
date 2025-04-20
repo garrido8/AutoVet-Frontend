@@ -139,3 +139,13 @@ textarea {
       transform: rotate(360deg);
   }
   }
+
+  .close-btn {
+    background-color: rgb(58, 104, 172);
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 10px;
+    transition: all 350ms;
+    width: fit-content;
+  }

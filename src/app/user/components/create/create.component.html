@@ -63,3 +63,18 @@
     </div>
   </div>
 }
+
+@if ( exit ) {
+  <div class="modal">
+    <div class="modal-content">
+      <p class="modal-text">Su incidencia se ha añadido de forma exitosa</p>
+      <button
+        class="close-btn pointer"
+        id="close-btn"
+        (click)="exit = false"
+      >
+        Cerrar
+      </button>
+    </div>
+  </div>
+}

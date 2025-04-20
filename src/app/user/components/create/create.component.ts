@@ -34,6 +34,8 @@ export class CreateComponent implements OnInit {
 
   public isLoading: boolean = false;
 
+  public exit: boolean = false;
+
   @ViewChild('problemTxt') problemTxt?: ElementRef;
 
   public problemTxtValue: string = '';
@@ -77,7 +79,9 @@ export class CreateComponent implements OnInit {
 
               this.appoinmentService.addAppoinment( appoinment )
                 .subscribe( response => {
-                  console.log( response )
+                  this.exit = true;
+                  this.problemTxtValue = ''
+                  this.selectedPet = undefined
                 }
                 )
             } )
