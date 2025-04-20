@@ -1,11 +1,4 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
 .main-content {
-  height: 100%;
   margin: 0;
   display: flex;
   flex-direction: column;
@@ -17,34 +10,9 @@
   flex-direction: column;
 }
 
-.hero-content h1 {
-  font-size: 3rem;
-  margin-bottom: 10px;
-}
-
-.hero-content p {
-  font-size: 1.3rem;
-  margin-bottom: 20px;
-}
-
-.btn {
-  display: inline-block;
-  background-color: #0984e3;
-  color: white;
-  padding: 12px 24px;
-  border-radius: 10px;
-  text-decoration: none;
-  transition: background-color 0.3s;
-}
-
-.btn:hover {
-  background-color: #0652dd;
-}
-
 .section {
-  padding: 60px 20px;
+  padding: 45px 20px;
   text-align: center;
-  flex-shrink: 0;
 }
 
 .cards {
@@ -76,6 +44,6 @@ footer {
   background-color: #0077b6;
   color: white;
   text-align: center;
-  padding: 20px;
+  padding: 10px;
   flex-shrink: 0;
 }
