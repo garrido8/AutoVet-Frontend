@@ -6,10 +6,10 @@ export interface Appoinment {
   petName?:             string;
   titulo:               string;
   descripcion:          string;
-  fecha_creacion:       Date;
-  fecha_resolucion:     Date;
-  estado:               string;
-  urgencia:             boolean;
-  archivo_adjuntado:    null;
-  trabajador_asignado:  Staff;
+  fecha_creacion?:       Date;
+  fecha_resolucion?:     Date;
+  estado:                "pendiente" | "en_proceso" | "resuelta";
+  urgencia?:             boolean;
+  archivo_adjuntado?:    null;
+  trabajador_asignado?:  Staff;
 }
