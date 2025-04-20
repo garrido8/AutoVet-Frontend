@@ -1,1 +1,29 @@
-<p>pets works!</p>
+<div class="main-content">
+
+  <div class="upper-part">
+    <h2>Mis mascotas</h2>
+    <p>En esta sección podrás ver todas tus mascotas y sus incidencias pendientes.</p>
+  </div>
+
+  @for (pet of pets; track $index) {
+    <div class="card">
+
+      <div class="photo">
+        Foto mascota
+      </div>
+
+      <div class="pet-info">
+        <p>{{ pet.nombre }}</p>
+        <p>{{ pet.especie }}</p>
+        <p>{{ pet.raza }}</p>
+        @if ( pet.appoinments.length > 0 ) {
+          <p>Incidencias: {{pet.appoinments.length}}</p>
+        } @else {
+          <p>Sin incidencias pendientes</p>
+        }
+      </div>
+
+    </div>
+  }
+
+</div>

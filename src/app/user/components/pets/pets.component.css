@@ -1,0 +1,22 @@
+.upper-part {
+  padding-bottom: 50px;
+}
+
+.main-content {
+  padding: 0px 40px 0px 40px;
+}
+
+.card {
+  display: flex;
+  gap: 30px;
+  padding: 20px;
+  border: 1px solid white;
+  border-radius: 10px;
+  width: fit-content;
+}
+
+.photo {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
