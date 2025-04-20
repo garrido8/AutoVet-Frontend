@@ -1,1 +1,28 @@
-<p>appoinments works!</p>
+<div class="main-content">
+  <div class="title">
+    <h2>Mis Incidencias</h2>
+    <p>Consulta las incidencias de tus mascotas y su estado</p>
+  </div>
+
+  @if( appoinments.length > 0 ) {
+    <div class="cards-div">
+      @for (appoinment of appoinments; track $index) {
+        <div class="card">
+          <div class="card-header">
+            <h3>{{ appoinment.petName }} - {{ appoinment.titulo }}</h3>
+            <p>{{ appoinment.descripcion }}</p>
+          </div>
+          <div class="card-body">
+            <p>Estado: {{ appoinment.estado }}</p>
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="no-appoinments">
+      <p>¡Enhorabuena! Ninguna de tus mascotas tiene ninguna incidencia</p>
+    </div>
+  }
+</div>
+
+
