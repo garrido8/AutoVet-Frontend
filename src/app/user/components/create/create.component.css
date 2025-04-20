@@ -149,3 +149,9 @@ textarea {
     transition: all 350ms;
     width: fit-content;
   }
+
+
+  .icon {
+    color: rgb(58, 104, 172);
+    font-size: 60px;
+  }
