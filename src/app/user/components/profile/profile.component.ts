@@ -2,6 +2,7 @@ import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { UserInfoService } from '../../../services/user-info.service';
 import { Client } from '../../../interfaces/client.interface';
 import { Subscription } from 'rxjs';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-profile',
@@ -12,27 +13,24 @@ import { Subscription } from 'rxjs';
 export class ProfileComponent implements OnInit, OnDestroy{
 
   private userInfoService = inject( UserInfoService )
+  private authService = inject( AuthService)
 
   private subscriptions = new Subscription()
 
   public user?: Client
 
-  ngOnInit(): void {
-    const userSub = this.userInfoService.getUserInfo().subscribe({
-      next: user => {
-        if (user) {
-          console.log('Usuario recibido:', user);
-          this.user = user;
-        } else {
-          console.log('No hay usuario disponible');
-        }
-      },
-      error: err => {
-        console.error('Error al obtener user info:', err);
-      }
-    });
+  private userEmail: string | null = null;
 
-    this.subscriptions.add(userSub);
+  ngOnInit(): void {
+    this.userEmail = this.userInfoService.getToken();
+    if (this.userEmail) {
+      const userSub = this.authService.getUserPerEmail(this.userEmail)
+        .subscribe( response => {
+          if (response.length > 0) {
+            this.user = response[0];
+          }
+        })
+    }
   }
 
   ngOnDestroy(): void {

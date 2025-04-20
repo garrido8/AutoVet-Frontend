@@ -2,11 +2,14 @@ import { Injectable } from '@angular/core';
 import { Client } from '../interfaces/client.interface';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { Staff } from '../interfaces/staff.interface';
+import * as CryptoJS from 'crypto-js';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserInfoService {
+
+  private SECRET_KEY = 'dD92!r8&n$1Lm#tY*V@wQz4Rb7%JcXoL';
 
   private userInfo: BehaviorSubject<Client | null> = new BehaviorSubject<Client | null>(null);
   private staffInfo: BehaviorSubject<Staff | null> = new BehaviorSubject<Staff | null>(null);
@@ -25,6 +28,20 @@ export class UserInfoService {
 
   public getStaffInfo(): Observable<Staff | null> {
     return this.staffInfo.asObservable();
+  }
+
+  public setToken( email: string ): void {
+    const encryptedEmail = CryptoJS.AES.encrypt(email, this.SECRET_KEY).toString();
+    localStorage.setItem('token', encryptedEmail);
+  }
+
+  public getToken(): string | null {
+    const encryptedEmail = localStorage.getItem('token');
+    if (!encryptedEmail) return null;
+
+    const bytes = CryptoJS.AES.decrypt(encryptedEmail, this.SECRET_KEY);
+    const decryptedEmail = bytes.toString(CryptoJS.enc.Utf8);
+    return decryptedEmail;
   }
 
 }

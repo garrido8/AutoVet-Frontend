@@ -56,7 +56,7 @@ export class LoginComponent implements OnInit, OnDestroy {
               if( this.form.value.password === response[0].password) {
                 console.log('Login exitoso! 🎉');
                 this.authService.setIsLoggedIn(true);
-                this.userInfoService.setUserInfo( response[0] );
+                this.userInfoService.setToken( response[0].email );
                 this.router.navigate( ['/home'] );
                 localStorage.setItem('isClient', 'true');
               } else {
@@ -74,7 +74,7 @@ export class LoginComponent implements OnInit, OnDestroy {
               if( this.form.value.password === response[0].password) {
                 console.log('Login exitoso! 🎉');
                 this.authService.setIsLoggedIn(true);
-                this.userInfoService.setStaffInfo( response[0] );
+                this.userInfoService.setToken( response[0].email );
                 localStorage.setItem('isClient', 'false');
                 this.router.navigate( ['/home'] );
               } else {
