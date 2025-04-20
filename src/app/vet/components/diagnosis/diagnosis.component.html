@@ -1,6 +1,14 @@
+
+<div class="title">
+  <h2>Haz tu pregunta aquí</h2>
+</div>
+
 <div class="main-content" id="main-content">
 
+
   <div class="question" id="question">
+
+
     <textarea
       type="text"
       name="prompt"
@@ -8,6 +16,7 @@
       class="no-resize"
       #promptValue
       [(ngModel)]="promptValueText"
+      placeholder="Escribe aquí tu pregunta. Por ejemplo: ¿Qué le pasa a mi perro? ¿Qué puedo hacer para ayudarlo?"
     ></textarea>
 
     <button
