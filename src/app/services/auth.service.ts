@@ -43,6 +43,7 @@ export class AuthService {
   public logout(): void {
     this.setIsLoggedIn(false);
     localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('token');
   }
 
 }

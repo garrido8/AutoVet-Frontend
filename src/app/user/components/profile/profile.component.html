@@ -1,1 +1,17 @@
-<h2>Hola {{ user?.name }}</h2>
+
+<div class="main-content">
+  <div class="greeting">
+    <h2>Hola {{ user?.name }}</h2>
+  </div>
+
+  <div class="profile-photo">
+    <p>Foto de perfil</p>
+  </div>
+
+  <div class="profile-info">
+    <h3>Información de perfil</h3>
+    <p><strong>Nombre:</strong> {{ user?.name }}</p>
+    <p><strong>DNI:</strong> {{user?.dni}}</p>
+    <p><strong>Email:</strong> {{ user?.email }}</p>
+    <p><strong>Teléfono:</strong> {{ user?.phone }}</p>
+</div>
