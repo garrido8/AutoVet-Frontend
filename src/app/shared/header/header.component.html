@@ -30,10 +30,11 @@
       <button
         class="btn logout-btn"
         id="logout-btn"
-        (click)="logOut()"
+        (click)="showMenu()"
       >
-        Cerrar sesión
+        Mi perfil
       </button>
+
     } @else {
 
       <button
@@ -83,8 +84,43 @@
 
     }
 
-
-
   </nav>
 
 </header>
+
+
+@if ( showingMenu ) {
+  <div class="menu">
+    <button
+      class="menu-btn profile-btn"
+      id="profile-btn"
+      routerLink="/user/profile"
+    >
+      Mis datos
+    </button>
+
+    <button
+      class="menu-btn profile-btn"
+      id="user-pets-btn"
+      routerLink="/user/pets"
+    >
+      Mis mascotas
+    </button>
+
+    <button
+      class="menu-btn profile-btn"
+      id="user-appoinments-btn"
+      routerLink="/user/appointments"
+    >
+      Mis incidencia
+    </button>
+
+    <button
+      class="menu-btn logout-btn"
+      id="logout-btn"
+      (click)="logOut()"
+    >
+      Cerrar sesión
+    </button>
+  </div>
+}

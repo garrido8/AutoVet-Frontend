@@ -1,9 +1,8 @@
-import { AfterViewInit, Component, inject, Input, input, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { UserInfoService } from '../../services/user-info.service';
 import { Client } from '../../interfaces/client.interface';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
-import { StyleService } from '../../services/style.service';
 
 @Component({
   selector: 'header-component',
@@ -19,6 +18,8 @@ export class HeaderComponent  {
 
   private router = inject( Router )
 
+  public showingMenu: boolean = false
+
 
   public isClient: boolean = localStorage.getItem('isClient') === 'true' ? true : false
 
@@ -29,6 +30,10 @@ export class HeaderComponent  {
     localStorage.removeItem('isClient');
     localStorage.removeItem('isLoggedIn');
     this.router.navigate(['/home']);
+  }
+
+  public showMenu(): void {
+    this.showingMenu = !this.showingMenu
   }
 
 }
