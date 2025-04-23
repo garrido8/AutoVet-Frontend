@@ -14,3 +14,7 @@
   export const generateSummaryName: string = 'Dame un nombre a modo de resumen de lo que te diga a continuación, omite nombres propios, céntrate solo en el problema. No escojas entre varios nombres, dime solo uno. No des el nombre en negrita ni con ninguna otra cosa, solo el nombre. No des más información que el nombre.'
 
   export const generateDescription: string = 'Dame un resumen profesional a modo de descripción del problema que te pongo a continuación'
+
+  export const breedsNames: string = 'Dime como mucho 60 razas que te sepas del animal que te pondré a continuación, no digas nada más que no sean los nombres. No pongas números en la respuesta'
+
+  export const foodsPropmt: string = 'Dime qué comidas son peligrosas para el animal y la raza que te voy a poner a continuación. Dime directamente las comidas y como mucho alguna recomendación al final, pero comienza diciendo directamente las comidas. Gracias.'
