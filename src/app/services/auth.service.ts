@@ -31,8 +31,17 @@ export class AuthService {
     return this.http.get<Client[]>(`${this.clientsUrl}?email=${email}`);
   }
 
+  public getUserPerId(id: number): Observable<Client> {
+    return this.http.get<Client>(`${this.clientsUrl}${id}/`);
+  }
+
   public getStaffPerEmail(email: string): Observable<Staff[]> {
     return this.http.get<Staff[]>(`${this.staffUrl}?email=${email}`);
+  }
+
+  public editStaffMember(id: number, staff: Staff): Observable<Staff> {
+    const url = `${this.staffUrl}${id}/`;
+    return this.http.put<Staff>(url, staff);
   }
 
   public addUser(client: Client): Observable<Client> {

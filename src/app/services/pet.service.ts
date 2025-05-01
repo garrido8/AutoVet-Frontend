@@ -16,6 +16,10 @@ export class PetService {
     return this.http.get<Pet[]>(this.petsUrl);
   }
 
+  public getPetById(id: number): Observable<Pet> {
+    return this.http.get<Pet>(`${this.petsUrl}${id}/`);
+  }
+
   public getPetByOwner(ownerId: number): Observable<Pet[]> {
     return this.http.get<Pet[]>(`${this.petsUrl}?propietario=${ownerId}`);
   }
