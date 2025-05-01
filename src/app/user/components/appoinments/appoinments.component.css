@@ -11,25 +11,23 @@
 
 .cards-div {
   padding-top: 40px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 50px;
+}
+
+.status {
+  text-transform: capitalize;
 }
 
 h3 {
   margin-top: 0;
-}
-.status {
-  text-transform: capitalize;
 }
 
 .no-appoinments {
   display: flex;
   justify-content: center;
   padding-top: 30px;
-}
-
-.cards-div {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 50px;
 }
 
 .description {

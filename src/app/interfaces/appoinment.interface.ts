@@ -11,5 +11,5 @@ export interface Appoinment {
   estado:                "pendiente" | "en_proceso" | "resuelta";
   urgencia?:             boolean;
   archivo_adjuntado?:    null;
-  trabajador_asignado?:  Staff;
+  trabajador_asignado?:  number;
 }

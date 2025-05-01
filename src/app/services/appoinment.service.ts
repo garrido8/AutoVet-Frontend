@@ -17,12 +17,25 @@ export class AppoinmentService {
     return this.http.get<Appoinment[]>(this.appoinmentUrl);
   }
 
-  public getAppoinmentByPet(petId: number): Observable<Appoinment[]> {
+  public getAppoinmentByPet( petId: number ): Observable<Appoinment[]> {
     return this.http.get<Appoinment[]>(`${this.appoinmentUrl}?mascota=${petId}`);
   }
 
   public addAppoinment(appoinment: Appoinment): Observable<Appoinment> {
     return this.http.post<Appoinment>(this.appoinmentUrl, appoinment);
+  }
+
+  public getNonAssignedAppoinments(): Observable<Appoinment[]> {
+    return this.http.get<Appoinment[]>(`${this.appoinmentUrl}?trabajador_asignado=null`);
+  }
+
+  public getAppoinmentsByWorkerId( id: number ): Observable<Appoinment[]> {
+    return this.http.get<Appoinment[]>(`${this.appoinmentUrl}?trabajador_asignado=${id}`);
+  }
+
+  public editAppoinment(id: number, appoinment: Appoinment): Observable<Appoinment> {
+    const url = `${this.appoinmentUrl}${id}/`;
+    return this.http.put<Appoinment>(url, appoinment);
   }
 
 }
