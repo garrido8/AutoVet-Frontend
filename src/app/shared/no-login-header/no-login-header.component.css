@@ -1,3 +1,7 @@
+h1 {
+  cursor: pointer;
+}
+
 .main {
   display: flex;
   padding: 30px 80px 30px 40px;

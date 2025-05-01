@@ -3,6 +3,7 @@ import { UserInfoService } from '../../../services/user-info.service';
 import { Client } from '../../../interfaces/client.interface';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../../services/auth.service';
+import { Staff } from '../../../interfaces/staff.interface';
 
 @Component({
   selector: 'app-profile',
@@ -17,19 +18,32 @@ export class ProfileComponent implements OnInit, OnDestroy{
 
   private subscriptions = new Subscription()
 
-  public user?: Client
+  public user?: Client | Staff | null = null;
 
   private userEmail: string | null = null;
 
   ngOnInit(): void {
     this.userEmail = this.userInfoService.getToken();
-    if (this.userEmail) {
+    // console.log('User Email in Component:', this.userEmail);
+    if ( this.userEmail ) {
       const userSub = this.authService.getUserPerEmail(this.userEmail)
         .subscribe( response => {
           if (response.length > 0) {
             this.user = response[0];
+          } else {
+            const staffSub = this.authService.getStaffPerEmail(this.userEmail!)
+              .subscribe( response => {
+                if (response.length > 0) {
+                  this.user = response[0];
+                  // console.log('Staff Data Received:', this.user);
+                } else {
+                  // console.log('No staff member found with this email.');
+                }
+              });
+            this.subscriptions.add(staffSub);
           }
-        })
+        });
+      this.subscriptions.add(userSub);
     }
   }
 
