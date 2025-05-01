@@ -1,22 +1,24 @@
 <div class="main-content">
 
   @if (clients.length > 0 ) {
-    @for (client of clients; track $index) {
-      <div class="card">
+    <div class="cards-div">
+      @for (client of clients; track $index) {
+        <div class="card">
 
-        <div class="photo">
-          Foto Usuario
+          <div class="photo">
+            Foto Usuario
+          </div>
+
+          <div class="pet-info">
+            <p>{{ client.name }}</p>
+            <p>{{ client.email }}</p>
+            <p>{{ client.phone }}</p>
+            <p>{{ client.dni }}</p>
+          </div>
+
         </div>
-
-        <div class="pet-info">
-          <p>{{ client.name }}</p>
-          <p>{{ client.email }}</p>
-          <p>{{ client.phone }}</p>
-          <p>{{ client.dni }}</p>
-        </div>
-
-      </div>
-    }
+      }
+    </div>
   } @else {
     <div class="no-clients">
       <h2>No tienes clientes asignados</h2>
