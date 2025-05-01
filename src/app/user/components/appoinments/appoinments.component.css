@@ -16,6 +16,9 @@
 h3 {
   margin-top: 0;
 }
+.status {
+  text-transform: capitalize;
+}
 
 .no-appoinments {
   display: flex;
