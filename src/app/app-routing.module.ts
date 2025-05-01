@@ -35,6 +35,10 @@ const routes: Routes = [
     path: 'user',
     loadChildren: () => import( './user/user-routing.module' ).then( m => m.UserRoutingModule )
   },
+  {
+    path: 'staff',
+    loadChildren: () => import( './staff/staff-routing.module' ).then( m => m.StaffRoutingModule )
+  },
   { path: '', redirectTo: '/home', pathMatch: 'full' },
 ];
 
