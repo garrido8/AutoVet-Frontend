@@ -24,6 +24,8 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   private fb = inject(FormBuilder)
 
+  public showError: boolean = false;
+
   private authService = inject(AuthService)
   private styleService = inject( StyleService )
   private userInfoService = inject( UserInfoService )
@@ -31,6 +33,8 @@ export class LoginComponent implements OnInit, OnDestroy {
   private subscriptions = new Subscription();
 
   private router = inject( Router )
+
+  public errorMsg: string = ''
 
   public form = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -60,8 +64,10 @@ export class LoginComponent implements OnInit, OnDestroy {
                 this.router.navigate( ['/home'] );
                 localStorage.setItem('isClient', 'true');
               } else {
-                console.log('Contraseña incorrecta 😬');
+                this.setErrorMessage( 'El correo o la contraseña son incorrectos' );
               }
+            } else {
+              this.setErrorMessage( 'No existe ningún usuario con este correo' );
             }
           })
 
@@ -78,8 +84,10 @@ export class LoginComponent implements OnInit, OnDestroy {
                 localStorage.setItem('isClient', 'false');
                 this.router.navigate( ['/home'] );
               } else {
-                console.log('Contraseña incorrecta 😬');
+                this.setErrorMessage( 'El correo o la contraseña son incorrectos');
               }
+            } else {
+              this.setErrorMessage( 'No existe ningún usuario con este correo' );
             }
           })
         this.subscriptions.add(getStaff);
@@ -88,6 +96,11 @@ export class LoginComponent implements OnInit, OnDestroy {
       console.log('Formulario inválido 😬');
       this.form.markAllAsTouched(); // Para mostrar errores si los hay
     }
+  }
+
+  public setErrorMessage( message: string ) {
+    this.showError = true;
+    this.errorMsg = message;
   }
 
 }

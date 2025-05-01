@@ -23,6 +23,12 @@
           </div>
         </div>
 
+        @if( showError ) {
+          <div class="error">
+            {{ errorMsg }}
+          </div>
+        }
+
         <div class="submit-container">
           <input type="submit" value="Iniciar sesión" class="submit-button" [disabled]="form.invalid">
         </div>
