@@ -20,16 +20,20 @@ export class UserInfoService {
 
   public setUserId( id: number ): void {
     const encryptedId = CryptoJS.AES.encrypt(id.toString(), this.SECRET_KEY).toString();
-    localStorage.setItem('userId', encryptedId);
+    localStorage.setItem('t45vjf', encryptedId);
   }
 
   public getUserId(): number | null {
-    const encryptedId = localStorage.getItem('userId');
+    const encryptedId = localStorage.getItem('t45vjf');
     if (!encryptedId) return null;
 
     const bytes = CryptoJS.AES.decrypt(encryptedId, this.SECRET_KEY);
     const decryptedId = bytes.toString(CryptoJS.enc.Utf8);
     return Number(decryptedId);
+  }
+
+  public removeUserId(): void {
+    localStorage.removeItem('t45vjf');
   }
 
   public getUserInfo(): Observable<Client | null> {

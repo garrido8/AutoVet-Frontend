@@ -17,11 +17,17 @@ h3 {
   margin: 15px 0px 15px 0px;
 }
 
+.center {
+  display: flex;
+  justify-content: center;
+}
+
 .icon {
   cursor: pointer;
 }
 
 .elements {
+  padding-top: 50px;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;

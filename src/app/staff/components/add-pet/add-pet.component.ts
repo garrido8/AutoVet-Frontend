@@ -16,6 +16,7 @@ export class AddPetComponent implements OnDestroy{
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
+    this.userInfoService.removeUserId();
   }
 
 }
