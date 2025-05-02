@@ -18,6 +18,20 @@ export class UserInfoService {
     this.userInfo.next( user );
   }
 
+  public setUserId( id: number ): void {
+    const encryptedId = CryptoJS.AES.encrypt(id.toString(), this.SECRET_KEY).toString();
+    localStorage.setItem('userId', encryptedId);
+  }
+
+  public getUserId(): number | null {
+    const encryptedId = localStorage.getItem('userId');
+    if (!encryptedId) return null;
+
+    const bytes = CryptoJS.AES.decrypt(encryptedId, this.SECRET_KEY);
+    const decryptedId = bytes.toString(CryptoJS.enc.Utf8);
+    return Number(decryptedId);
+  }
+
   public getUserInfo(): Observable<Client | null> {
     return this.userInfo.asObservable();
   }

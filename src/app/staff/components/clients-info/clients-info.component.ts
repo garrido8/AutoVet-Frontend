@@ -1,5 +1,5 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../../services/auth.service';
 import { Client } from '../../../interfaces/client.interface';
@@ -7,6 +7,7 @@ import { PetService } from '../../../services/pet.service';
 import { Pet } from '../../../interfaces/pet.interface';
 import { AppoinmentService } from '../../../services/appoinment.service';
 import { Appoinment } from '../../../interfaces/appoinment.interface';
+import { UserInfoService } from '../../../services/user-info.service';
 
 @Component({
   selector: 'app-clients-info',
@@ -17,9 +18,11 @@ import { Appoinment } from '../../../interfaces/appoinment.interface';
 export class ClientsInfoComponent implements OnInit, OnDestroy {
 
   private route = inject( ActivatedRoute );
+  private router = inject( Router );
   private authService = inject( AuthService );
   private petService = inject( PetService )
   private appoinmentService = inject( AppoinmentService );
+  private userInfoService = inject( UserInfoService)
 
   private suscriptions = new Subscription()
 
@@ -71,5 +74,10 @@ export class ClientsInfoComponent implements OnInit, OnDestroy {
 
   public togglePendingVisibility(): void {
     this.showPendingOnly = !this.showPendingOnly;
+  }
+
+  public goToAddPet(): void {
+    this.userInfoService.setUserId( this.client!.id! );
+    this.router.navigate([ '/staff/add-pet' ]);
   }
 }
