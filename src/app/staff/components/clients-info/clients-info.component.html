@@ -1,0 +1,50 @@
+<div class="main-content">
+  <h1>Información del cliente</h1>
+
+  <div class="elements">
+
+    <div class="client">
+      <h2>Cliente</h2>
+      <p><strong>Nombre:</strong> {{ client?.name }}</p>
+      <p><strong>DNI:</strong> {{client?.dni}}</p>
+      <p><strong>Email:</strong> {{ client?.email }}</p>
+      <p><strong>Teléfono:</strong> {{ client?.phone }}</p>
+    </div>
+
+    <div class="pets">
+      <h2>Mascotas</h2>
+      @for( pet of pets; track $index ) {
+        <p><b>Nombre:</b> {{ pet.nombre }}</p>
+        <p>{{ pet.especie }} - {{ pet.raza }}</p>
+        <p><b>Edad:</b> {{ pet.edad }} {{ getText(pet.edad) }}</p>
+      }
+    </div>
+
+    <div class="appointments">
+      <h2>Incidencias</h2>
+      @for( pet of pets; track $index ) {
+        <h3>{{ pet.nombre }}</h3>
+        <div class="pending">Pendientes: {{ countPendingAppointments(pet.appoinments) }}
+          <i class="icon material-icons"
+            (click)="togglePendingVisibility()"
+          >
+            {{ showPendingOnly ? 'keyboard_arrow_up' : 'keyboard_arrow_down' }}
+          </i>
+        </div>
+
+        <div class="appointments-info">
+          @for( appointment of pet.appoinments; track $index ) {
+            @if (showPendingOnly) {
+              <div class="appointment">
+                <p><b>Título:</b> {{ appointment.titulo }} </p>
+                <p class="capitalized"><b>Estado:</b> {{ appointment.estado }}</p>
+              </div>
+            }
+          }
+        </div>
+
+      }
+    </div>
+
+  </div>
+</div>

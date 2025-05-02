@@ -4,18 +4,26 @@ import { AuthService } from '../../../services/auth.service';
 import { UserInfoService } from '../../../services/user-info.service';
 import { Client } from '../../../interfaces/client.interface';
 import { Staff } from '../../../interfaces/staff.interface';
+import { CommonModule } from '@angular/common';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-clients',
-  standalone: false,
+  standalone: true,
   templateUrl: './clients.component.html',
-  styleUrl: './clients.component.css'
+  styleUrl: './clients.component.css',
+  imports: [
+    CommonModule,
+    RouterModule
+  ]
 })
 export class ClientsComponent implements OnInit, OnDestroy{
 
   private subscriptions = new Subscription();
   private userInfoService = inject( UserInfoService)
   private authService = inject( AuthService )
+
+  private router = inject( Router )
 
   public clients: Client[] = [];
 
@@ -49,5 +57,9 @@ export class ClientsComponent implements OnInit, OnDestroy{
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
   }
+
+  // public goToClient(client: Client) {
+  //   this.router.navigate(['/staff/client-info'])
+  // }
 
 }

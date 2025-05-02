@@ -3,7 +3,9 @@
   @if (clients.length > 0 ) {
     <div class="cards-div">
       @for (client of clients; track $index) {
-        <div class="card">
+        <div class="card"
+          routerLink="/staff/client-info/{{ client.id }}"
+        >
 
           <div class="photo">
             Foto Usuario
