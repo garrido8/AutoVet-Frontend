@@ -1,17 +1,17 @@
-
 <div class="main-content">
   <div class="greeting">
-    <h2>Hola {{ user?.name }}</h2>
+    <h2 class="greeting-text">Hola {{ user?.name }}</h2>
   </div>
 
   <div class="profile-photo">
-    <p>Foto de perfil</p>
+    <img src="https://via.placeholder.com/150" alt="Foto de perfil" class="profile-image">
   </div>
 
   <div class="profile-info">
-    <h3>Información de perfil</h3>
-    <p><strong>Nombre:</strong> {{ user?.name }}</p>
-    <p><strong>DNI:</strong> {{user?.dni}}</p>
-    <p><strong>Email:</strong> {{ user?.email }}</p>
-    <p><strong>Teléfono:</strong> {{ user?.phone }}</p>
+    <h3 class="profile-info-header">Información de perfil</h3>
+    <p><strong class="info-label">Nombre:</strong> <span class="info-value">{{ user?.name }}</span></p>
+    <p><strong class="info-label">DNI:</strong> <span class="info-value">{{user?.dni}}</span></p>
+    <p><strong class="info-label">Email:</strong> <span class="info-value">{{ user?.email }}</span></p>
+    <p><strong class="info-label">Teléfono:</strong> <span class="info-value">{{ user?.phone }}</span></p>
+  </div>
 </div>
