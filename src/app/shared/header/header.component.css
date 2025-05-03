@@ -47,7 +47,6 @@ header.main {
   box-shadow: 0 3px 0 0 orange;
 }
 
-
 .menu {
   display: flex;
   flex-direction: column;
@@ -57,9 +56,16 @@ header.main {
   top: 115px;
   right: 2rem;
   color: white;
-  background-color: transparent;
+  background-color: var(--main-background); /* Change to black */
   border: 1px solid white;
   border-radius: 8px;
   padding: 1rem;
   z-index: 9999;
+  opacity: 0; /* Start with 0 opacity */
+  transition: opacity 0.3s ease-in-out; /* Add transition */
+}
+
+.menu.show {
+  /* Class added when showingMenu is true */
+  opacity: 1; /* Fade in */
 }

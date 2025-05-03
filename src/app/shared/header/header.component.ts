@@ -1,8 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, ElementRef } from '@angular/core';
 import { UserInfoService } from '../../services/user-info.service';
 import { Client } from '../../interfaces/client.interface';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
+import { DOCUMENT } from '@angular/common';
 
 @Component({
   selector: 'header-component',
@@ -10,22 +11,32 @@ import { Router } from '@angular/router';
   templateUrl: './header.component.html',
   styleUrl: './header.component.css'
 })
-export class HeaderComponent  {
+export class HeaderComponent implements OnInit, OnDestroy {
+  private userInfo = inject(UserInfoService);
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  private document = inject(DOCUMENT);
+  public showingMenu: boolean = false;
+  public isClient: boolean = localStorage.getItem('isClient') === 'true' ? true : false;
+  private clickOutsideListener?: (event: MouseEvent) => void;
 
+  constructor(private elementRef: ElementRef) {}
 
-  private userInfo = inject( UserInfoService )
-  private authService = inject( AuthService )
+  ngOnInit(): void {
+    this.clickOutsideListener = (event: MouseEvent) => {
+      if (this.showingMenu && !this.elementRef.nativeElement.contains(event.target as Node)) {
+        this.showingMenu = false;
+      }
+    };
+    this.document.addEventListener('mousedown', this.clickOutsideListener);
+  }
 
-  private router = inject( Router )
-
-  public showingMenu: boolean = false
-
-
-  public isClient: boolean = localStorage.getItem('isClient') === 'true' ? true : false
-
+  ngOnDestroy(): void {
+    this.document.removeEventListener('mousedown', this.clickOutsideListener! );
+  }
 
   public logOut(): void {
-    this.userInfo.setUserInfo( {} as Client );
+    this.userInfo.setUserInfo({} as Client);
     this.authService.logout();
     localStorage.removeItem('isClient');
     localStorage.removeItem('isLoggedIn');
@@ -33,7 +44,10 @@ export class HeaderComponent  {
   }
 
   public showMenu(): void {
-    this.showingMenu = !this.showingMenu
+    this.showingMenu = !this.showingMenu;
   }
 
+  public closeMenu(): void {
+    this.showingMenu = false;
+  }
 }
