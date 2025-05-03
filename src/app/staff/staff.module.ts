@@ -13,10 +13,10 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 @NgModule({
   declarations: [
     // ClientsComponent,
-    StaffAppointmentsComponent,
+    // StaffAppointmentsComponent,
     ClientsInfoComponent,
     // AddPetComponent,
-    AppointmentInfoComponent
+    // AppointmentInfoComponent
   ],
   imports: [
     CommonModule,

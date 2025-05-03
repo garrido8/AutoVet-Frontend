@@ -21,6 +21,11 @@ export class AppoinmentService {
     return this.http.get<Appoinment[]>(`${this.appoinmentUrl}?mascota=${petId}`);
   }
 
+  public getAppoinmentById( id: number ): Observable<Appoinment> {
+    const url = `${this.appoinmentUrl}${id}/`;
+    return this.http.get<Appoinment>(url);
+  }
+
   public addAppoinment(appoinment: Appoinment): Observable<Appoinment> {
     return this.http.post<Appoinment>(this.appoinmentUrl, appoinment);
   }

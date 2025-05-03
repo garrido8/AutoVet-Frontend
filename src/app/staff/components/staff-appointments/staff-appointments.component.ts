@@ -7,12 +7,18 @@ import { UserInfoService } from '../../../services/user-info.service';
 import { AuthService } from '../../../services/auth.service';
 import { PetService } from '../../../services/pet.service';
 import { Client } from '../../../interfaces/client.interface';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-staff-appointments',
-  standalone: false,
+  standalone: true,
   templateUrl: './staff-appointments.component.html',
-  styleUrl: './staff-appointments.component.css'
+  styleUrl: './staff-appointments.component.css',
+  imports: [
+    CommonModule,
+    RouterModule,
+  ],
 })
 export class StaffAppointmentsComponent implements OnInit, OnDestroy {
 

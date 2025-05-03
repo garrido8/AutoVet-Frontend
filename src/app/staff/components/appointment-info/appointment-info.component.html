@@ -1,1 +1,40 @@
-<p>appointment-info works!</p>
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+  <div>
+    <h3>{{petName}}</h3>
+  </div>
+
+  <div>
+    <p><b>{{ appointment?.titulo }}</b></p>
+  </div>
+
+  <div>
+    <p><b>{{ appointment?.descripcion }}</b></p>
+  </div>
+
+  <div>
+    <p><b>{{ appointment?.fecha_creacion }}</b></p>
+  </div>
+
+  <div>
+    <label for="fecha_resolucion">Fecha de Resolución:</label>
+    <input type="datetime-local" id="fecha_resolucion" formControlName="fecha_resolucion" />
+  </div>
+
+  <div>
+    <label for="estado">Estado:</label>
+    <select id="estado" formControlName="estado">
+      <option *ngFor="let estado of estados" [value]="estado">{{ estado }}</option>
+    </select>
+     <div *ngIf="form.get('estado')?.invalid && (form.get('estado')?.dirty || form.get('estado')?.touched)">
+      <p>Estado es requerido</p>
+    </div>
+  </div>
+
+  <div>
+    <label for="urgencia">Urgencia:</label>
+    <input type="checkbox" id="urgencia" formControlName="urgencia" />
+  </div>
+
+  <input type="submit" value="Guardar" [disabled]="form.invalid" />
+</form>

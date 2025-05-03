@@ -8,7 +8,7 @@ export interface Appoinment {
   descripcion:          string;
   fecha_creacion?:       Date;
   fecha_resolucion?:     Date;
-  estado:                "pendiente" | "en_proceso" | "resuelta";
+  estado:                string;
   urgencia?:             boolean;
   archivo_adjuntado?:    null;
   trabajador_asignado?:  number;
