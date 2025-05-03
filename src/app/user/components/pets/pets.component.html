@@ -16,8 +16,8 @@
         <p>{{ pet.nombre }}</p>
         <p>{{ pet.especie }}</p>
         <p>{{ pet.raza }}</p>
-        @if ( pet.appoinments.length > 0 ) {
-          <p>Incidencias: {{pet.appoinments.length}}</p>
+        @if ( pet.appoinments!.length > 0 ) {
+          <p>Incidencias: {{pet.appoinments!.length}}</p>
         } @else {
           <p>Sin incidencias pendientes</p>
         }

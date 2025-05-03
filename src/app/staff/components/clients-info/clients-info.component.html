@@ -34,21 +34,25 @@
         <h2>Incidencias</h2>
         @for( pet of pets; track $index ) {
           <h3>{{ pet.nombre }}</h3>
-          <div class="pending">Pendientes: {{ countPendingAppointments(pet.appoinments) }}
+          <div class="pending">Pendientes: {{ countPendingAppointments(pet.appoinments!) }}
             <i class="icon material-icons"
-              (click)="togglePendingVisibility()"
+              (click)="togglePendingVisibility(pet.pk!)"
             >
-              {{ showPendingOnly ? 'keyboard_arrow_up' : 'keyboard_arrow_down' }}
+              {{ pendingVisibility[pet.pk!] ? 'keyboard_arrow_up' : 'keyboard_arrow_down' }}
             </i>
           </div>
 
           <div class="appointments-info">
-            @for( appointment of pet.appoinments; track $index ) {
-              @if (showPendingOnly) {
+            @for( appointment of getPendingAppointments(pet.appoinments!); track $index ) {
+              @if (pendingVisibility[pet.pk!]) {
                 <div class="appointment">
                   <p><b>Título:</b> {{ appointment.titulo }} </p>
                   <p class="capitalized"><b>Estado:</b> {{ appointment.estado }}</p>
                 </div>
+              }
+            } @empty {
+              @if (pendingVisibility[pet.pk!]) {
+                <p class="no-appointments">No hay incidencias pendientes</p>
               }
             }
           </div>

@@ -28,7 +28,7 @@ export class ClientsInfoComponent implements OnInit, OnDestroy {
 
   public client: Client | null = null;
   public pets: Pet[] = [];
-  public showPendingOnly: boolean = false; // Property to control visibility
+  public pendingVisibility: { [petId: number]: boolean } = {}; // Object to track visibility per pet
 
   ngOnInit(): void {
     const idParam = this.route.snapshot.paramMap.get('id');
@@ -41,14 +41,15 @@ export class ClientsInfoComponent implements OnInit, OnDestroy {
             const petSub = this.petService.getPetByOwner( user.id! )
               .subscribe( pets => {
                 if ( pets ) {
-                  this.pets = pets.map(pet => ({ // Map over pets to add appointments
+                  this.pets = pets.map(pet => ({
                     ...pet,
-                    appoinments: [] // Initialize appointments array
+                    appoinments: []
                   }));
                   this.pets.forEach(pet => {
                     this.appoinmentService.getAppoinmentByPet(pet.pk!)
                       .subscribe( appoinments => {
                         pet.appoinments = appoinments;
+                        this.pendingVisibility[pet.pk!] = false; // Initialize visibility for each pet
                       });
                   });
                 }
@@ -72,8 +73,12 @@ export class ClientsInfoComponent implements OnInit, OnDestroy {
     return appointments.filter(app => app.estado === 'pendiente').length;
   }
 
-  public togglePendingVisibility(): void {
-    this.showPendingOnly = !this.showPendingOnly;
+  public getPendingAppointments(appointments: Appoinment[]): Appoinment[] {
+    return appointments.filter(app => app.estado === 'pendiente');
+  }
+
+  public togglePendingVisibility(petId: number): void {
+    this.pendingVisibility[petId] = !this.pendingVisibility[petId];
   }
 
   public goToAddPet(): void {
