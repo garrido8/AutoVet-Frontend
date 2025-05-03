@@ -1,40 +1,51 @@
-<form [formGroup]="form" (ngSubmit)="onSubmit()">
+<div class="main-content">
+  <div class="container">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
 
-  <div>
-    <h3>{{petName}}</h3>
+      <div>
+        <h3>{{ appointment?.titulo }}</h3>
+      </div>
+
+      <div>
+        <p><b>{{petName}}</b></p>
+      </div>
+
+      <div>
+        <p>{{ appointment?.descripcion }}</p>
+      </div>
+
+      <div>
+        <p>{{ getDate( appointment?.fecha_creacion! ) }}</p>
+      </div>
+
+      <div>
+        <label for="fecha_resolucion">Fecha de Resolución:</label>
+        <input type="datetime-local" id="fecha_resolucion" formControlName="fecha_resolucion" />
+      </div>
+
+      <div>
+        <label for="estado">Estado:</label>
+        <select id="estado" formControlName="estado">
+          <option *ngFor="let estado of estados" [value]="estado">{{ estado }}</option>
+        </select>
+         <div *ngIf="form.get('estado')?.invalid && (form.get('estado')?.dirty || form.get('estado')?.touched)">
+          <p>Estado es requerido</p>
+        </div>
+      </div>
+
+      <div class="emergency">
+        <label for="urgencia">Urgencia:</label>
+        <input type="checkbox" id="urgencia" formControlName="urgencia" />
+      </div>
+
+      <input type="submit" value="Guardar" [disabled]="form.invalid" />
+    </form>
   </div>
+</div>
 
-  <div>
-    <p><b>{{ appointment?.titulo }}</b></p>
+<div *ngIf="showModal" class="modal">
+  <div class="modal-content">
+    <p class="modal-text">{{ modalMessage }}</p>
+    <button (click)="closeModalAndNavigate()">Volver</button>
   </div>
-
-  <div>
-    <p><b>{{ appointment?.descripcion }}</b></p>
-  </div>
-
-  <div>
-    <p><b>{{ appointment?.fecha_creacion }}</b></p>
-  </div>
-
-  <div>
-    <label for="fecha_resolucion">Fecha de Resolución:</label>
-    <input type="datetime-local" id="fecha_resolucion" formControlName="fecha_resolucion" />
-  </div>
-
-  <div>
-    <label for="estado">Estado:</label>
-    <select id="estado" formControlName="estado">
-      <option *ngFor="let estado of estados" [value]="estado">{{ estado }}</option>
-    </select>
-     <div *ngIf="form.get('estado')?.invalid && (form.get('estado')?.dirty || form.get('estado')?.touched)">
-      <p>Estado es requerido</p>
-    </div>
-  </div>
-
-  <div>
-    <label for="urgencia">Urgencia:</label>
-    <input type="checkbox" id="urgencia" formControlName="urgencia" />
-  </div>
-
-  <input type="submit" value="Guardar" [disabled]="form.invalid" />
-</form>
+</div>

@@ -1,11 +1,14 @@
-import { CommonModule, formatDate } from '@angular/common';
+import { CommonModule, formatDate, registerLocaleData } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AppoinmentService } from '../../../services/appoinment.service';
 import { Subscription } from 'rxjs';
 import { PetService } from '../../../services/pet.service';
 import { Appoinment } from '../../../interfaces/appoinment.interface';
+import localeEs from '@angular/common/locales/es';
+
+registerLocaleData(localeEs, 'es-ES');
 
 @Component({
   selector: 'app-appointment-info',
@@ -23,15 +26,19 @@ export class AppointmentInfoComponent implements OnInit, OnDestroy {
 
 
   public estados: string[] = [
-    'pendiente',
-    'en_proceso',
-    'resuelta'
+    'Pendiente',
+    'En Proceso',
+    'Resuelta'
   ];
+
+  public showModal = false;
+  public modalMessage = '';
 
   private fb = inject( FormBuilder );
   private appointmentService = inject( AppoinmentService );
   private petService = inject( PetService )
   private route = inject( ActivatedRoute )
+  private router = inject( Router );
 
   private subscriptions = new Subscription();
 
@@ -63,7 +70,7 @@ export class AppointmentInfoComponent implements OnInit, OnDestroy {
           this.appointment = response;
 
           this.form.patchValue({
-            estado: response.estado,
+            estado: this.getDisplayStatus(response.estado),
             urgencia: response.urgencia
           });
         }
@@ -76,25 +83,66 @@ export class AppointmentInfoComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
-  public onSubmit() {
-    if (this.form.valid) {
-      const appointment: Appoinment = {
-        mascota: this.appointment?.mascota!,
-        titulo: this.appointment?.titulo!,
-        descripcion: this.appointment?.descripcion!,
-        fecha_creacion: this.appointment?.fecha_creacion,
-        estado: this.form.value.estado!,
-        urgencia: this.form.value.urgencia!,
-      }
+  public getDate(date: Date): string {
+    const dateFormat = 'dd/MM/yyyy';
+    const locale = 'es-ES';
+    return formatDate(date, dateFormat, locale);
+  }
 
-      console.log(appointment);
-      const editAppointmentSub = this.appointmentService.editAppoinment(this.appointment!.pk!, appointment)
-        .subscribe( response => {
-          if (response) {}
-        } );
-      this.subscriptions.add(editAppointmentSub);
-
+  private getStatus(estado: string): string {
+    switch (estado) {
+      case 'Pendiente':
+        return 'pendiente';
+      case 'En Proceso':
+        return 'en_proceso';
+      case 'Resuelta':
+        return 'resuelta';
+      default:
+        return 'Desconocido';
     }
   }
+
+    private getDisplayStatus(estado: string): string {
+      switch (estado) {
+        case 'pendiente':
+          return 'Pendiente';
+        case 'en_proceso':
+          return 'En Proceso';
+        case 'resuelta':
+          return 'Resuelta';
+        default:
+          return 'Desconocido';
+      }
+    }
+
+
+
+    public onSubmit() {
+      if (this.form.valid) {
+        const appointment: Appoinment = {
+          mascota: this.appointment?.mascota!,
+          titulo: this.appointment?.titulo!,
+          descripcion: this.appointment?.descripcion!,
+          fecha_creacion: this.appointment?.fecha_creacion,
+          estado: this.getStatus(this.form.value.estado!),
+          urgencia: this.form.value.urgencia!,
+        };
+
+        console.log(appointment);
+        const editAppointmentSub = this.appointmentService.editAppoinment(this.appointment!.pk!, appointment)
+          .subscribe(response => {
+            if (response === null) {
+              this.modalMessage = 'Cita modificada correctamente.'; // Set the message
+              this.showModal = true; // Show the modal
+            }
+          });
+        this.subscriptions.add(editAppointmentSub);
+      }
+    }
+
+    closeModalAndNavigate() {
+      this.showModal = false;
+      this.router.navigate(['/staff/appointments']);
+    }
 
 }

@@ -1,0 +1,153 @@
+/* General body and page styling to ensure full-height black background */
+.main-content {
+  padding: 0px 40px 0px 40px;
+}
+
+.container {
+  height: 100%;
+  margin: 0;
+  color: white; /* Default text color to white */
+  display: flex; /* Use flexbox to center content */
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+}
+
+/* Form container styling */
+form {
+  background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent white */
+  padding: 20px;
+  border-radius: 8px;
+  width: 80%; /* Adjust width as needed */
+  max-width: 600px; /* Maximum width for larger screens */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Subtle shadow for depth */
+}
+
+/* Style for each section within the form */
+form > div {
+  margin-bottom: 15px;
+}
+
+/* Styling for titles */
+h3 {
+  color: #fff;
+  text-align: center;
+  margin-bottom: 20px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); /* Text shadow for better visibility */
+}
+
+/* Styling for paragraphs */
+p {
+  color: #eee;
+  margin: 5px 0;
+}
+
+/* Styling for labels */
+label {
+  display: block;
+  margin-bottom: 5px;
+  color: #ddd;
+}
+
+/* Styling for input fields */
+input[type="datetime-local"],
+select {
+  width: 100%;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+/* Styling for checkbox */
+input[type="checkbox"] {
+  margin-left: 10px;
+}
+
+/* Styling for submit button */
+input[type="submit"] {
+  background-color: #007bff; /* Blue button */
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  width: auto; /* Adjust width to content */
+  display: block;
+  margin: 20px auto; /* Center the button */
+}
+
+input[type="submit"]:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+
+input[type="submit"]:disabled {
+  background-color: gray; /* Grayed out when disabled */
+  cursor: not-allowed;
+}
+
+/* Error message styling */
+p.error {
+  color: #ff6666;
+  font-size: 0.9em;
+}
+
+
+.emergency {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+
+/* Modal Styles */
+.modal {
+  position: fixed; /* Stay in place */
+  z-index: 1000; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto; /* Enable scrolling if needed */
+  background-color: rgba(0, 0, 0, 0.5); /* Black with opacity */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 10% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 90%;
+  max-width: 400px; /* Adjust as needed */
+  border-radius: 8px;
+  position: relative;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+ from { opacity: 0; }
+ to { opacity: 1; }
+}
+
+.modal-content button {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 15px;
+  transition: background-color 0.3s ease;
+}
+
+.modal-content button:hover {
+  background-color: #0056b3;
+}
+
+.modal-text {
+  color: black;
+}
