@@ -6,6 +6,7 @@ import { ClientsInfoComponent } from './components/clients-info/clients-info.com
 import { AddPetComponent } from './components/add-pet/add-pet.component';
 import { AppointmentInfoComponent } from './components/appointment-info/appointment-info.component';
 import { RouterModule } from '@angular/router';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 
 
@@ -14,12 +15,14 @@ import { RouterModule } from '@angular/router';
     // ClientsComponent,
     StaffAppointmentsComponent,
     ClientsInfoComponent,
-    AddPetComponent,
+    // AddPetComponent,
     AppointmentInfoComponent
   ],
   imports: [
     CommonModule,
-    RouterModule
+    RouterModule,
+    ReactiveFormsModule,
+    FormsModule
   ]
 })
 export class StaffModule { }

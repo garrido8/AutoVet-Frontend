@@ -8,8 +8,8 @@ export interface Pet {
   raza:          string;
   edad:          number;
   sexo:          string;
-  peso:          string;
+  peso:          number;
   vacunado:      boolean;
   esterilizado:  boolean;
-  appoinments:   Appoinment[];
+  appoinments?:   Appoinment[];
 }

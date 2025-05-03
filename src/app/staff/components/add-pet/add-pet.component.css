@@ -1,0 +1,54 @@
+.main-content {
+  padding: 0px 40px 0px 40px;
+}
+
+.form-container {
+  display: flex;
+  justify-content: center;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 250px;
+  width: 100%;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.normal-input {
+  color: white;
+  background-color: transparent;
+  border: 1px solid white;
+  border-radius: 5px;
+  padding: 10px;
+}
+
+
+.radio-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.radio-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.submit-container {
+  display: flex;
+  justify-content: center;
+}
+
+.submit-button {
+  background-color: transparent;
+  border: 1px solid white;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}

@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Pet } from '../interfaces/pet.interface';
 import { Observable } from 'rxjs';
@@ -25,6 +25,7 @@ export class PetService {
   }
 
   public addPet(pet: Pet): Observable<Pet> {
-    return this.http.post<Pet>(this.petsUrl, pet);
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    return this.http.post<Pet>(this.petsUrl, pet, { headers });
   }
 }
