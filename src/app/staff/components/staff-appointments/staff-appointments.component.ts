@@ -81,6 +81,19 @@ export class StaffAppointmentsComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
+  public getDisplayStatus(estado: string): string {
+    switch (estado) {
+      case 'pendiente':
+        return 'Pendiente';
+      case 'en_proceso':
+        return 'En proceso';
+      case 'resuelta':
+        return 'Resuelta';
+      default:
+        return 'Desconocido';
+    }
+  }
+
   public assignAppoinment(appoinment: Appoinment): void {
     const updatedAppointment: Appoinment = { ...appoinment, trabajador_asignado: this.user!.pk };
 

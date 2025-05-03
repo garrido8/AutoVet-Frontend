@@ -27,7 +27,7 @@ export class AppointmentInfoComponent implements OnInit, OnDestroy {
 
   public estados: string[] = [
     'Pendiente',
-    'En Proceso',
+    'En proceso',
     'Resuelta'
   ];
 
@@ -93,7 +93,7 @@ export class AppointmentInfoComponent implements OnInit, OnDestroy {
     switch (estado) {
       case 'Pendiente':
         return 'pendiente';
-      case 'En Proceso':
+      case 'En proceso':
         return 'en_proceso';
       case 'Resuelta':
         return 'resuelta';
@@ -107,7 +107,7 @@ export class AppointmentInfoComponent implements OnInit, OnDestroy {
         case 'pendiente':
           return 'Pendiente';
         case 'en_proceso':
-          return 'En Proceso';
+          return 'En proceso';
         case 'resuelta':
           return 'Resuelta';
         default:
