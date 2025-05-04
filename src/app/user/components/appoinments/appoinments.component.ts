@@ -51,5 +51,17 @@ export class AppoinmentsComponent implements OnInit {
     }
   }
 
+  public getDisplayStatus(estado: string): string {
+    switch (estado) {
+      case 'pendiente':
+        return 'Pendiente';
+      case 'en_proceso':
+        return 'En proceso';
+      case 'resuelta':
+        return 'Resuelta';
+      default:
+        return 'Desconocido';
+    }
+  }
 
 }

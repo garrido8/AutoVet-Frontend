@@ -1,22 +1,99 @@
-.upper-part {
-  padding-bottom: 50px;
+.main-content {
+  padding: 30px 20px;
+  color: #f0f0f0;
 }
 
-.main-content {
-  padding: 0px 40px 0px 40px;
+.upper-part {
+  padding-bottom: 40px;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(-10px);
+  animation: fade-in-up 0.5s ease-out forwards;
+}
+
+.upper-part h2 {
+  color: #a7ffeb;
+  margin-bottom: 10px;
+}
+
+.upper-part p {
+  line-height: 1.6;
+  font-size: 1.1em;
+}
+
+@keyframes fade-in-up {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .card {
   display: flex;
   gap: 30px;
   padding: 20px;
-  border: 1px solid white;
-  border-radius: 10px;
+  border: 1px solid #444;
+  border-radius: 12px;
   width: fit-content;
+  background-color: #2c2c2c;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  margin-bottom: 20px;
+  opacity: 0;
+  transform: translateX(-15px);
+  animation: slide-in 0.4s ease-out forwards;
+}
+
+@keyframes slide-in {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .photo {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background-color: #555;
+  color: #fff;
+  font-size: 0.9em;
+  margin-right: 20px;
+}
+
+.photo::before {
+  content: "🐾"; /* Add a paw icon */
+  font-size: 2em;
+}
+
+.pet-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pet-info p {
+  margin: 0;
+  font-size: 1em;
+}
+
+.pet-info p:first-child {
+  font-weight: bold;
+  color: #ddd;
+}
+
+.pet-info p:nth-child(n+2) {
+  color: #bbb;
+}
+
+.pet-info p:last-child {
+  font-style: italic;
+}
+
+.cards-div {
+  display: flex;
+  gap: 20px;
 }
