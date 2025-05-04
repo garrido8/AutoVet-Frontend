@@ -1,89 +1,143 @@
 .title {
-  padding: 0px 0px 30px 40px;
+  padding: 30px 20px 0px 20px;
+  text-align: center;
+}
+
+.title h2 {
+  color: #a7ffeb; /* Accent color for the title */
+  font-size: 2.2em;
+  margin-bottom: 15px;
+  animation: slide-down 0.5s ease-out;
+}
+
+.title p {
+  color: #ccc;
+  line-height: 1.6;
+  margin-bottom: 20px;
+  font-size: 1.1em;
+  animation: fade-in 0.5s ease-out 0.3s forwards;
+  opacity: 0;
+}
+
+@keyframes slide-down {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in {
+  to {
+    opacity: 1;
+  }
 }
 
 .main-content {
   display: flex;
   justify-content: center;
   gap: 5%;
+  padding: 20px;
 }
 
 .question {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 20px;
-}
-
-.send-btn {
-  color: white;
-  background-color: transparent;
-  border: 1px solid white;
-  padding: 10px;
-  border-radius: 10px;
-  transition: all 350ms;
-}
-
-.send-btn:hover {
-  color: black;
-  background-color: white;
-  border: 1px solid black;
-}
-
-.pointer {
-  cursor: pointer;
-}
-
-.disabled {
-  color: gray;
-  border: 1px solid gray;
-  cursor: unset;
-}
-
-.disabled:hover {
-  background-color: transparent;
-  color: gray;
-  border: 1px solid gray;
+  align-items: center; /* Stretch items to full width */
+  gap: 25px;
+  width: 400px; /* Adjust width as needed */
+  max-width: 90%;
 }
 
 #prompt {
-  width: 300px;
-  height: 150px;
-  border: 2px solid gray;
-  border-radius: 30px;
-  background-color: transparent;
-  color: white;
+  width: 100%; /* Make textarea take full width of its container */
+  height: 180px;
+  border: 2px solid #555;
+  border-radius: 12px;
+  background-color: #2c2c2c;
+  color: #f0f0f0;
   padding: 15px;
+  font-size: 1em;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  resize: none;
+  transition: border-color 0.3s ease-in-out;
 }
 
-.no-resize {
-  resize: none;
+#prompt::placeholder {
+  color: #777;
+}
+
+#prompt:focus {
+  outline: none;
+  border-color: #a7ffeb; /* Accent color on focus */
+}
+
+.send-btn {
+  color: #fff;
+  background-color: #007bff; /* Primary button color */
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1.1em;
+  transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.send-btn:hover:not(.disabled) {
+  background-color: #0056b3; /* Darker shade on hover */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.send-btn.disabled {
+  background-color: #555;
+  color: #999;
+  border-color: #777;
+  cursor: not-allowed;
 }
 
 .response-container {
   width: 550px;
-  max-height: 550px;
-  height: 100%;
-  padding-right: 30px;
+  max-width: 95%;
+  max-height: 600px;
+  height: auto;
+  padding: 20px;
+  background-color: #2c2c2c;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   overflow-y: auto;
+  transform: translateY(10px); /* Start slightly below */
+  transition: opacity 0.3s ease-out, transform 0.3s ease-out;
 }
 
-/* Style the scrollbar for this specific element */
+.response {
+  color: #ddd;
+  line-height: 1.7;
+}
+
+.response p {
+  margin-bottom: 0.5em; /* Reduced paragraph spacing */
+}
+
+/* Style the scrollbar for the response container */
 .response-container::-webkit-scrollbar {
   width: 10px;
 }
 
 .response-container::-webkit-scrollbar-track {
-  background: var( --main-background );
+  background: #333;
 }
 
 .response-container::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 10px;
+  background: #555;
+  border-radius: 5px;
 }
 
 .response-container::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: #777;
 }
 
 .modal {
@@ -92,51 +146,47 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.7); /* Darker modal background */
   display: flex;
   justify-content: center;
-  flex-direction: column;
   align-items: center;
+  z-index: 1000; /* Ensure it's on top */
+  pointer-events: none; /* Make it non-interactive when hidden */
+  transition: opacity 0.3s ease-out;
 }
 
 .modal-content {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
+  background: #333; /* Dark modal content background */
+  color: #fff;
+  padding: 30px;
+  border-radius: 12px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
 }
 
 .modal-text {
-  color: black;
+  font-size: 1.2em;
 }
 
 .loader {
-  width: 48px;
-  height: 48px;
-  border: 5px solid black;
+  width: 60px;
+  height: 60px;
+  border: 6px solid #a7ffeb; /* Accent color for loader */
   border-bottom-color: transparent;
   border-radius: 50%;
   display: inline-block;
   box-sizing: border-box;
   animation: rotation 1s linear infinite;
-  }
+}
 
-  @keyframes rotation {
+@keyframes rotation {
   0% {
-      transform: rotate(0deg);
+    transform: rotate(0deg);
   }
   100% {
-      transform: rotate(360deg);
+    transform: rotate(360deg);
   }
-  }
-
-  textarea::placeholder {
-    color: rgb(177, 177, 177);
-  }
-
-  textarea {
-    font-size: 15px;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  }
+}

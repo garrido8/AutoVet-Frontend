@@ -36,7 +36,7 @@
   </div>
 
   @if ( responseText.length > 0 ) {
-    <div class="response-container">
+    <div class="response-container" #responseContainer>
       <div class="response" id="response" [innerHTML]="formattedResponse"></div>
     </div>
   }

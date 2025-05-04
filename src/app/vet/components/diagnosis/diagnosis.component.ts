@@ -12,7 +12,7 @@ import { GeminiService } from '../../../services/gemini.service';
   standalone: true,
   templateUrl: './diagnosis.component.html',
   styleUrl: './diagnosis.component.css',
-  imports:[
+  imports: [
     CommonModule,
     FormsModule
   ]
@@ -24,6 +24,7 @@ export class DiagnosisComponent {
   public isLoading: boolean = false;
 
   @ViewChild('promptValue') promptValue?: ElementRef;
+  @ViewChild('responseContainer') responseContainer?: ElementRef; // Get a reference to the response container
 
   public responseText: string = '';
   public formattedResponse: string = '';
@@ -31,6 +32,11 @@ export class DiagnosisComponent {
 
   public sendPrompt() {
     this.isLoading = true;
+    this.responseText = ''; // Clear previous response
+    this.formattedResponse = '';
+    if (this.responseContainer) {
+      this.responseContainer.nativeElement.classList.remove('show'); // Hide previous response
+    }
 
     const prompt = this.promptValue?.nativeElement.value;
 
@@ -40,11 +46,19 @@ export class DiagnosisComponent {
         next: response => {
           this.responseText = response;
           this.formattedResponse = marked(response).toString(); // Convert Markdown to HTML
+          // Add the 'show' class to trigger the animation
+          if (this.responseContainer) {
+            this.responseContainer.nativeElement.classList.add('show');
+          }
         },
         error: err => {
           console.error('Error generating content:', err);
           this.responseText = 'There was an error processing your request.';
           this.formattedResponse = ''; // Clear formatted response on error
+          // Optionally, still show an error message in the response container
+          if (this.responseContainer) {
+            this.responseContainer.nativeElement.classList.add('show');
+          }
         }
       });
   }
