@@ -34,23 +34,37 @@ export class ClientsComponent implements OnInit, OnDestroy{
       this.authService.getStaffPerEmail(token)
       .subscribe( response => {
         if ( response.length > 0 ) {
-          const staffMember: Staff = response[0];
-          const clientsIds = staffMember.assigned_clients;
 
-          clientsIds.forEach( (clientId: number) => {
-            this.authService.getUserPerId(clientId)
+          if (response[0].role === 'admin' ) {
+            this.authService.getClients()
             .subscribe( response => {
               if ( response ) {
-                this.clients.push(response);
+                this.clients = response;
               } else {
-                console.log('No client found with this ID.');
+                console.log('No clients found.');
               }
             })
-          } )
-          console.log('Client Data Received:', this.clients);
+
+          } else {
+            const staffMember: Staff = response[0];
+            const clientsIds = staffMember.assigned_clients;
+
+            clientsIds.forEach( (clientId: number) => {
+              this.authService.getUserPerId(clientId)
+              .subscribe( response => {
+                if ( response ) {
+                  this.clients.push(response);
+                } else {
+                  console.log('No client found with this ID.');
+                }
+              })
+            } )
+            console.log('Client Data Received:', this.clients);
+          }
         } else {
           console.log('No client found with this email.');
         }
+
       })
     }
   }
