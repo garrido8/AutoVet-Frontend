@@ -1,25 +1,131 @@
 .main-content {
-  padding: 0px 40px 0px 40px;
+  padding: 20px;
+  background: linear-gradient(to bottom, #1e1e1e, #2a2a2a);
+  color: #f0f0f0;
+  min-height: 100vh;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.card {
-  padding: 15px;
-  border: 1px solid white;
-  border-radius: 10px;
-  width: fit-content;
+h1, h2 {
+  color: #eee;
+  margin-bottom: 20px;
+  text-align: center; /* Center the headings */
+}
+
+hr {
+  border-color: #444;
+  margin: 30px 0;
 }
 
 .cards-div {
-  padding-top: 40px;
+  padding-top: 20px; /* Reduced top padding */
   display: flex;
   flex-wrap: wrap;
-  gap: 50px;
+  gap: 25px; /* Slightly reduced gap */
+  justify-content: center; /* Center the cards */
 }
 
-.status {
-  text-transform: capitalize;
+.card {
+  padding: 20px;
+  border: 1px solid #444;
+  border-radius: 12px;
+  width: calc(33% - 25px); /* Roughly three cards per row on larger screens */
+  min-width: 300px; /* Minimum width for responsiveness */
+  background: linear-gradient(to right, #333, #444);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
 }
 
-h3 {
+@media (max-width: 960px) {
+  .card {
+    width: calc(50% - 25px); /* Two cards per row on medium screens */
+  }
+}
+
+@media (max-width: 600px) {
+  .card {
+    width: 100%; /* One card per row on small screens */
+  }
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.3);
+}
+
+.card-header {
+  margin-bottom: 15px;
+  border-bottom: 1px solid #555;
+  padding-bottom: 10px;
+}
+
+.card-header h3 {
   margin-top: 0;
+  color: #ddd;
+}
+
+.card-header .description {
+  color: #bbb;
+  font-style: italic;
+  font-size: 0.9em;
+  margin-top: 5px;
+}
+
+.card-body {
+  margin-bottom: 15px;
+}
+
+.card-body p {
+  margin: 5px 0;
+}
+
+.card-body.status {
+  font-weight: bold;
+  color: #a7ffeb; /* Example accent color for status */
+}
+
+.assign-btn-container {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.assign-btn {
+  background-color: #007bff; /* Primary button color */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.assign-btn:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
+}
+
+.no-appointments {
+  color: #ccc;
+  font-size: 1.1em;
+  text-align: center;
+  padding: 20px;
+}
+
+/* Subtle animation for new cards appearing */
+.card {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fade-in 0.5s ease-out forwards;
+}
+
+@keyframes fade-in {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+.capitalized {
+  text-transform: capitalize;
 }
