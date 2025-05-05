@@ -18,6 +18,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private document = inject(DOCUMENT);
   public showingMenu: boolean = false;
   public isClient: boolean = localStorage.getItem('isClient') === 'true' ? true : false;
+  public isAdmin: boolean = localStorage.getItem('isAdmin') === 'true' ? true : false;
   private clickOutsideListener?: (event: MouseEvent) => void;
 
   constructor(private elementRef: ElementRef) {}

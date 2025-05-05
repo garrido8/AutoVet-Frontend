@@ -49,40 +49,96 @@
 
     } @else {
 
-      <button
-        class="btn clients-btn"
-        id="clients-btn"
-        routerLink="/staff/clients"
-        routerLinkActive="active"
-      >
-        Clientes
-      </button>
+      @if( isAdmin ) {
+        <button
+          class="btn clients-btn"
+          id="clients-btn"
+          routerLink="/staff/clients"
+          routerLinkActive="active"
+        >
+          Añadir Cliente
+        </button>
 
-      <button
-        class="btn appointments-btn"
-        id="appointments-btn"
-        routerLink="/staff/appointments"
-        routerLinkActive="active"
-      >
-        Incidencias
-      </button>
+        <button
+          class="btn clients-btn"
+          id="clients-btn"
+          routerLink="/staff/clients"
+          routerLinkActive="active"
+        >
+          Añadir Trabajador
+        </button>
 
-      <button
-        class="btn profile-btn"
-        id="profile-btn"
-        routerLink="/user/profile"
-        routerLinkActive="active"
-      >
-        Mis datos
-      </button>
+        <button
+          class="btn clients-btn"
+          id="clients-btn"
+          routerLink="/staff/clients"
+          routerLinkActive="active"
+        >
+          Clientes
+        </button>
 
-      <button
-        class="btn logout-btn"
-        id="logout-btn"
-        (click)="logOut()"
-      >
-        Cerrar sesión
-      </button>
+        <button
+          class="btn appointments-btn"
+          id="appointments-btn"
+          routerLink="/staff/appointments"
+          routerLinkActive="active"
+        >
+          Incidencias
+        </button>
+
+        <button
+          class="btn profile-btn"
+          id="profile-btn"
+          routerLink="/user/profile"
+          routerLinkActive="active"
+        >
+          Mis datos
+        </button>
+
+        <button
+          class="btn logout-btn"
+          id="logout-btn"
+          (click)="logOut()"
+        >
+          Cerrar sesión
+        </button>
+      } @else {
+        <button
+          class="btn clients-btn"
+          id="clients-btn"
+          routerLink="/staff/clients"
+          routerLinkActive="active"
+        >
+          Clientes
+        </button>
+
+        <button
+          class="btn appointments-btn"
+          id="appointments-btn"
+          routerLink="/staff/appointments"
+          routerLinkActive="active"
+        >
+          Incidencias
+        </button>
+
+        <button
+          class="btn profile-btn"
+          id="profile-btn"
+          routerLink="/user/profile"
+          routerLinkActive="active"
+        >
+          Mis datos
+        </button>
+
+        <button
+          class="btn logout-btn"
+          id="logout-btn"
+          (click)="logOut()"
+        >
+          Cerrar sesión
+        </button>
+      }
+
 
     }
 

@@ -78,6 +78,11 @@ export class LoginComponent implements OnInit, OnDestroy {
           response => {
             if (response.length > 0) {
               if( this.form.value.password === response[0].password) {
+
+                if( response[0].role=== 'admin' ) {
+                  localStorage.setItem('isAdmin', 'true');
+                }
+
                 console.log('Login exitoso! 🎉');
                 this.authService.setIsLoggedIn(true);
                 this.userInfoService.setToken( response[0].email );
