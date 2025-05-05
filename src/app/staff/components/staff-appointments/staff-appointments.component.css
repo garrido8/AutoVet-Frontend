@@ -1,8 +1,6 @@
 .main-content {
   padding: 20px;
-  background: linear-gradient(to bottom, #1e1e1e, #2a2a2a);
   color: #f0f0f0;
-  min-height: 100vh;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 

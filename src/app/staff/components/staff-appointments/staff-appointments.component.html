@@ -1,28 +1,36 @@
 
 <div class="main-content">
-  <h1>Mis incidencias</h1>
 
-  @if( workerAppoinments.length > 0 ) {
-    <div class="cards-div">
-      @for (appoinment of workerAppoinments; track $index) {
-        <div class="card"  routerLink="/staff/appointment-info/{{ appoinment.pk }}">
-          <div class="card-header">
-            <h3>{{ appoinment.titulo }}</h3>
-            <p class="description">{{ appoinment.descripcion }}</p>
+  @if ( !isAdmin ) {
+    <h1>Mis incidencias</h1>
+
+    @if( workerAppoinments.length > 0 ) {
+      <div class="cards-div">
+        @for (appoinment of workerAppoinments; track $index) {
+          <div class="card"  routerLink="/staff/appointment-info/{{ appoinment.pk }}">
+            <div class="card-header">
+              <h3>{{ appoinment.titulo }}</h3>
+              <p class="description">{{ appoinment.descripcion }}</p>
+            </div>
+            <div class="card-body">
+              <p>Estado: {{ getDisplayStatus( appoinment.estado )}}</p>
+            </div>
           </div>
-          <div class="card-body">
-            <p>Estado: {{ getDisplayStatus( appoinment.estado )}}</p>
-          </div>
-        </div>
-      }
-    </div>
-  } @else {
-    <p class="no-appointments">No tienes incidencias registradas.</p>
+        }
+      </div>
+    } @else {
+      <p class="no-appointments">No tienes incidencias registradas.</p>
+    }
+
+    <hr>
   }
 
-  <hr>
 
-  <h2>Incidencias</h2>
+  @if( isAdmin ) {
+    <h1>Incidencias</h1>
+  } @else {
+    <h2>Incidencias</h2>
+  }
 
   @if( allAppoinments.length > 0 ) {
     <div class="cards-div">
@@ -33,14 +41,20 @@
             <p class="description">{{ appoinment.descripcion }}</p>
           </div>
           <div class="card-body status">
-            <p class="capitalized">Estado: {{ appoinment.estado }}</p>
+            <p>Estado: {{ getDisplayStatus( appoinment.estado )}}</p>
           </div>
 
-          <div class="assign-btn-container">
-            <button (click)="assignAppoinment(appoinment)" class="assign-btn">
-              Asignar
-            </button>
-          </div>
+          @if( !isAdmin ) {
+            <div class="assign-btn-container">
+              <button (click)="assignAppoinment(appoinment)" class="assign-btn">
+                Asignar
+              </button>
+            </div>
+          } @else {
+            <div class="assigned-worker">
+              <p>Asignado a: {{ appoinment.workerName }}</p>
+            </div>
+          }
         </div>
       }
     </div>

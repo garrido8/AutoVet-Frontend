@@ -43,6 +43,10 @@ export class AuthService {
     return this.http.get<Staff[]>(`${this.staffUrl}?email=${email}`);
   }
 
+  public getStaffPerId(id: number): Observable<Staff> {
+    return this.http.get<Staff>(`${this.staffUrl}${id}/`);
+  }
+
   public editStaffMember(id: number, staff: Staff): Observable<Staff> {
     const url = `${this.staffUrl}${id}/`;
     return this.http.put<Staff>(url, staff);

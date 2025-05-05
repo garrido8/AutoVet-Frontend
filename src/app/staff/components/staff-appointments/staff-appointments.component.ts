@@ -1,7 +1,7 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { Appoinment } from '../../../interfaces/appoinment.interface';
 import { AppoinmentService } from '../../../services/appoinment.service';
-import { Subscription, switchMap } from 'rxjs';
+import { forkJoin, map, of, Subscription, switchMap } from 'rxjs';
 import { Staff } from '../../../interfaces/staff.interface';
 import { UserInfoService } from '../../../services/user-info.service';
 import { AuthService } from '../../../services/auth.service';
@@ -36,9 +36,43 @@ export class StaffAppointmentsComponent implements OnInit, OnDestroy {
   private authService = inject( AuthService )
   private petService = inject( PetService )
 
+  public isAdmin: boolean = localStorage.getItem('isAdmin') === 'true' ? true : false;
+
   private userEmail: string | null = null;
 
   ngOnInit(): void {
+
+    if ( this.isAdmin ) {
+      const allSub = this.appoinmentService.getAppoinments().pipe(
+        // Use map to transform the response
+        map((appointments: Appoinment[]) => {
+          if (appointments.length === 0) {
+            return of([]); // Return an observable of empty array if no appointments
+          }
+          // Use forkJoin to handle multiple observables (getStaffPerId for each appointment)
+          const observables = appointments.map(appointment => {
+            if (appointment.trabajador_asignado) {
+              return this.authService.getStaffPerId(appointment.trabajador_asignado).pipe(
+                // Map again to combine appointment data with worker name
+                map(worker => ({
+                  ...appointment,
+                  workerName: worker ? worker.name : 'Unknown Worker' // Handle null worker
+                }))
+              );
+            } else {
+              return of({ ...appointment, workerName: 'Sin Asignar' }); // Or some default value
+            }
+          });
+          return forkJoin(observables); // forkJoin returns a single observable
+        }),
+        // switchMap to switch to the observable returned by map
+        switchMap(obs => obs)
+      ).subscribe(response => {
+        this.allAppoinments = response;
+      });
+
+      this.subscriptions.add(allSub);
+    }
 
     this.userEmail = this.userInfoService.getToken();
     // console.log('User Email in Component:', this.userEmail);
