@@ -35,7 +35,7 @@
   @if( allAppoinments.length > 0 ) {
     <div class="cards-div">
       @for (appoinment of allAppoinments; track $index) {
-        <div class="card">
+        <div class="card" [routerLink]="isAdmin ? '/staff/appointment-info/' + appoinment.pk : null">
           <div class="card-header">
             <h3>{{ appoinment.titulo }}</h3>
             <p class="description">{{ appoinment.descripcion }}</p>
