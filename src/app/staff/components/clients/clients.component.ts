@@ -22,6 +22,7 @@ export class ClientsComponent implements OnInit, OnDestroy{
   private subscriptions = new Subscription();
   private userInfoService = inject( UserInfoService)
   private authService = inject( AuthService )
+  public isAdmin: boolean = localStorage.getItem('isAdmin') === 'true' ? true : false;
 
   private router = inject( Router )
 
@@ -30,37 +31,40 @@ export class ClientsComponent implements OnInit, OnDestroy{
   ngOnInit(): void {
     const token = this.userInfoService.getToken()
 
+    if ( this.isAdmin ) {
+      const allClientsSub = this.authService.getClients()
+        .subscribe( response => {
+          if ( response ) {
+            this.clients = response;
+          } else {
+            console.log('No clients found.');
+          }
+        })
+      this.subscriptions.add(allClientsSub);
+
+      return
+    }
+
     if( token ) {
       this.authService.getStaffPerEmail(token)
       .subscribe( response => {
         if ( response.length > 0 ) {
 
-          if (response[0].role === 'admin' ) {
-            this.authService.getClients()
+          const staffMember: Staff = response[0];
+          const clientsIds = staffMember.assigned_clients;
+
+          clientsIds.forEach( (clientId: number) => {
+            this.authService.getUserPerId(clientId)
             .subscribe( response => {
               if ( response ) {
-                this.clients = response;
+                this.clients.push(response);
               } else {
-                console.log('No clients found.');
+                console.log('No client found with this ID.');
               }
             })
+          } )
+          console.log('Client Data Received:', this.clients);
 
-          } else {
-            const staffMember: Staff = response[0];
-            const clientsIds = staffMember.assigned_clients;
-
-            clientsIds.forEach( (clientId: number) => {
-              this.authService.getUserPerId(clientId)
-              .subscribe( response => {
-                if ( response ) {
-                  this.clients.push(response);
-                } else {
-                  console.log('No client found with this ID.');
-                }
-              })
-            } )
-            console.log('Client Data Received:', this.clients);
-          }
         } else {
           console.log('No client found with this email.');
         }
