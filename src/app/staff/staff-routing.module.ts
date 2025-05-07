@@ -5,6 +5,7 @@ import { StaffAppointmentsComponent } from './components/staff-appointments/staf
 import { ClientsInfoComponent } from './components/clients-info/clients-info.component';
 import { AddPetComponent } from './components/add-pet/add-pet.component';
 import { AppointmentInfoComponent } from './components/appointment-info/appointment-info.component';
+import { CreateUserComponent } from './components/create-user/create-user.component';
 
 const routes: Routes = [
   {
@@ -26,7 +27,15 @@ const routes: Routes = [
   {
     path: 'add-pet',
     component: AddPetComponent
-  }
+  },
+  {
+    path: 'add-client',
+    component: CreateUserComponent
+  },
+  {
+    path: 'add-worker',
+    component: CreateUserComponent
+  },
 ];
 
 @NgModule({

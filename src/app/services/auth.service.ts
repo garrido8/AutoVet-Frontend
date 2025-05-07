@@ -57,6 +57,11 @@ export class AuthService {
     return this.http.post<Client>(this.clientsUrl, client);
   }
 
+  public addWorker(staff: Staff): Observable<Staff> {
+    console.log(staff);
+    return this.http.post<Staff>(this.staffUrl, staff);
+  }
+
   public logout(): void {
     this.setIsLoggedIn(false);
     localStorage.removeItem('isLoggedIn');
