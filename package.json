@@ -5,6 +5,7 @@
     "ng": "ng",
     "start": "ng serve -o --no-hmr",
     "tfgMac": "concurrently \"ng serve -o --no-hmr\" \"cd ../backend/database && source venv/bin/activate && python3 manage.py runserver\"",
+    "tfgWin": "concurrently \"ng serve -o --no-hmr\" \"cd ../backend/database && .\\venv\\Scripts\\activate && python manage.py runserver\"",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
