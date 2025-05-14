@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve -o --no-hmr",
-    "tfg": "concurrently \"ng serve -o --no-hmr\" \"cd ../backend/database && source venv/bin/activate && python3 manage.py runserver\"",
+    "tfgMac": "concurrently \"ng serve -o --no-hmr\" \"cd ../backend/database && source venv/bin/activate && python3 manage.py runserver\"",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
