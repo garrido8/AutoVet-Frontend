@@ -20,18 +20,18 @@ const routes: Routes = [
     path: 'question',
     component: DiagnosisComponent
   },
-  {
-    path: 'chat',
-    component: ChatbotComponent
-  },
+  // {
+  //   path: 'chat',
+  //   component: ChatbotComponent
+  // },
   {
     path: 'foods',
     component: FoodsComponent
   },
-  {
-    path: 'contact',
-    component: ContactComponent
-  },
+  // {
+  //   path: 'contact',
+  //   component: ContactComponent
+  // },
   {
     path: 'auth',
     loadChildren: () => import( './auth/auth-routing.module' ).then( m => m.AuthRoutingModule )
