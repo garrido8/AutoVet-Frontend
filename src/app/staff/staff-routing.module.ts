@@ -6,35 +6,43 @@ import { ClientsInfoComponent } from './components/clients-info/clients-info.com
 import { AddPetComponent } from './components/add-pet/add-pet.component';
 import { AppointmentInfoComponent } from './components/appointment-info/appointment-info.component';
 import { CreateUserComponent } from './components/create-user/create-user.component';
+import { LoginGuard } from '../guards/login.guard';
 
 const routes: Routes = [
   {
     path: 'clients',
-    component: ClientsComponent
+    component: ClientsComponent,
+    canActivate: [LoginGuard]
   },
   {
     path: 'appointments',
-    component: StaffAppointmentsComponent
+    component: StaffAppointmentsComponent,
+    canActivate: [LoginGuard]
   },
   {
     path: 'client-info/:id',
-    component: ClientsInfoComponent
+    component: ClientsInfoComponent,
+    canActivate: [LoginGuard]
   },
   {
     path:'appointment-info/:id',
-    component: AppointmentInfoComponent
+    component: AppointmentInfoComponent,
+    canActivate: [LoginGuard]
   },
   {
     path: 'add-pet',
-    component: AddPetComponent
+    component: AddPetComponent,
+    canActivate: [LoginGuard]
   },
   {
     path: 'add-client',
-    component: CreateUserComponent
+    component: CreateUserComponent,
+    canActivate: [LoginGuard]
   },
   {
     path: 'add-worker',
-    component: CreateUserComponent
+    component: CreateUserComponent,
+    canActivate: [LoginGuard]
   },
 ];
 

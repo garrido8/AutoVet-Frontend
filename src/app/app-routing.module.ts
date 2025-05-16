@@ -5,11 +5,16 @@ import { ChatbotComponent } from './vet/components/chatbot/chatbot.component';
 import { FoodsComponent } from './vet/components/foods/foods.component';
 import { ContactComponent } from './vet/components/contact/contact.component';
 import { HomeComponent } from './general/components/home/home.component';
+import { ErrorPageComponent } from './general/error-page/error-page.component';
 
 const routes: Routes = [
   {
     path: 'home',
     component: HomeComponent
+  },
+  {
+    path: 'error',
+    component: ErrorPageComponent
   },
   {
     path: 'question',

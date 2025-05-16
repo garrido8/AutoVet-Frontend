@@ -4,23 +4,28 @@ import { ProfileComponent } from './components/profile/profile.component';
 import { PetsComponent } from './components/pets/pets.component';
 import { AppoinmentsComponent } from './components/appoinments/appoinments.component';
 import { CreateComponent } from './components/create/create.component';
+import { LoginGuard } from '../guards/login.guard';
 
 const routes: Routes = [
   {
     path: 'profile',
-    component: ProfileComponent
+    component: ProfileComponent,
+    canActivate: [LoginGuard]
   },
   {
     path: 'pets',
-    component: PetsComponent
+    component: PetsComponent,
+    canActivate: [LoginGuard]
   },
   {
     path: 'appointments',
-    component: AppoinmentsComponent
+    component: AppoinmentsComponent,
+    canActivate: [LoginGuard]
   },
   {
     path: 'create',
-    component: CreateComponent
+    component: CreateComponent,
+    canActivate: [LoginGuard]
   }
 ];
 
