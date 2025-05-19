@@ -6,51 +6,56 @@
 
   <div class="process">
 
-    <div class="first-step">
-      <h3>Elige tu mascota</h3>
+    @if( pets.length > 0 ) {
+      <div class="first-step">
+        <h3>Elige tu mascota</h3>
 
-      <div class="pets-div">
-        @for (pet of pets; track $index) {
-          <div class="card">
+        <div class="pets-div">
+          @for (pet of pets; track $index) {
+            <div class="card">
+              <button
+               class="card-button"
+               (click)="selectedPet = pet"
+              >
+                {{ pet.nombre }}
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+
+      @if (selectedPet?.nombre!.length > 0) {
+        <div class="second-step">
+          <h3>Cuéntanos qué le pasa a {{ selectedPet?.nombre }}</h3>
+
+          <div class="problem-container">
+            <textarea
+              type="text"
+              name="problem"
+              id="problem"
+              class="no-resize"
+              #problemTxt
+              [(ngModel)]="problemTxtValue"
+              placeholder='Escríbenos aquí lo que se le sucede a {{selectedPet?.nombre}}'
+            ></textarea>
+
             <button
-             class="card-button"
-             (click)="selectedPet = pet"
+              class="send-btn pointer"
+              id="send-btn"
+              (click)="createAppoinment()"
+              [disabled]="!problemTxtValue.trim()"
+              [ngClass]="{ 'disabled': !problemTxtValue.trim() }"
             >
-              {{ pet.nombre }}
+              Mandar información
             </button>
           </div>
-        }
-      </div>
-    </div>
 
-    @if (selectedPet?.nombre!.length > 0) {
-      <div class="second-step">
-        <h3>Cuéntanos qué le pasa a {{ selectedPet?.nombre }}</h3>
-
-        <div class="problem-container">
-          <textarea
-            type="text"
-            name="problem"
-            id="problem"
-            class="no-resize"
-            #problemTxt
-            [(ngModel)]="problemTxtValue"
-            placeholder='Escríbenos aquí lo que se le sucede a {{selectedPet?.nombre}}'
-          ></textarea>
-
-          <button
-            class="send-btn pointer"
-            id="send-btn"
-            (click)="createAppoinment()"
-            [disabled]="!problemTxtValue.trim()"
-            [ngClass]="{ 'disabled': !problemTxtValue.trim() }"
-          >
-            Mandar información
-          </button>
         </div>
-
-      </div>
+      }
+    } @else {
+      <p class="no-pets">Aún no tienes mascotas asignadas</p>
     }
+
   </div>
 
 </div>
