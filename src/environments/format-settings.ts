@@ -19,3 +19,5 @@ export function dniValidator(): ValidatorFn {
     return null;
   };
 }
+
+export const passwordRegEx: string = '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[.,!?_#$%&*+-=]).{8,}$'

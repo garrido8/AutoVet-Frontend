@@ -6,7 +6,7 @@ import { AuthService } from '../../../services/auth.service';
 import { StyleService } from '../../../services/style.service';
 import { UserInfoService } from '../../../services/user-info.service';
 import { Client } from '../../../interfaces/client.interface';
-import { dniValidator } from '../../../../environments/format-settings';
+import { dniValidator, passwordRegEx } from '../../../../environments/format-settings';
 import * as CryptoJS from 'crypto-js';
 
 
@@ -38,7 +38,7 @@ export class RegisterComponent {
     public form = this.fb.group({
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required],
+      password: ['', [Validators.required, Validators.pattern( passwordRegEx )]],
       dni: ['', [Validators.required, dniValidator()]],
       phone: ['', [Validators.required, Validators.minLength(7), Validators.maxLength(15)]],
     });

@@ -6,6 +6,7 @@ import { StyleService } from '../../../services/style.service';
 import { UserInfoService } from '../../../services/user-info.service';
 import { Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
+import * as CryptoJS from 'crypto-js';
 
 @Component({
   selector: 'app-login',
@@ -58,7 +59,7 @@ export class LoginComponent implements OnInit, OnDestroy {
           response => {
             if (response.length > 0) {
               const hashedPassword = CryptoJS.SHA256(this.form.value.password!).toString();
-              // if (hashedPassword === response[0].password) { Descomentar cuándo se compruebe
+              // if (hashedPassword === response[0].password) {
               if( this.form.value.password === response[0].password) {
                 console.log('Login exitoso! 🎉');
                 this.authService.setIsLoggedIn(true);
