@@ -30,6 +30,7 @@ export class RegisterComponent {
     private router = inject(Router)
 
     public badMail: boolean = false
+    public alreadyExists: boolean = false
 
     public form = this.fb.group({
       name: ['', Validators.required],
@@ -52,7 +53,19 @@ export class RegisterComponent {
 
         if ( this.form.value.email!.includes( 'autovet' ) ) {
           this.badMail = true
-        } else {
+          return
+        }
+
+        this.authService.getUserPerEmail( this.form.value.email!)
+          .subscribe( response => {
+            if( response.length !== 0 ) {
+              this.alreadyExists = true
+            } else {
+              this.alreadyExists = false
+            }
+          })
+
+        if( !this.alreadyExists ) {
           const newClient: Client = {
             name: this.form.value.name!,
             email: this.form.value.email!,

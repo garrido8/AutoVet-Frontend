@@ -27,6 +27,11 @@
               Formato de correo no válido
             </div>
           }
+          @if ( alreadyExists ) {
+            <div class="error">
+              Ya existe un usuario con este correo
+            </div>
+          }
 
         </div>
 
