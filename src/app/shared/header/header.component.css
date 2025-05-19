@@ -4,7 +4,7 @@ header.main {
   left: 0;
   background-color: #1e1e1e; /* Dark background */
   color: #f0f0f0; /* Light text */
-  padding: 15px 40px; /* Adjusted vertical padding */
+  padding: 0px 40px; /* Adjusted vertical padding */
   display: flex;
   justify-content: space-between;
   align-items: center;
