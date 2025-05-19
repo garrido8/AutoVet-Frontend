@@ -21,6 +21,13 @@
           <div *ngIf="form.get('email')?.invalid && form.get('email')?.touched" class="error">
             Introduce un correo válido.
           </div>
+
+          @if ( badMail ) {
+            <div class="error">
+              Formato de correo no válido
+            </div>
+          }
+
         </div>
 
         <div class="input-container" id="phone-input-container">

@@ -29,6 +29,8 @@ export class RegisterComponent {
 
     private router = inject(Router)
 
+    public badMail: boolean = false
+
     public form = this.fb.group({
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
@@ -47,22 +49,28 @@ export class RegisterComponent {
 
     public logIn(): void {
       if (this.form.valid) {
-        const newClient: Client = {
-          name: this.form.value.name!,
-          email: this.form.value.email!,
-          password: this.form.value.password!,
-          dni: this.form.value.dni!,
-          phone: this.form.value.phone!
-        }
-        this.authService.addUser(newClient).subscribe({
-          next: (createdClient) => {
-            this.form.reset()
-            this.router.navigate(['/auth/login'])
-          },
-          error: (err) => {
-            console.error('Error al crear usuario:', err);
+
+        if ( this.form.value.email!.includes( 'autovet' ) ) {
+          this.badMail = true
+        } else {
+          const newClient: Client = {
+            name: this.form.value.name!,
+            email: this.form.value.email!,
+            password: this.form.value.password!,
+            dni: this.form.value.dni!,
+            phone: this.form.value.phone!
           }
-        });
+          this.authService.addUser(newClient).subscribe({
+            next: (createdClient) => {
+              this.form.reset()
+              this.router.navigate(['/auth/login'])
+            },
+            error: (err) => {
+              console.error('Error al crear usuario:', err);
+            }
+          });
+        }
+
 
       } else {
         console.log('Formulario inválido 😬');
