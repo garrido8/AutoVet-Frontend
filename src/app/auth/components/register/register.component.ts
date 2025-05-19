@@ -7,6 +7,8 @@ import { StyleService } from '../../../services/style.service';
 import { UserInfoService } from '../../../services/user-info.service';
 import { Client } from '../../../interfaces/client.interface';
 import { dniValidator } from '../../../../environments/format-settings';
+import * as CryptoJS from 'crypto-js';
+
 
 @Component({
   selector: 'app-register',
@@ -49,7 +51,7 @@ export class RegisterComponent {
       this.styleService.setHeaderOff(false);
     }
 
-    public logIn(): void {
+    public createUser(): void {
       if (this.form.valid) {
 
         if ( this.form.value.email!.includes( 'autovet' ) ) {
@@ -70,7 +72,7 @@ export class RegisterComponent {
           const newClient: Client = {
             name: this.form.value.name!,
             email: this.form.value.email!,
-            password: this.form.value.password!,
+            password: CryptoJS.SHA256(this.form.value.password!).toString(),
             dni: this.form.value.dni!,
             phone: this.form.value.phone!
           }

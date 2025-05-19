@@ -57,6 +57,8 @@ export class LoginComponent implements OnInit, OnDestroy {
         const getUser = this.authService.getUserPerEmail(this.form.value.email!).subscribe(
           response => {
             if (response.length > 0) {
+              const hashedPassword = CryptoJS.SHA256(this.form.value.password!).toString();
+              // if (hashedPassword === response[0].password) { Descomentar cuándo se compruebe
               if( this.form.value.password === response[0].password) {
                 console.log('Login exitoso! 🎉');
                 this.authService.setIsLoggedIn(true);
