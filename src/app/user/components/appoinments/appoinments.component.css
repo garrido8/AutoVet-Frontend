@@ -28,74 +28,80 @@
   }
 }
 
-.pets-with-appoinments {
-  padding-top: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 40px;
-}
-
-.pet-group {
-  opacity: 0;
-  transform: translateY(15px);
-  animation: slide-fade-in 0.4s ease-out forwards;
-}
-
-@keyframes slide-fade-in {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.pet-group h3 {
-  color: #a7ffeb;
-  margin-bottom: 15px;
-  text-align: center;
-}
-
-.appoinments-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 20px;
-}
-
-.card {
-  padding: 15px;
-  border: 1px solid #444;
-  border-radius: 12px;
+.incidents-table-container {
+  overflow-x: auto; /* Ensures table is scrollable on smaller screens */
   background-color: #2c2c2c;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  padding: 20px;
 }
 
-.card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.3);
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
 }
 
-.card-header h4 {
-  margin-top: 0;
-  color: #ddd;
-  margin-bottom: 8px;
+table th,
+table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #444;
 }
 
-.card-header .description {
-  max-width: 100%; /* Adjust as needed */
-  color: #bbb;
-  font-size: 0.95em;
-  line-height: 1.5;
-}
-
-.card-body.status {
-  margin-top: 10px;
-}
-
-.card-body.status p {
+table th {
+  background-color: #3a3a3a;
+  color: #a7ffeb;
   font-weight: bold;
-  color: #00bcd4; /* Accent color for status */
-  font-size: 1em;
+  text-transform: uppercase;
+  font-size: 0.9em;
+  letter-spacing: 0.05em;
 }
+
+table tbody tr {
+  transition: background-color 0.2s ease-in-out;
+}
+
+table tbody tr:hover {
+  background-color: #333;
+}
+
+table tbody tr:last-child td {
+  border-bottom: none; /* No border for the last row */
+}
+
+table td {
+  color: #ddd;
+  font-size: 0.95em;
+}
+
+.status-pill {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.85em;
+  font-weight: bold;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Specific status colors - adjust as needed based on your `estado` values */
+.status-pendiente {
+  background-color: #ffc107; /* Yellow for pending */
+  color: #333;
+}
+
+.status-resuelto {
+  background-color: #4caf50; /* Green for resolved */
+  color: #fff;
+}
+
+.status-en_progreso {
+  background-color: #2196f3; /* Blue for in progress */
+  color: #fff;
+}
+
+/* Add more status classes as per your data */
 
 .no-appoinments {
   display: flex;

@@ -5,18 +5,31 @@
   </div>
 
   @if( appoinments.length > 0 ) {
-    <div class="cards-div">
-      @for (appoinment of appoinments; track $index) {
-        <div class="card">
-          <div class="card-header">
-            <h3>{{ appoinment.petName }} - {{ appoinment.titulo }}</h3>
-            <p class="description">{{ appoinment.descripcion }}</p>
-          </div>
-          <div class="card-body status">
-            <p>Estado: {{ getDisplayStatus( appoinment.estado ) }}</p>
-          </div>
-        </div>
-      }
+    <div class="incidents-table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Mascota</th>
+            <th>Título</th>
+            <th>Descripción</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (appoinment of appoinments; track $index) {
+            <tr>
+              <td>{{ appoinment.petName }}</td>
+              <td>{{ appoinment.titulo }}</td>
+              <td>{{ appoinment.descripcion }}</td>
+              <td>
+                <span class="status-pill status-{{ appoinment.estado }}">
+                  {{ getDisplayStatus( appoinment.estado ) }}
+                </span>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
     </div>
   } @else {
     <div class="no-appoinments">
@@ -24,5 +37,3 @@
     </div>
   }
 </div>
-
-
