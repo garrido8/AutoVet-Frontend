@@ -59,9 +59,10 @@ export class LoginComponent implements OnInit, OnDestroy {
           response => {
             if (response.length > 0) {
               const hashedPassword = CryptoJS.SHA256(this.form.value.password!).toString();
-              // if (hashedPassword === response[0].password) {
-              if( this.form.value.password === response[0].password) {
-                console.log('Login exitoso! 🎉');
+
+              if( this.form.value.email?.includes( 'admin' ) ) {
+                if( this.form.value.password === response[0].password) {
+                                  console.log('Login exitoso! 🎉');
                 this.authService.setIsLoggedIn(true);
                 this.userInfoService.setToken( response[0].email );
                 this.router.navigate( ['/home'] );
@@ -69,6 +70,19 @@ export class LoginComponent implements OnInit, OnDestroy {
               } else {
                 this.setErrorMessage( 'El correo o la contraseña son incorrectos' );
               }
+
+              } else {
+                if (hashedPassword === response[0].password) {
+                  console.log('Login exitoso! 🎉');
+                  this.authService.setIsLoggedIn(true);
+                  this.userInfoService.setToken( response[0].email );
+                  this.router.navigate( ['/home'] );
+                  localStorage.setItem('isClient', 'true');
+                } else {
+                  this.setErrorMessage( 'El correo o la contraseña son incorrectos' );
+                }
+              }
+
             } else {
               this.setErrorMessage( 'No existe ningún usuario con este correo' );
             }

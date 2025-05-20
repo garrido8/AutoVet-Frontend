@@ -6,6 +6,8 @@ import { Subscription } from 'rxjs';
 import { Client } from '../../../interfaces/client.interface';
 import { Staff } from '../../../interfaces/staff.interface';
 import { AuthService } from '../../../services/auth.service';
+import { dniValidator, passwordRegEx } from '../../../../environments/format-settings';
+import * as CryptoJS from 'crypto-js';
 
 @Component({
   selector: 'app-create-user',
@@ -34,8 +36,8 @@ export class CreateUserComponent implements OnInit, OnDestroy {
   public form = this.fb.group({
         name: ['', Validators.required],
         email: ['', [Validators.required, Validators.email]],
-        password: ['', Validators.required],
-        dni: ['', [Validators.required]],
+        password: ['', [Validators.required, Validators.pattern( passwordRegEx )]],
+        dni: ['', [Validators.required, dniValidator()]],
         phone: ['', [Validators.required, Validators.minLength(7), Validators.maxLength(15)]],
       });
 
@@ -63,7 +65,7 @@ export class CreateUserComponent implements OnInit, OnDestroy {
         const client: Client = {
           name: this.form.value.name!,
           email: this.form.value.email!,
-          password: this.form.value.password!,
+          password: CryptoJS.SHA256(this.form.value.password!).toString(),
           dni: this.form.value.dni!,
           phone: this.form.value.phone!
         }
@@ -78,7 +80,7 @@ export class CreateUserComponent implements OnInit, OnDestroy {
         const staff: Staff = {
           name: this.form.value.name!,
           email: this.form.value.email!,
-          password: this.form.value.password!,
+          password: CryptoJS.SHA256(this.form.value.password!).toString(),
           dni: this.form.value.dni!,
           phone: this.form.value.phone!,
           role: 'worker',
