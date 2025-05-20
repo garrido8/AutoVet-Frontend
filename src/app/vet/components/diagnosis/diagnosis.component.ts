@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { Component, ElementRef, inject, ViewChild } from '@angular/core';
-import { finalize } from 'rxjs/operators';
+import { finalize, switchMap, tap } from 'rxjs/operators';
 import { marked } from 'marked';
 
 import { GeminiService } from '../../../services/gemini.service';
@@ -69,30 +69,27 @@ export class DiagnosisComponent {
       });
   }
 
-  public addAnswer( response: string ) {
-    const email = this.UserInfoService.getToken()
-    const answer: Answer = {
-      time: new Date(),
-      content: response,
-      keywords: '',
-      votes: 0,
-      votedEmails: '',
-      userEmail: ''
-    }
+public addAnswer(response: string): void {
+  const email = this.UserInfoService.getToken();
+  const answer: Answer = {
+    time: new Date(),
+    content: response,
+    keywords: '',
+    votes: 0,
+    votedEmails: '',
+    userEmail: email || 'Anónimo'
+  };
 
-    if( email ) {
-      answer.userEmail = email
-    } else {
-      answer.userEmail = 'Anónimo'
-    }
+  this.gemini.getKeyWords(response)
+    .pipe(
+      tap(words => answer.keywords = words),
+      switchMap(() => this.answersService.addAnswer(answer))
+    )
+    .subscribe(
+      response => console.log('Respuesta agregada correctamente'),
+      error => console.error('Error al agregar respuesta', error)
+    );
+}
 
-    this.gemini.getKeyWords( response )
-      .subscribe( words => {
-        answer.keywords = words
-
-        this.answersService.addAnswer( answer )
-          .subscribe( response => {})
-      } )
-  }
 
 }
