@@ -68,10 +68,17 @@ export class CreateComponent implements OnInit {
     if( this.problemTxtValue.length > 0 && this.selectedPet ) {
       this.isLoading = true;
 
-      this.geminiService.generateName( this.problemTxtValue )
+      const prompt = 'Mi mascota es un ' + this.selectedPet?.especie +
+          ' ,de raza ' + this.selectedPet?.raza +
+          ' ,se llama ' + this.selectedPet?.nombre +
+          ' ,tiene ' + this.selectedPet?.edad + ' años. ' +
+          ' y pesa ' + this.selectedPet?.peso + ' kg. ' +
+          '. ' + this.problemTxtValue
+
+      this.geminiService.generateName( prompt )
         .subscribe( title => {
 
-          this.geminiService.generateProffesionalSummary( this.problemTxtValue )
+          this.geminiService.generateProffesionalSummary( prompt )
             .subscribe( description => {
               this.isLoading = false;
               appoinment.titulo = title

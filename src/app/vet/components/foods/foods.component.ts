@@ -121,9 +121,13 @@ export class FoodsComponent {
     this.selectedBreed = pet.raza
     this.selectedPet = pet.especie
 
-    const text = this.selectedPet! + ' ' + this.selectedBreed;
+    const prompt = 'Mi mascota es un ' + pet.especie +
+          ' ,de raza ' + pet.raza +
+          ' ,se llama ' + pet.nombre +
+          ' ,tiene ' + pet.edad + ' años. ' +
+          ' y pesa ' + pet.peso + ' kg. '
 
-    this.geminiService.getFoods( text )
+    this.geminiService.getFoods( prompt )
     .subscribe( response => {
       this.isLoading = false
       this.formattedResponse = marked( response ).toString();
