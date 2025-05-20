@@ -18,3 +18,5 @@
   export const breedsNames: string = 'Dime como mucho 60 razas que te sepas del animal que te pondré a continuación, no digas nada más que no sean los nombres. No pongas números en la respuesta'
 
   export const foodsPropmt: string = 'Dime qué comidas son peligrosas para el animal y la raza que te voy a poner a continuación. Dime directamente las comidas y como mucho alguna recomendación al final, pero comienza diciendo directamente las comidas. Gracias.'
+
+  export const keyWords: string = 'Esto es una respuesta que tú has dado a un problema que tiene una mascota que alguien te ha dicho. Trata de sacar palabras claves para poder identificar y distinguir esta respuesta de otras Dame solo las palabras separadas por comas, no digas nada más'

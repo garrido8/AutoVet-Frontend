@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { GoogleGenAI } from '@google/genai';
-import { apiKey, breedsNames, expertPrompt, foodsPropmt, generateDescription, generateSummaryName } from '../../environments/prompt-settings';
+import { apiKey, breedsNames, expertPrompt, foodsPropmt, generateDescription, generateSummaryName, keyWords } from '../../environments/prompt-settings';
 import { Observable, from } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
@@ -101,6 +101,23 @@ export class GeminiService {
     const newPrompt: string = foodsPropmt + prompt;
 
     return from(
+      this.ai.models.generateContent({
+        model: 'gemini-2.0-flash',
+        contents: newPrompt,
+      })
+    ).pipe(
+      map(response => response.text || 'No response received'),
+      catchError(error => {
+        console.error('Error generating content:', error);
+        return ['Error occurred']; // Emits a fallback value
+      })
+    );
+  }
+
+  getKeyWords( prompt: string ): Observable<string> {
+    const newPrompt: string = keyWords + '\n' + prompt
+
+        return from(
       this.ai.models.generateContent({
         model: 'gemini-2.0-flash',
         contents: newPrompt,

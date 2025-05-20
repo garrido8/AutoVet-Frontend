@@ -6,6 +6,9 @@ import { finalize } from 'rxjs/operators';
 import { marked } from 'marked';
 
 import { GeminiService } from '../../../services/gemini.service';
+import { AnswersService } from '../../../services/answers.service';
+import { Answer } from '../../../interfaces/answer.interface';
+import { UserInfoService } from '../../../services/user-info.service';
 
 @Component({
   selector: 'app-diagnosis',
@@ -20,6 +23,8 @@ import { GeminiService } from '../../../services/gemini.service';
 export class DiagnosisComponent {
 
   private gemini = inject(GeminiService);
+  private answersService = inject( AnswersService )
+  private UserInfoService = inject( UserInfoService )
 
   public isLoading: boolean = false;
 
@@ -44,6 +49,7 @@ export class DiagnosisComponent {
       .pipe(finalize(() => this.isLoading = false))
       .subscribe({
         next: response => {
+          this.addAnswer( response )
           this.responseText = response;
           this.formattedResponse = marked(response).toString(); // Convert Markdown to HTML
           // Add the 'show' class to trigger the animation
@@ -61,6 +67,32 @@ export class DiagnosisComponent {
           }
         }
       });
+  }
+
+  public addAnswer( response: string ) {
+    const email = this.UserInfoService.getToken()
+    const answer: Answer = {
+      time: new Date(),
+      content: response,
+      keywords: '',
+      votes: 0,
+      votedEmails: '',
+      userEmail: ''
+    }
+
+    if( email ) {
+      answer.userEmail = email
+    } else {
+      answer.userEmail = 'Anónimo'
+    }
+
+    this.gemini.getKeyWords( response )
+      .subscribe( words => {
+        answer.keywords = words
+
+        this.answersService.addAnswer( answer )
+          .subscribe( response => {})
+      } )
   }
 
 }
