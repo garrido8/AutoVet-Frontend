@@ -66,10 +66,6 @@
   gap: 20px;
 }
 
-.card {
-  /* No specific card styling here, using button styling */
-}
-
 .card-button {
   background-color: #333;
   color: #fff;

@@ -1,2 +1,24 @@
-<h1>Foro de preguntas</h1>
-<p>Encuentra preguntas y ayuda para problemas de tus mascotas</p>
+<div class="main-container">
+    <h1 class="main-title">Foro de preguntas</h1>
+    <p class="description">Encuentra preguntas y ayuda para problemas de tus mascotas</p>
+
+    <div class="answers-container">
+          @for (answer of allAnswers; track $index) {
+            <div class="answer-card">
+              <h2 class="answer-user">Generada por: <span class="user-email">{{answer.userEmail}}</span></h2>
+                <div class="answer-header">
+                    <span class="answer-time"></span>
+                </div>
+                <p class="answer-content">{{answer.content}}</p>
+                <div class="answer-keywords">
+                    @for (keyword of keywords; track $index) {
+                      <span class="keyword">{{keyword}}</span>
+                    }
+                </div>
+                <div class="answer-votes">
+                    <span class="votes-label">Votos: <span class="votes-count">{{answer.votes}}</span></span>
+                </div>
+            </div>
+          }
+    </div>
+</div>
