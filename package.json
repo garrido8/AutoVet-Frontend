@@ -22,7 +22,7 @@
     "@angular/router": "^19.0.0",
     "@google/genai": "^0.7.0",
     "concurrently": "^9.1.2",
-    "crypto-js": "^4.2.0",
+    "crypto.js": "^3.3.4",
     "marked": "^15.0.7",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
