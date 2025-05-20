@@ -5,27 +5,39 @@
     <p>En esta sección podrás ver todas tus mascotas y sus incidencias pendientes.</p>
   </div>
 
-  <div class="cards-div">
-    @for (pet of pets; track $index) {
-      <div class="card">
-
-        <div class="photo">
-          Foto mascota
-        </div>
-
-        <div class="pet-info">
-          <p>{{ pet.nombre }}</p>
-          <p>{{ pet.especie }}</p>
-          <p>{{ pet.raza }}</p>
-          @if ( pet.appoinments!.length > 0 ) {
-            <p>Incidencias: {{pet.appoinments!.length}}</p>
-          } @else {
-            <p>Sin incidencias pendientes</p>
+  @if( pets.length > 0 ) {
+    <div class="pets-table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Especie</th>
+            <th>Raza</th>
+            <th>Incidencias Pendientes</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (pet of pets; track $index) {
+            <tr>
+              <td>{{ pet.nombre }}</td>
+              <td>{{ pet.especie }}</td>
+              <td>{{ pet.raza }}</td>
+              <td>
+                @if ( pet.appoinments && pet.appoinments.length > 0 ) {
+                  <span class="incidents-count-pill">{{ pet.appoinments.length }}</span>
+                } @else {
+                  Sin incidencias
+                }
+              </td>
+            </tr>
           }
-        </div>
-
-      </div>
-    }
-  </div>
+        </tbody>
+      </table>
+    </div>
+  } @else {
+    <div class="no-pets">
+      <p>¡Parece que aún no tienes mascotas registradas!</p>
+    </div>
+  }
 
 </div>

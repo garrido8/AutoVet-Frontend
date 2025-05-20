@@ -1,90 +1,123 @@
 .main-content {
-  padding: 20px;
+  padding: 30px 20px; /* Increased padding slightly for better spacing */
   color: #f0f0f0;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-h1, h2 {
-  color: #eee;
+.section-title { /* Consolidated h1/h2 styling */
+  color: #a7ffeb; /* Accent color for section titles */
   margin-bottom: 20px;
-  text-align: center; /* Center the headings */
+  text-align: center;
+  opacity: 0;
+  transform: translateY(-10px);
+  animation: fade-in-up 0.5s ease-out forwards;
+}
+
+@keyframes fade-in-up {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 hr {
   border-color: #444;
-  margin: 30px 0;
+  margin: 40px 0; /* More vertical space around the separator */
 }
 
-.cards-div {
-  padding-top: 20px; /* Reduced top padding */
-  display: flex;
-  flex-wrap: wrap;
-  gap: 25px; /* Slightly reduced gap */
-  justify-content: center; /* Center the cards */
-}
-
-.card {
-  padding: 20px;
-  border: 1px solid #444;
+.table-container {
+  overflow-x: auto; /* Ensures table is scrollable on smaller screens */
+  background-color: #2c2c2c;
   border-radius: 12px;
-  width: calc(33% - 25px); /* Roughly three cards per row on larger screens */
-  min-width: 300px; /* Minimum width for responsiveness */
-  background: linear-gradient(to right, #333, #444);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  padding: 20px; /* Padding around the table */
+  margin-top: 20px; /* Space from the title */
+  opacity: 0; /* Start invisible for animation */
+  transform: translateY(-10px); /* Start slightly above for animation */
+  animation: fade-in-up 0.5s ease-out forwards;
+  animation-delay: 0.2s; /* Delay for table to appear after title */
 }
 
-@media (max-width: 960px) {
-  .card {
-    width: calc(50% - 25px); /* Two cards per row on medium screens */
-  }
+table {
+  width: 100%;
+  border-collapse: collapse;
 }
 
-@media (max-width: 600px) {
-  .card {
-    width: 100%; /* One card per row on small screens */
-  }
+table th,
+table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #444;
+  vertical-align: middle; /* Align content vertically in the middle */
 }
 
-.card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.3);
-}
-
-.card-header {
-  margin-bottom: 15px;
-  border-bottom: 1px solid #555;
-  padding-bottom: 10px;
-}
-
-.card-header h3 {
-  margin-top: 0;
-  color: #ddd;
-}
-
-.card-header .description {
-  color: #bbb;
-  font-style: italic;
-  font-size: 0.9em;
-  margin-top: 5px;
-}
-
-.card-body {
-  margin-bottom: 15px;
-}
-
-.card-body p {
-  margin: 5px 0;
-}
-
-.card-body.status {
+table th {
+  background-color: #3a3a3a;
+  color: #a7ffeb;
   font-weight: bold;
-  color: #a7ffeb; /* Example accent color for status */
+  text-transform: uppercase;
+  font-size: 0.9em;
+  letter-spacing: 0.05em;
 }
 
-.assign-btn-container {
-  display: flex;
-  justify-content: flex-end;
+table tbody tr {
+  cursor: pointer; /* Indicate rows are clickable (if routerLink is present) */
+  transition: background-color 0.2s ease-in-out;
+}
+
+table tbody tr:hover {
+  background-color: #383838; /* Slightly darker on hover for better feedback */
+}
+
+table tbody tr:last-child td {
+  border-bottom: none; /* No border for the last row */
+}
+
+table td {
+  color: #ddd;
+  font-size: 0.95em;
+}
+
+.status-pill {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.85em;
+  font-weight: bold;
+  text-align: center;
+  white-space: nowrap;
+  min-width: 80px; /* Ensure consistent pill width */
+}
+
+/* Specific status colors (from previous design) */
+.status-pendiente {
+  background-color: #ffc107; /* Yellow for pending */
+  color: #333;
+}
+
+.status-resuelto {
+  background-color: #4caf50; /* Green for resolved */
+  color: #fff;
+}
+
+.status-en_progreso {
+  background-color: #2196f3; /* Blue for in progress */
+  color: #fff;
+}
+
+/* New: No data message styling */
+.no-data-message {
+  color: #ccc;
+  font-size: 1.1em;
+  text-align: center;
+  padding: 30px 20px; /* Add some padding */
+  background-color: #2c2c2c; /* Match table container background */
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  margin-top: 20px;
+  opacity: 0; /* For animation */
+  transform: translateY(-10px); /* For animation */
+  animation: fade-in-up 0.5s ease-out forwards;
+  animation-delay: 0.2s;
 }
 
 .assign-btn {
@@ -92,38 +125,14 @@ hr {
   color: white;
   border: none;
   border-radius: 5px;
-  padding: 10px 15px;
+  padding: 8px 12px; /* Slightly smaller for table cell */
   cursor: pointer;
   transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
+  font-size: 0.9em;
+  white-space: nowrap; /* Prevent text wrapping */
 }
 
 .assign-btn:hover {
   background-color: #0056b3;
   transform: scale(1.05);
-}
-
-.no-appointments {
-  color: #ccc;
-  font-size: 1.1em;
-  text-align: center;
-  padding: 20px;
-}
-
-/* Subtle animation for new cards appearing */
-.card {
-  opacity: 0;
-  transform: translateY(20px);
-  animation: fade-in 0.5s ease-out forwards;
-}
-
-@keyframes fade-in {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-
-.capitalized {
-  text-transform: capitalize;
 }

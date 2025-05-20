@@ -94,7 +94,8 @@ export class LoginComponent implements OnInit, OnDestroy {
         const getStaff = this.authService.getStaffPerEmail(this.form.value.email!).subscribe(
           response => {
             if (response.length > 0) {
-              if( this.form.value.password === response[0].password) {
+              const hashedPassword = CryptoJS.SHA256(this.form.value.password!).toString();
+              if (hashedPassword === response[0].password) {
 
                 if( response[0].role=== 'admin' ) {
                   localStorage.setItem('isAdmin', 'true');

@@ -1,25 +1,35 @@
-
 <div class="main-content">
 
   @if ( !isAdmin ) {
-    <h1>Mis incidencias</h1>
+    <h1 class="section-title">Mis incidencias</h1>
 
     @if( workerAppoinments.length > 0 ) {
-      <div class="cards-div">
-        @for (appoinment of workerAppoinments; track $index) {
-          <div class="card"  routerLink="/staff/appointment-info/{{ appoinment.pk }}">
-            <div class="card-header">
-              <h3>{{ appoinment.titulo }}</h3>
-              <p class="description">{{ appoinment.descripcion }}</p>
-            </div>
-            <div class="card-body">
-              <p>Estado: {{ getDisplayStatus( appoinment.estado )}}</p>
-            </div>
-          </div>
-        }
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Título</th>
+              <th>Descripción</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (appoinment of workerAppoinments; track $index) {
+              <tr routerLink="/staff/appointment-info/{{ appoinment.pk }}">
+                <td>{{ appoinment.titulo }}</td>
+                <td>{{ appoinment.descripcion }}</td>
+                <td>
+                  <span class="status-pill status-{{ appoinment.estado | lowercase }}">
+                    {{ getDisplayStatus( appoinment.estado )}}
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
       </div>
     } @else {
-      <p class="no-appointments">No tienes incidencias registradas.</p>
+      <p class="no-data-message">No tienes incidencias asignadas.</p>
     }
 
     <hr>
@@ -27,38 +37,51 @@
 
 
   @if( isAdmin ) {
-    <h1>Incidencias</h1>
+    <h1 class="section-title">Incidencias</h1>
   } @else {
-    <h2>Incidencias</h2>
+    <h2 class="section-title">Incidencias</h2>
   }
 
   @if( allAppoinments.length > 0 ) {
-    <div class="cards-div">
-      @for (appoinment of allAppoinments; track $index) {
-        <div class="card" [routerLink]="isAdmin ? '/staff/appointment-info/' + appoinment.pk : null">
-          <div class="card-header">
-            <h3>{{ appoinment.titulo }}</h3>
-            <p class="description">{{ appoinment.descripcion }}</p>
-          </div>
-          <div class="card-body status">
-            <p>Estado: {{ getDisplayStatus( appoinment.estado )}}</p>
-          </div>
-
-          @if( !isAdmin ) {
-            <div class="assign-btn-container">
-              <button (click)="assignAppoinment(appoinment)" class="assign-btn">
-                Asignar
-              </button>
-            </div>
-          } @else {
-            <div class="assigned-worker">
-              <p>Asignado a: {{ appoinment.workerName }}</p>
-            </div>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Título</th>
+            <th>Descripción</th>
+            <th>Estado</th>
+            @if( isAdmin ) {
+              <th>Asignado a</th>
+            } @else {
+              <th>Acción</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (appoinment of allAppoinments; track $index) {
+            <tr [routerLink]="isAdmin ? '/staff/appointment-info/' + appoinment.pk : null">
+              <td>{{ appoinment.titulo }}</td>
+              <td>{{ appoinment.descripcion }}</td>
+              <td>
+                <span class="status-pill status-{{ appoinment.estado | lowercase }}">
+                  {{ getDisplayStatus( appoinment.estado )}}
+                </span>
+              </td>
+              @if( !isAdmin ) {
+                <td>
+                  <button (click)="assignAppoinment(appoinment)" class="assign-btn">
+                    Asignar
+                  </button>
+                </td>
+              } @else {
+                <td>{{ appoinment.workerName || 'No asignado' }}</td>
+              }
+            </tr>
           }
-        </div>
-      }
+        </tbody>
+      </table>
     </div>
   } @else {
-    <p class="no-appointments">No hay incidencias registradas.</p>
+    <p class="no-data-message">No hay incidencias disponibles para asignar.</p>
   }
 </div>
