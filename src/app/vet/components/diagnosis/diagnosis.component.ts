@@ -18,6 +18,7 @@ import { MessageService } from '../../../services/message.service';
 import { ConversationService } from '../../../services/conversation.service';
 import { Conversation } from '../../../interfaces/conversation.interface';
 import { Router } from '@angular/router';
+import { ChatStateService } from '../../../services/chatstate.service';
 
 @Component({
   selector: 'app-diagnosis',
@@ -39,6 +40,7 @@ export class DiagnosisComponent implements OnInit, OnDestroy {
   private messagesService = inject( MessageService )
   private conversationsService = inject( ConversationService )
   private route = inject( Router )
+  private chatStateService = inject( ChatStateService )
 
   public isLoading: boolean = false;
 
@@ -187,7 +189,7 @@ export class DiagnosisComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.subscriptions.add(
+    this.subscriptions.add( // Add the main subscription to `this.subscriptions`
       this.authService.getUserPerEmail(this.UserInfoService.getToken()!).pipe(
         tap(user => {
           if (!user || user.length === 0 || !user[0].id) {
@@ -196,7 +198,7 @@ export class DiagnosisComponent implements OnInit, OnDestroy {
           }
         }),
         switchMap(user => {
-          // NEW: Get conversation title from Gemini Service first
+          // Get conversation title from Gemini Service first
           return this.gemini.getConvsersationTitle(this.userMessage!.content).pipe(
             catchError(error => {
               console.error('Gemini Title Error: Could not get conversation title from Gemini. Using default title.', error);
@@ -223,6 +225,8 @@ export class DiagnosisComponent implements OnInit, OnDestroy {
           console.log('Conversation created successfully with ID:', conversationResponse.id);
           this.userMessage!.conversation = conversationResponse.id!;
           this.aiMessage!.conversation = conversationResponse.id!;
+          // Store the created conversation in the shared service
+          this.chatStateService.setCurrentConversation(conversationResponse);
         }),
         switchMap(() => {
           console.log('Attempting to add user message:', this.userMessage);
@@ -255,7 +259,7 @@ export class DiagnosisComponent implements OnInit, OnDestroy {
           return of(null); // Ensure the observable completes gracefully after an error
         }),
         finalize(() => console.log('Chatbot initialization flow completed.')) // Always runs when the observable completes or errors
-      ).subscribe() // No need for specific next/error callbacks here as handled by tap/catchError in pipe
+      ).subscribe() // The final subscribe() is the one that gets added to `this.subscriptions`
     );
   }
 
