@@ -214,6 +214,7 @@ export class DiagnosisComponent implements OnInit, OnDestroy {
             this.subscriptions.add( aiMessageSub );
 
           })
+          this.subscriptions.add( conversationSub );
           this.route.navigate(['/chat']);
 
       } )
