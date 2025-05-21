@@ -10,7 +10,7 @@ import { ForumPageComponent } from './components/forum-page/forum-page.component
 @NgModule({
   declarations: [
     HomeComponent,
-    ForumPageComponent,
+    // ForumPageComponent,
   ],
   imports: [
     CommonModule,

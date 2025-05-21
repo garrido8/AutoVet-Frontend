@@ -1,4 +1,4 @@
-/* General Layout & Typography - Largely similar to before */
+/* General Layout & Typography */
 .main-container {
   padding: 20px;
   color: #f0f0f0;
@@ -25,12 +25,9 @@
 /* Answer Cards (Bigger, More Horizontal View) */
 .answers-container {
   display: grid;
-  /* Increased minmax for wider cards:
-     Allows cards to be at least 350px wide, leading to fewer columns
-     on typical screen sizes and a more horizontal feel for each card. */
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 1.5rem; /* Slightly larger gap to give more visual separation to larger cards */
-  margin-top: 1.5rem; /* More space from description */
+  gap: 1.5rem;
+  margin-top: 1.5rem;
 }
 
 .answer-card {
@@ -38,30 +35,37 @@
   color: #fff;
   border-radius: 0.75rem;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-  padding: 1.5rem; /* Increased padding to make cards feel larger */
+  padding: 1.5rem;
   border: 1px solid #444;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  cursor: pointer;
   transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.2s;
 }
 
 .answer-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6); /* More pronounced shadow on hover */
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6);
   background-color: #353535;
+}
+
+.answer-card-content-area {
+    cursor: pointer;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-bottom: 1rem;
 }
 
 .answer-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.8rem; /* Slightly more space */
+  margin-bottom: 0.8rem;
 }
 
 .answer-user {
-  font-size: 1rem; /* Slightly larger font */
+  font-size: 1rem;
   color: #fff;
   font-weight: 600;
   display: flex;
@@ -72,30 +76,29 @@
 .user-label {
   font-weight: normal;
   color: #c0c0c0;
-  font-size: 0.9rem; /* Adjusted size */
+  font-size: 0.9rem;
 }
 
 .user-email {
   color: #66ffda;
   font-weight: 400;
-  font-size: 0.9rem; /* Slightly larger for email */
+  font-size: 0.9rem;
 }
 
 .answer-time {
-  font-size: 0.75rem; /* Slightly larger for time */
+  font-size: 0.75rem;
   color: #999;
 }
 
 .answer-content-preview {
   color: #e0e0e0;
-  margin-bottom: 1rem; /* More space */
-  font-size: 0.95rem; /* Slightly larger font for preview content */
-  line-height: 1.5; /* Improved line height */
-  height: 4.5em; /* Adjusted height for content preview (approx 3 lines * 1.5em line-height) */
+  font-size: 0.95rem;
+  line-height: 1.5;
+  height: 4.5em;
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
-  -webkit-line-clamp: 3; /* Still show exactly 3 lines */
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
 }
 
@@ -104,45 +107,101 @@
   flex-wrap: wrap;
   justify-content: space-between;
   align-items: flex-end;
-  gap: 0.8rem; /* More space */
+  gap: 0.8rem;
   margin-top: auto;
 }
 
 .answer-keywords {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem; /* Slightly larger gap */
+  gap: 0.5rem;
 }
 
 .keyword {
   background-color: #3a3a3a;
   color: #c0c0c0;
-  padding: 0.3rem 0.6rem; /* Slightly larger padding */
+  padding: 0.3rem 0.6rem;
   border-radius: 1rem;
-  font-size: 0.75rem; /* Slightly larger for keywords */
+  font-size: 0.75rem;
   font-weight: 500;
   border: 1px solid #4a4a4a;
 }
 
-.answer-votes {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem; /* Slightly larger gap */
-  margin-left: auto;
+/* Styles for the voting controls container */
+.answer-voting-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 0.5rem;
+    border-top: 1px solid #3a3a3a;
+    margin-top: 0.5rem;
 }
 
-.votes-label {
-  font-size: 0.8rem;
-  color: #c0c0c0;
+/* Styles for the group of vote buttons */
+.vote-buttons-group {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
 }
 
-.votes-count {
-  color: #66ffda;
-  font-weight: 600;
-  font-size: 1rem; /* Slightly larger votes count */
+/* Styles for the vote buttons */
+.vote-button {
+    background-color: transparent;
+    border: 1px solid #4a4a4a;
+    border-radius: 0.4rem;
+    color: #66ffda;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 0.2rem 0.5rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease-in-out, transform 0.1s ease-in-out, background-color 0.2s, border-color 0.2s; /* Added border-color to transition */
 }
 
-/* Modal Specific Styles - Remain largely unchanged, as the request was for the cards, not the modal */
+.vote-button:hover {
+    color: #a7ffeb;
+    background-color: #4a4a4a;
+    transform: none;
+}
+
+/* New: Highlight styles for voted buttons */
+.vote-button.voted-up {
+    background-color: #a7ffeb; /* A distinct background color */
+    color: #1a1a1a; /* Darker text for contrast */
+    border-color: #a7ffeb; /* Matching border color */
+    box-shadow: 0 0 8px rgba(167, 255, 235, 0.6); /* Glow effect */
+}
+
+.vote-button.voted-down {
+    background-color: #ff6666; /* A distinct background color for downvote */
+    color: #1a1a1a; /* Darker text for contrast */
+    border-color: #ff6666; /* Matching border color */
+    box-shadow: 0 0 8px rgba(255, 102, 102, 0.6); /* Glow effect */
+}
+
+/* Ensure hover effects still work on voted buttons */
+.vote-button.voted-up:hover {
+  background-color: #80ffe0; /* Slightly lighter on hover */
+  box-shadow: 0 0 12px rgba(167, 255, 235, 0.8);
+}
+
+.vote-button.voted-down:hover {
+  background-color: #ff4d4d; /* Slightly lighter on hover */
+  box-shadow: 0 0 12px rgba(255, 102, 102, 0.8);
+}
+
+
+/* Adjust votes count styling within the new voting controls */
+.answer-voting-controls .votes-count {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #a7ffeb;
+}
+
+/* Modal Specific Styles */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -243,4 +302,17 @@
 .modal-answer-votes .votes-label,
 .modal-answer-votes .votes-count {
   font-size: 0.9rem;
+}
+
+.response {
+  color: #ddd;
+  line-height: 1.7;
+}
+
+.response p {
+  margin-bottom: 0.5em;
+}
+.response ul {
+  margin-left: 1.5em;
+  list-style-type: disc;
 }

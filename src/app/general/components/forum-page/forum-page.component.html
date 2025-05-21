@@ -4,7 +4,7 @@
 
   <div class="answers-container">
     @for (answer of allAnswers; track $index) {
-      <div class="answer-card" (click)="openModal(answer)">
+      <div class="answer-card">
         <div class="answer-header">
           <h2 class="answer-user">
             <span class="user-label">Generada por:</span>
@@ -12,17 +12,28 @@
           </h2>
           <span class="answer-time">{{ formatAnswerTime(answer.time) }}</span>
         </div>
-        <p class="answer-content-preview">{{ getTruncatedContent(answer.content) }}</p>
-        <div class="answer-details">
-          <div class="answer-keywords">
-            @for (keyword of (answer.keywords ? answer.keywords.split(',') : []); track $index) {
-              <span class="keyword">{{ keyword }}</span>
-            }
-          </div>
-          <div class="answer-votes">
-            <span class="votes-label">Votos:</span>
+        <div (click)="openModal(answer)" class="answer-card-content-area">
+            <p class="answer-content-preview">{{ getTruncatedContent(answer.content) }}</p>
+            <div class="answer-details">
+                <div class="answer-keywords">
+                    @for (keyword of (answer.keywords ? answer.keywords.split(',') : []); track $index) {
+                        <span class="keyword">{{ keyword }}</span>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="answer-voting-controls">
+            <div class="vote-buttons-group">
+                <button
+                    class="vote-button upvote"
+                    [ngClass]="{'voted-up': getUserVoteType(answer) === 'up'}"
+                    (click)="$event.stopPropagation(); voteUp(answer)">+</button>
+                <button
+                    class="vote-button downvote"
+                    [ngClass]="{'voted-down': getUserVoteType(answer) === 'down'}"
+                    (click)="$event.stopPropagation(); voteDown(answer)">-</button>
+            </div>
             <span class="votes-count">{{ answer.votes }}</span>
-          </div>
         </div>
       </div>
     }
@@ -39,7 +50,7 @@
         </h2>
         <span class="modal-answer-time">{{ formatAnswerTime(selectedAnswer.time) }}</span>
 
-        <p class="modal-answer-full-content">{{ selectedAnswer.content }}</p>
+        <div class="modal-answer-full-content response" [innerHTML]="answerContent"></div>
 
         <div class="modal-answer-details">
           <div class="modal-answer-keywords">
