@@ -1,24 +1,58 @@
 <div class="main-container">
-    <h1 class="main-title">Foro de preguntas</h1>
-    <p class="description">Encuentra preguntas y ayuda para problemas de tus mascotas</p>
+  <h1 class="main-title">Foro de preguntas</h1>
+  <p class="description">Encuentra preguntas y ayuda para problemas de tus mascotas</p>
 
-    <div class="answers-container">
-          @for (answer of allAnswers; track $index) {
-            <div class="answer-card">
-              <h2 class="answer-user">Generada por: <span class="user-email">{{answer.userEmail}}</span></h2>
-                <div class="answer-header">
-                    <span class="answer-time"></span>
-                </div>
-                <p class="answer-content">{{answer.content}}</p>
-                <div class="answer-keywords">
-                    @for (keyword of keywords; track $index) {
-                      <span class="keyword">{{keyword}}</span>
-                    }
-                </div>
-                <div class="answer-votes">
-                    <span class="votes-label">Votos: <span class="votes-count">{{answer.votes}}</span></span>
-                </div>
-            </div>
-          }
+  <div class="answers-container">
+    @for (answer of allAnswers; track $index) {
+      <div class="answer-card" (click)="openModal(answer)">
+        <div class="answer-header">
+          <h2 class="answer-user">
+            <span class="user-label">Generada por:</span>
+            <span class="user-email">{{ answer.userEmail }}</span>
+          </h2>
+          <span class="answer-time">{{ formatAnswerTime(answer.time) }}</span>
+        </div>
+        <p class="answer-content-preview">{{ getTruncatedContent(answer.content) }}</p>
+        <div class="answer-details">
+          <div class="answer-keywords">
+            @for (keyword of (answer.keywords ? answer.keywords.split(',') : []); track $index) {
+              <span class="keyword">{{ keyword }}</span>
+            }
+          </div>
+          <div class="answer-votes">
+            <span class="votes-label">Votos:</span>
+            <span class="votes-count">{{ answer.votes }}</span>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  @if (showModal && selectedAnswer) {
+    <div class="modal-overlay" (click)="closeModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <button class="modal-close-button" (click)="closeModal()">X</button>
+
+        <h2 class="modal-answer-user">
+          <span class="user-label">Generada por:</span>
+          <span class="user-email">{{ selectedAnswer.userEmail }}</span>
+        </h2>
+        <span class="modal-answer-time">{{ formatAnswerTime(selectedAnswer.time) }}</span>
+
+        <p class="modal-answer-full-content">{{ selectedAnswer.content }}</p>
+
+        <div class="modal-answer-details">
+          <div class="modal-answer-keywords">
+            @for (keyword of modalKeywords; track $index) {
+              <span class="keyword">{{ keyword }}</span>
+            }
+          </div>
+          <div class="modal-answer-votes">
+            <span class="votes-label">Votos:</span>
+            <span class="votes-count">{{ selectedAnswer.votes }}</span>
+          </div>
+        </div>
+      </div>
     </div>
+  }
 </div>
