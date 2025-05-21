@@ -7,20 +7,23 @@
     <strong>En cualquier caso, te recomendamos crear una incidencia para una valoración más exhaustiva.</strong>
   </p>
 
-  <p>¿Quieres preguntar acerca de una de tus mascotas?</p>
-  <div class="pets-div">
-    @for (pet of userPets; track $index) {
-      <div class="card">
-        <button
-          class="card-button"
-          (click)="selectPet(pet)"
-          [ngClass]="{ 'selected': selectedPet === pet }"
-        >
-          {{ pet.nombre }}
-        </button>
-      </div>
-    }
-  </div>
+  @if( isUser && userPets.length > 0 ) {
+    <p>¿Quieres preguntar acerca de una de tus mascotas?</p>
+    <div class="pets-div">
+      @for (pet of userPets; track $index) {
+        <div class="card">
+          <button
+            class="card-button"
+            (click)="selectPet(pet)"
+            [ngClass]="{ 'selected': selectedPet === pet }"
+          >
+            {{ pet.nombre }}
+          </button>
+        </div>
+      }
+    </div>
+  }
+
 </div>
 
 <div class="main-content" id="main-content">

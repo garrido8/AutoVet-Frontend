@@ -43,6 +43,7 @@ export class DiagnosisComponent implements OnInit, OnDestroy {
   public userPets: Pet[] = [];
   public selectedPet?: Pet
   private selected: boolean = false
+  public isUser: boolean = false
 
   private subscriptions = new Subscription();
 
@@ -50,8 +51,10 @@ export class DiagnosisComponent implements OnInit, OnDestroy {
     const userSubscription = this.authService.getUserPerEmail(this.UserInfoService.getToken()!).pipe(
       switchMap(user => {
         if (!user || user.length === 0) {
+          this.isUser = false
           return of([]);
         }
+        this.isUser = true
         const petSubscription = this.petService.getPetByOwner(user[0].id!)
           .subscribe(pets => {
             this.userPets = pets;

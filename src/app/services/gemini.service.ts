@@ -117,7 +117,7 @@ export class GeminiService {
   getKeyWords( prompt: string ): Observable<string> {
     const newPrompt: string = keyWords + '\n' + prompt
 
-        return from(
+    return from(
       this.ai.models.generateContent({
         model: 'gemini-2.0-flash',
         contents: newPrompt,

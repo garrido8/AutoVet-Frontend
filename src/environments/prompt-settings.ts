@@ -19,4 +19,4 @@
 
   export const foodsPropmt: string = 'Dime qué comidas son peligrosas para el animal y la raza que te voy a poner a continuación. Dime directamente las comidas y como mucho alguna recomendación al final, pero comienza diciendo directamente las comidas. Gracias.'
 
-  export const keyWords: string = 'Esto es una respuesta que tú has dado a un problema que tiene una mascota que alguien te ha dicho. Trata de sacar palabras claves para poder identificar y distinguir esta respuesta de otras Dame solo las palabras separadas por comas, no digas nada más'
+  export const keyWords: string = 'Esto es una respuesta que tú has dado a un problema que tiene una mascota que alguien te ha dicho. Trata de sacar palabras claves para poder identificar y distinguir esta respuesta de otras Dame solo las palabras separadas por comas, no digas nada más. Dame un máximo de 10 palabras clave y procura que sean las palabras clave fundamentales y que más resuman y se identifiquen con el contenido de la respuesta.'
