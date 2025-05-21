@@ -51,6 +51,25 @@
     >
       Preguntar
     </button>
+
+    @if( responseText.length > 0 ) {
+      <div class="buttons">
+        <button
+          class="send-btn pointer"
+          id="more-btn"
+        >
+          Ver más preguntas
+        </button>
+
+        <button
+          class="send-btn pointer"
+          id="chat-btn"
+          (click)="goToChatBot()"
+        >
+          Seguir conversación
+        </button>
+      </div>
+    }
   </div>
 
   @if ( responseText.length > 0 ) {

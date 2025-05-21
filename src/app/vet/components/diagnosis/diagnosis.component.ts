@@ -13,6 +13,11 @@ import { of, Subscription } from 'rxjs';
 import { AuthService } from '../../../services/auth.service';
 import { PetService } from '../../../services/pet.service';
 import { Pet } from '../../../interfaces/pet.interface';
+import { Message } from '../../../interfaces/message.interface';
+import { MessageService } from '../../../services/message.service';
+import { ConversationService } from '../../../services/conversation.service';
+import { Conversation } from '../../../interfaces/conversation.interface';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-diagnosis',
@@ -31,6 +36,9 @@ export class DiagnosisComponent implements OnInit, OnDestroy {
   private UserInfoService = inject( UserInfoService )
   private authService = inject( AuthService )
   private petService = inject( PetService )
+  private messagesService = inject( MessageService )
+  private conversationsService = inject( ConversationService )
+  private route = inject( Router )
 
   public isLoading: boolean = false;
 
@@ -44,6 +52,9 @@ export class DiagnosisComponent implements OnInit, OnDestroy {
   public selectedPet?: Pet
   private selected: boolean = false
   public isUser: boolean = false
+
+  private userMessage: Message | null = null;
+  private aiMessage: Message | null = null;
 
   private subscriptions = new Subscription();
 
@@ -71,6 +82,14 @@ export class DiagnosisComponent implements OnInit, OnDestroy {
   }
 
   public sendPrompt() {
+    const userMessage: Message = {
+      content: this.responseText,
+      timestamp: new Date(),
+      type: 'user',
+      conversation: 0
+    }
+
+
     let prompt: string = '';
 
     this.isLoading = true;
@@ -91,13 +110,26 @@ export class DiagnosisComponent implements OnInit, OnDestroy {
       prompt = this.promptValue?.nativeElement.value;
     }
 
+    userMessage.content = prompt;
+
+    this.userMessage = userMessage;
+
     this.gemini.formalConversation(prompt)
       .pipe(finalize(() => this.isLoading = false))
       .subscribe({
         next: response => {
-          this.addAnswer( response )
+          // this.addAnswer( response )#ff6666
           this.responseText = response;
           this.formattedResponse = marked(response).toString(); // Convert Markdown to HTML
+
+          const aiMessage: Message = {
+            content: this.formattedResponse,
+            timestamp: new Date(),
+            type: 'machine',
+            conversation: 0
+          }
+
+          this.aiMessage = aiMessage;
           // Add the 'show' class to trigger the animation
           if (this.responseContainer) {
             this.responseContainer.nativeElement.classList.add('show');
@@ -115,37 +147,80 @@ export class DiagnosisComponent implements OnInit, OnDestroy {
       });
   }
 
-public addAnswer(response: string): void {
-  const email = this.UserInfoService.getToken();
-  const answer: Answer = {
-    time: new Date(),
-    content: response,
-    keywords: '',
-    votes: 0,
-    votedEmails: '',
-    userEmail: email || 'Anónimo'
-  };
+  public addAnswer(response: string): void {
+    const email = this.UserInfoService.getToken();
+    const answer: Answer = {
+      time: new Date(),
+      content: response,
+      keywords: '',
+      votes: 0,
+      votedEmails: '',
+      userEmail: email || 'Anónimo'
+    };
 
-  this.gemini.getKeyWords(response)
-    .pipe(
-      tap(words => answer.keywords = words),
-      switchMap(() => this.answersService.addAnswer(answer))
-    )
-    .subscribe(
-      response => console.log('Respuesta agregada correctamente'),
-      error => console.error('Error al agregar respuesta', error)
-    );
-}
-
-public selectPet(pet: Pet): void {
-  if( this.selectedPet !== pet ) {
-    this.selectedPet = pet;
-    this.selected = true
-  } else {
-    this.selectedPet = undefined;
-    this.selected = false
+    this.gemini.getKeyWords(response)
+      .pipe(
+        tap(words => answer.keywords = words),
+        switchMap(() => this.answersService.addAnswer(answer))
+      )
+      .subscribe(
+        response => console.log('Respuesta agregada correctamente'),
+        error => console.error('Error al agregar respuesta', error)
+      );
   }
-}
+
+  public selectPet(pet: Pet): void {
+    if( this.selectedPet !== pet ) {
+      this.selectedPet = pet;
+      this.selected = true
+    } else {
+      this.selectedPet = undefined;
+      this.selected = false
+    }
+  }
+
+  public goToChatBot(): void {
+    const userSub = this.authService.getUserPerEmail( this.UserInfoService.getToken()!)
+      .subscribe( user => {
+        const conversation: Conversation = {
+          client: user[0].id!,
+          client_name: user[0].name,
+          title: 'Conversación con el veterinario',
+          created_at: new Date(),
+        }
+
+        const conversationSub = this.conversationsService.addConversation( conversation )
+          .subscribe( response => {
+            this.userMessage!.conversation = response.id!;
+            this.aiMessage!.conversation = response.id!;
+
+            const userMessageSub = this.messagesService.addMessage( this.userMessage! )
+              .subscribe( response => {
+                console.log('Mensaje de usuario agregado correctamente');
+              }, error => {
+                console.error('Error al agregar mensaje de usuario', error);
+              } );
+
+            this.subscriptions.add( userMessageSub );
+
+            const aiMessageSub = this.messagesService.addMessage( this.aiMessage! )
+              .subscribe( response => {
+                console.log('Mensaje de IA agregado correctamente');
+              }
+              , error => {
+                console.error('Error al agregar mensaje de IA', error);
+              }
+            );
+            this.subscriptions.add( aiMessageSub );
+
+          })
+          this.route.navigate(['/chat']);
+
+      } )
+      this.subscriptions.add( userSub );
+
+
+  }
 
 
 

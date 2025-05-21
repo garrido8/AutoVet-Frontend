@@ -25,10 +25,10 @@ const routes: Routes = [
     path: 'question',
     component: DiagnosisComponent
   },
-  // {
-  //   path: 'chat',
-  //   component: ChatbotComponent
-  // },
+  {
+    path: 'chat',
+    component: ChatbotComponent
+  },
   {
     path: 'foods',
     component: FoodsComponent
