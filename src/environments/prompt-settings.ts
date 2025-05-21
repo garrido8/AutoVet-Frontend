@@ -21,4 +21,4 @@
 
   export const keyWords: string = 'Esto es una respuesta que tú has dado a un problema que tiene una mascota que alguien te ha dicho. Trata de sacar palabras claves para poder identificar y distinguir esta respuesta de otras Dame solo las palabras separadas por comas, no digas nada más. Dame un máximo de 10 palabras clave y procura que sean las palabras clave fundamentales y que más resuman y se identifiquen con el contenido de la respuesta.'
 
-  export const conversationTitle: string = 'Dame un título basado en este contenido, solo uno, a modo como de resumen del contenido pero a modo de título, conciso y breve'
+  export const conversationTitle: string = 'Dame un título basado en este contenido, solo uno, a modo como de resumen del contenido pero a modo de título, conciso y breve. No incluyas textos en negrita ni nada, solo el título. No digas nada más que el título.'

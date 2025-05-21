@@ -1,9 +1,11 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { MessageService } from '../../../services/message.service';
 import { ConversationService } from '../../../services/conversation.service';
-import { Subscription } from 'rxjs';
+import { catchError, of, Subscription, switchMap, tap } from 'rxjs';
 import { ChatStateService } from '../../../services/chatstate.service';
 import { Conversation } from '../../../interfaces/conversation.interface';
+import { AuthService } from '../../../services/auth.service';
+import { UserInfoService } from '../../../services/user-info.service';
 
 @Component({
   selector: 'app-chatbot',
@@ -14,29 +16,58 @@ import { Conversation } from '../../../interfaces/conversation.interface';
 export class ChatbotComponent implements OnInit, OnDestroy {
 
   private messageService = inject( MessageService );
-  private conversationService = inject( ConversationService );
+  private userInfoService = inject( UserInfoService )
+  private authService = inject( AuthService )
+  private conversationService = inject( ConversationService ); // Inject ConversationService
   private chatStateService = inject( ChatStateService ); // Inject ChatStateService
 
   private subscriptions = new Subscription();
 
   public currentConversation: Conversation | null = null; // Public property to hold the conversation
 
-  ngOnInit(): void {
-    // Subscribe to the currentConversation$ observable from ChatStateService
+  public userConversations: Conversation[] = []; // Array to hold user conversations
+
+   ngOnInit(): void {
+    // --- Logic to get all conversations for the current user ---
+    this.subscriptions.add(
+      this.authService.getUserPerEmail(this.userInfoService.getToken()!).pipe(
+        tap(user => {
+          if (!user || user.length === 0 || !user[0].id) {
+            console.warn('ChatbotComponent: User not found or user ID is missing. Cannot fetch user conversations.');
+            // Optionally handle this error more gracefully in UI
+            throw new Error('User data missing for fetching conversations.'); // Throw to be caught by catchError
+          }
+        }),
+        switchMap(user => {
+          const clientId = user[0].id!; // Get the client ID dynamically
+          console.log('ChatbotComponent: Fetching conversations for client ID:', clientId);
+          return this.conversationService.getConversationsByClientId(clientId);
+        }),
+        tap(conversations => {
+          this.userConversations = conversations;
+          console.log('ChatbotComponent: User conversations loaded:', this.userConversations);
+        }),
+        catchError(error => {
+          console.error('ChatbotComponent: Error fetching user conversations:', error);
+          this.userConversations = []; // Clear conversations on error
+          return of([]); // Return empty array to complete the observable gracefully
+        })
+      ).subscribe() // Subscribe here and add to subscriptions
+    );
+
+    // --- Logic to get the currently active conversation (from goToChatBot in ForumPageComponent) ---
     this.subscriptions.add(
       this.chatStateService.currentConversation$.subscribe(conversation => {
         if (conversation) {
           this.currentConversation = conversation;
-          console.log('ChatbotComponent received conversation:', this.currentConversation);
+          console.log('ChatbotComponent received active conversation:', this.currentConversation);
           // Now you have the conversation object, you can use it to:
-          // - Load messages related to this conversation
-          // - Display conversation title/details
-          // - Perform any other initialization based on the conversation
-          // Example: this.loadMessagesForConversation(this.currentConversation.id!);
+          // - Load messages related to this conversation (e.g., this.loadMessagesForConversation(this.currentConversation.id!);)
+          // - Display conversation title/details in the chat UI
+          // - Automatically select this conversation in a list of userConversations
         } else {
-          // Handle case where conversation is null (e.g., cleared or not yet set)
           this.currentConversation = null;
-          console.log('ChatbotComponent: No current conversation set.');
+          console.log('ChatbotComponent: No active conversation set.');
         }
       })
     );
@@ -46,13 +77,4 @@ export class ChatbotComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe(); // Unsubscribe from all subscriptions to prevent memory leaks
   }
 
-  // Example method to load messages (you'd implement this based on your MessagesService)
-  // private loadMessagesForConversation(conversationId: number): void {
-  //   this.subscriptions.add(
-  //     this.messageService.getMessagesByConversationId(conversationId).subscribe(messages => {
-  //       console.log('Messages for conversation:', messages);
-  //       // Assign messages to a public property for display in your template
-  //     })
-  //   );
-  // }
 }

@@ -52,4 +52,16 @@ export class ConversationService {
     const url = `${this.conversationUrl}${id}/`;
     return this.http.delete<void>(url);
   }
+
+    /**
+   * Fetches an array of conversations filtered by a client ID.
+   * Assumes the backend API supports filtering by 'client_id' query parameter.
+   * Example: http://127.0.0.1:8000/conversations/?client_id=123
+   * @param clientId The ID of the client to filter conversations by.
+   * @returns An Observable that emits an array of Conversation objects.
+   */
+  public getConversationsByClientId(clientId: number): Observable<Conversation[]> {
+    const url = `${this.conversationUrl}?client_id=${clientId}`;
+    return this.http.get<Conversation[]>(url);
+  }
 }
