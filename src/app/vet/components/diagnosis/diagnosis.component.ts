@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { Component, ElementRef, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { finalize, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { catchError, finalize, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { marked } from 'marked';
 
 import { GeminiService } from '../../../services/gemini.service';
@@ -180,47 +180,83 @@ export class DiagnosisComponent implements OnInit, OnDestroy {
   }
 
   public goToChatBot(): void {
-    const userSub = this.authService.getUserPerEmail( this.UserInfoService.getToken()!)
-      .subscribe( user => {
-        const conversation: Conversation = {
-          client: user[0].id!,
-          client_name: user[0].name,
-          title: 'Conversación con el veterinario',
-          created_at: new Date(),
-        }
+    // Ensure userMessage and aiMessage are defined before proceeding
+    if (!this.userMessage || !this.aiMessage) {
+      console.error('Initialization Error: User or AI message is not defined. Please ensure they are set before calling goToChatBot().');
+      // Optionally, show a user-friendly message to the frontend
+      return;
+    }
 
-        const conversationSub = this.conversationsService.addConversation( conversation )
-          .subscribe( response => {
-            this.userMessage!.conversation = response.id!;
-            this.aiMessage!.conversation = response.id!;
-
-            const userMessageSub = this.messagesService.addMessage( this.userMessage! )
-              .subscribe( response => {
-                console.log('Mensaje de usuario agregado correctamente');
-              }, error => {
-                console.error('Error al agregar mensaje de usuario', error);
-              } );
-
-            this.subscriptions.add( userMessageSub );
-
-            const aiMessageSub = this.messagesService.addMessage( this.aiMessage! )
-              .subscribe( response => {
-                console.log('Mensaje de IA agregado correctamente');
-              }
-              , error => {
-                console.error('Error al agregar mensaje de IA', error);
-              }
-            );
-            this.subscriptions.add( aiMessageSub );
-
-          })
-          this.subscriptions.add( conversationSub );
+    this.subscriptions.add(
+      this.authService.getUserPerEmail(this.UserInfoService.getToken()!).pipe(
+        tap(user => {
+          if (!user || user.length === 0 || !user[0].id) {
+            console.error('User Fetch Error: User not found or user ID is missing after fetching by email. User data:', user);
+            throw new Error('User not found or ID missing.'); // Throw an error to be caught by the outer catchError
+          }
+        }),
+        switchMap(user => {
+          // NEW: Get conversation title from Gemini Service first
+          return this.gemini.getConvsersationTitle(this.userMessage!.content).pipe(
+            catchError(error => {
+              console.error('Gemini Title Error: Could not get conversation title from Gemini. Using default title.', error);
+              // Fallback title if Gemini call fails
+              return of('Conversación con el veterinario (Título por defecto)');
+            }),
+            switchMap(title => {
+              const conversation: Conversation = {
+                client: user[0].id!,
+                client_name: user[0].name,
+                title: title, // Use the title received from Gemini
+                created_at: new Date(),
+              };
+              console.log('Attempting to create conversation:', conversation);
+              return this.conversationsService.addConversation(conversation);
+            })
+          );
+        }),
+        tap(conversationResponse => {
+          if (!conversationResponse || !conversationResponse.id) {
+            console.error('Conversation Creation Error: Backend did not return a valid Conversation object with an ID. Response:', conversationResponse);
+            throw new Error('Conversation ID missing from backend response.'); // Propagate error
+          }
+          console.log('Conversation created successfully with ID:', conversationResponse.id);
+          this.userMessage!.conversation = conversationResponse.id!;
+          this.aiMessage!.conversation = conversationResponse.id!;
+        }),
+        switchMap(() => {
+          console.log('Attempting to add user message:', this.userMessage);
+          return this.messagesService.addMessage(this.userMessage!).pipe(
+            tap(() => console.log('Mensaje de usuario agregado correctamente')),
+            catchError(error => {
+              console.error('User Message Error: Error al agregar mensaje de usuario', error);
+              throw error; // Throw to be caught by the outer catchError
+            })
+          );
+        }),
+        switchMap(() => {
+          console.log('Attempting to add AI message:', this.aiMessage);
+          return this.messagesService.addMessage(this.aiMessage!).pipe(
+            tap(() => console.log('Mensaje de IA agregado correctamente')),
+            catchError(error => {
+              console.error('AI Message Error: Error al agregar mensaje de IA', error);
+              throw error; // Throw to be caught by the outer catchError
+            })
+          );
+        }),
+        tap(() => {
+          console.log('All operations successful. Navigating to /chat.');
           this.route.navigate(['/chat']);
-
-      } )
-      this.subscriptions.add( userSub );
-
-
+        }),
+        catchError(error => {
+          console.error('ChatBot Flow Error: An error occurred during the chatbot initialization process.', error);
+          // General error handling: show a user-friendly message to the frontend
+          // e.g., this.errorMessage = 'Failed to start chat. Please try again.';
+          return of(null); // Ensure the observable completes gracefully after an error
+        }),
+        finalize(() => console.log('Chatbot initialization flow completed.')) // Always runs when the observable completes or errors
+      ).subscribe() // No need for specific next/error callbacks here as handled by tap/catchError in pipe
+    );
   }
 
 
