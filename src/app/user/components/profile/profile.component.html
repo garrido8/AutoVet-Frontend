@@ -4,9 +4,20 @@
   </div>
 
   <div class="profile-photo">
-    <img [src]="profileImageUrl" alt="Foto de perfil" class="profile-image">
+    @if (profileImageUrl) {
+      <img [src]="profileImageUrl" alt="Foto de perfil" class="profile-image">
+    } @else {
+      <div class="profile-placeholder">
+        <span>No Photo</span>
+      </div>
+    }
+  </div>
 
-    <input type="file" (change)="onFileSelected($event)" accept="image/*" class="file-input">
+  <div class="file-upload-section">
+    <input type="file" (change)="onFileSelected($event)" accept="image/*" class="file-input" #fileInput>
+    <button (click)="fileInput.click()" class="select-file-button">
+      Seleccionar archivo
+    </button>
     <button (click)="uploadProfilePicture()" class="upload-button" [disabled]="!selectedFile">
       Subir Foto
     </button>
