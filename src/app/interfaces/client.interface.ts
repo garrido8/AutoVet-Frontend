@@ -6,4 +6,5 @@ export interface Client {
   phone:             string;
   registration_date?: Date;
   password:          string;
+  photo?:             string;
 }

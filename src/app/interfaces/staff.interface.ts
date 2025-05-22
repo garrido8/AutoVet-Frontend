@@ -8,4 +8,5 @@ export interface Staff {
   role:              string;
   assigned_clients:  number[];
   password:          string;
+  photo?:             string;
 }

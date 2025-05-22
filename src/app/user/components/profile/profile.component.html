@@ -4,7 +4,13 @@
   </div>
 
   <div class="profile-photo">
-    <img src="https://via.placeholder.com/150" alt="Foto de perfil" class="profile-image">
+    <img [src]="profileImageUrl" alt="Foto de perfil" class="profile-image">
+
+    <input type="file" (change)="onFileSelected($event)" accept="image/*" class="file-input">
+    <button (click)="uploadProfilePicture()" class="upload-button" [disabled]="!selectedFile">
+      Subir Foto
+    </button>
+    <p *ngIf="uploadMessage" class="upload-message">{{ uploadMessage }}</p>
   </div>
 
   <div class="profile-info">

@@ -4,6 +4,7 @@
   flex-direction: column;
   align-items: center;
   margin: 0;
+  font-family: 'Inter', sans-serif; /* Added font-family for consistency */
 }
 
 .greeting {
@@ -18,6 +19,7 @@
 }
 
 .profile-photo {
+  /* Existing styles */
   width: 150px;
   height: 150px;
   border-radius: 50%;
@@ -25,12 +27,115 @@
   margin-bottom: 30px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   border: 5px solid #1f1f1f;
+
+  /* Added for layout of image, input, and button */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px; /* Space between image, input, and button */
+  height: auto; /* Allow height to adjust to content */
+  width: auto; /* Allow width to adjust to content */
+  padding: 0; /* Remove padding if any from previous iterations */
+  background-color: transparent; /* Ensure no background interferes */
+  box-shadow: none; /* Remove shadow from the container itself if desired, or adjust */
+  border: none; /* Remove border from the container itself if desired */
+  margin-bottom: 30px; /* Keep margin-bottom */
 }
 
 .profile-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  border-radius: 50%; /* Ensure image itself is circular */
+  border: 5px solid #4CAF50; /* Added a border for the image */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Added shadow for the image */
+}
+
+/* Styling for the file input */
+.file-input {
+  display: block;
+  width: 100%;
+  max-width: 250px; /* Limit its width for better aesthetics */
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #fff;
+  cursor: pointer;
+  font-size: 1em;
+  color: #555;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Style the file input button (browser-specific, but good to try) */
+.file-input::-webkit-file-upload-button {
+  visibility: hidden; /* Hide default button */
+}
+
+.file-input::before {
+  content: 'Seleccionar archivo'; /* Custom text for the button */
+  display: inline-block;
+  background: linear-gradient(to bottom, #f0f0f0, #e0e0e0);
+  border: 1px solid #999;
+  border-radius: 6px;
+  padding: 8px 12px;
+  outline: none;
+  white-space: nowrap;
+  -webkit-user-select: none;
+  cursor: pointer;
+  font-weight: 500;
+  color: #333;
+  font-size: 0.9em;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  margin-right: 10px; /* Space between custom button and file name */
+}
+
+.file-input:hover::before {
+  border-color: #666;
+  background: linear-gradient(to bottom, #e0e0e0, #d0d0d0);
+}
+
+.file-input:active::before {
+  background: #d0d0d0;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+}
+
+/* Styling for the upload button */
+.upload-button {
+  background-color: #4CAF50; /* Green */
+  color: white;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1.1em;
+  font-weight: 600;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.upload-button:hover {
+  background-color: #45a049;
+  transform: translateY(-2px);
+}
+
+.upload-button:active {
+  background-color: #3e8e41;
+  transform: translateY(0);
+}
+
+.upload-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* Upload message feedback */
+.upload-message {
+  margin-top: 10px;
+  font-size: 0.9em;
+  color: #666; /* Changed to a visible color on dark background */
+  text-align: center;
 }
 
 .profile-info {
