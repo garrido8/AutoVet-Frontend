@@ -23,7 +23,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
   public user: Client | Staff | null = null;
   public selectedFile: File | null = null;
   public uploadMessage: string | null = null;
-  public isClient: boolean = false;
+
+  private isClient: boolean = false;
+  private isStaff: boolean = false;
 
   private userEmail: string | null = null;
 
@@ -39,14 +41,19 @@ export class ProfileComponent implements OnInit, OnDestroy {
             this.user = response[0];
             console.log('Client Data Received:', this.user); // <<< IMPORTANT: Check this.user.photo here!
             this.isClient = true;
+            this.isStaff = false; // Ensure isStaff is false for clients
           } else {
             const staffSub = this.authService.getStaffPerEmail(this.userEmail!)
               .subscribe( response => {
                 if (response.length > 0) {
                   this.user = response[0];
+                  this.isStaff = true;
+                  this.isClient = false; // Ensure isClient is false for staff
                   console.log('Staff Data Received:', this.user); // <<< IMPORTANT: Check this.user.photo here!
                 } else {
                   console.log('No staff member found with this email.');
+                  this.isClient = false; // Default to false if no user found
+                  this.isStaff = false; // Default to false if no user found
                 }
               });
             this.subscriptions.add(staffSub);
@@ -63,15 +70,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
   // NEW: Getter for the profile image URL
   get profileImageUrl(): string {
     if (this.user && this.user.photo) {
-      // The `user.photo` value coming from Django's ImageField
-      // typically looks like 'client_photos/your_image.png' or '/media/client_photos/your_image.png'.
-      // The error message 'http://localhost:4200/media/client_photos/...'
-      // suggests that 'user.photo' already includes '/media/'.
-      // If 'user.photo' is '/media/client_photos/image.png', then directly concatenate.
-      // If 'user.photo' is 'client_photos/image.png', then you need:
-      // return this.backendBaseUrl + '/media/' + this.user.photo;
-
-      // Let's assume user.photo is already like '/media/client_photos/image.png' as per your error.
       const fullUrl = this.backendBaseUrl + this.user.photo;
       console.log('Constructed Image URL:', fullUrl); // <<< IMPORTANT: Check this in console!
       return fullUrl;
@@ -91,35 +89,62 @@ export class ProfileComponent implements OnInit, OnDestroy {
     }
   }
 
+  // MODIFIED METHOD: Handles both Client and Staff photo uploads using isClient/isStaff flags
   uploadProfilePicture(): void {
     if (!this.selectedFile) {
       this.uploadMessage = 'Por favor, selecciona una imagen primero.';
       return;
     }
 
-    if (this.user && 'id' in this.user && this.isClient) {
-      this.uploadMessage = 'Subiendo foto...';
-      const formData = new FormData();
-      formData.append('photo', this.selectedFile, this.selectedFile.name);
+    // FIX: Check for 'id' for Client or 'pk' for Staff
+    let userId: number | undefined;
+    if (this.user && 'id' in this.user && this.user.id !== undefined) {
+      userId = this.user.id;
+    } else if (this.user && 'pk' in this.user && this.user.pk !== undefined) {
+      userId = this.user.pk;
+    }
 
-      this.authService.updateClientPhoto(this.user.id!, formData).subscribe(
+    if (userId === undefined) {
+      this.uploadMessage = 'No se puede subir la foto. No se encontró un ID de usuario válido.';
+      console.warn('Cannot upload photo: User object is null or missing ID/PK.');
+      return;
+    }
+
+    this.uploadMessage = 'Subiendo foto...';
+    const formData = new FormData();
+    formData.append('photo', this.selectedFile, this.selectedFile.name);
+
+    if (this.isClient) {
+      // Handle Client photo upload
+      this.authService.updateClientPhoto(userId, formData).subscribe(
         (response: Client) => {
-          // Update the user object with the new photo URL from the response
-          // response.photo should be the updated path from Django.
           this.user = { ...this.user as Client, photo: response.photo };
-          this.uploadMessage = 'Foto de perfil actualizada con éxito.';
-          this.selectedFile = null; // Clear selected file after successful upload
-          console.log('Profile picture uploaded successfully!', response);
-          console.log('Updated user photo path in component:', this.user.photo); // <<< Check updated path
+          this.uploadMessage = 'Foto de perfil de cliente actualizada con éxito.';
+          this.selectedFile = null;
+          console.log('Client profile picture uploaded successfully!', response);
         },
         error => {
-          this.uploadMessage = 'Error al subir la foto.';
-          console.error('Error uploading profile picture:', error);
+          this.uploadMessage = 'Error al subir la foto de cliente.';
+          console.error('Error uploading client profile picture:', error);
+        }
+      );
+    } else if (this.isStaff) {
+      // Handle Staff photo upload
+      this.authService.updateStaffPhoto(userId, formData).subscribe(
+        (response: Staff) => {
+          this.user = { ...this.user as Staff, photo: response.photo };
+          this.uploadMessage = 'Foto de perfil de staff actualizada con éxito.';
+          this.selectedFile = null;
+          console.log('Staff profile picture uploaded successfully!', response);
+        },
+        error => {
+          this.uploadMessage = 'Error al subir la foto de staff.';
+          console.error('Error uploading staff profile picture:', error);
         }
       );
     } else {
-      this.uploadMessage = 'No se puede subir la foto. Asegúrate de ser un cliente y tener un perfil cargado.';
-      console.warn('Cannot upload photo: User is not a client or ID is missing.');
+      this.uploadMessage = 'Rol de usuario no reconocido para la subida de fotos.';
+      console.warn('Cannot upload photo: User is neither client nor staff.');
     }
   }
 }

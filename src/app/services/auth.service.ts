@@ -70,6 +70,13 @@ export class AuthService {
     return this.http.patch<Client>(`${this.clientsUrl}${clientId}/`, formData);
   }
 
+  public updateStaffPhoto(staffId: number, formData: FormData): Observable<Staff> {
+    // We use PATCH because we are only updating a single field ('photo').
+    // Django REST Framework's ModelViewSet handles PATCH for partial updates.
+    // Ensure your Django URL for client detail is something like /clients/<int:pk>/
+    return this.http.patch<Staff>(`${this.staffUrl}${staffId}/`, formData);
+  }
+
   public logout(): void {
     this.setIsLoggedIn(false);
     localStorage.removeItem('isLoggedIn');
