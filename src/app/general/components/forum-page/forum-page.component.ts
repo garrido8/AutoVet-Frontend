@@ -185,88 +185,88 @@ export class ForumPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  voteDown(answer: Answer): void {
-    // Access currentUserEmail via the getter to get the latest value
-    if (!answer || !this.currentUserEmail) {
-      console.warn('Cannot vote: Answer or current user email is missing.');
-      return;
-    }
+  // voteDown(answer: Answer): void {
+  //   // Access currentUserEmail via the getter to get the latest value
+  //   if (!answer || !this.currentUserEmail) {
+  //     console.warn('Cannot vote: Answer or current user email is missing.');
+  //     return;
+  //   }
 
-    let currentVotes = answer.votes || 0;
-    let votedEmailsArr = this.parseVotedEmails(answer.votedEmails);
-    const userVoteIndex = votedEmailsArr.findIndex(v => v.email === this.currentUserEmail);
-    const userHasVoted = userVoteIndex !== -1;
-    const userCurrentVoteType = userHasVoted ? votedEmailsArr[userVoteIndex].type : null;
+  //   let currentVotes = answer.votes || 0;
+  //   let votedEmailsArr = this.parseVotedEmails(answer.votedEmails);
+  //   const userVoteIndex = votedEmailsArr.findIndex(v => v.email === this.currentUserEmail);
+  //   const userHasVoted = userVoteIndex !== -1;
+  //   const userCurrentVoteType = userHasVoted ? votedEmailsArr[userVoteIndex].type : null;
 
-    console.log(`[Downvote] Initial state for ${answer.userEmail}: Votes=${currentVotes}, UserVoteType=${userCurrentVoteType}, VotedEmails='${answer.votedEmails}'`);
+  //   console.log(`[Downvote] Initial state for ${answer.userEmail}: Votes=${currentVotes}, UserVoteType=${userCurrentVoteType}, VotedEmails='${answer.votedEmails}'`);
 
 
-    if (userHasVoted) {
-      if (userCurrentVoteType === 'down') {
-        // User previously downvoted and clicked downvote again -> Remove vote
-        // This increments the vote count because it's undoing the effect of a previous downvote.
-        currentVotes++;
-        votedEmailsArr.splice(userVoteIndex, 1);
-        console.log(`[Downvote] Action: User ${this.currentUserEmail} removed their DOWNVOTE.`);
-      } else { // userCurrentVoteType === 'up'
-        // User previously upvoted and clicked downvote -> Change vote from up to down
-        currentVotes -= 2; // Undo upvote (-1) and add downvote (-1)
-        votedEmailsArr[userVoteIndex].type = 'down';
-        console.log(`[Downvote] Action: User ${this.currentUserEmail} changed vote from UP to DOWN.`);
-      }
-    } else {
-      // User has not voted yet -> Add downvote (only if votes > 0 after decrement)
-      if (currentVotes > 0) { // Only decrement if current votes are positive
-        currentVotes--;
-        votedEmailsArr.push({ email: this.currentUserEmail, type: 'down' });
-        console.log(`[Downvote] Action: User ${this.currentUserEmail} added a DOWNVOTE.`);
-      } else {
-        console.log(`[Downvote] Action: Cannot downvote when votes are already 0. User ${this.currentUserEmail} attempted to downvote.`);
-      }
-    }
+  //   if (userHasVoted) {
+  //     if (userCurrentVoteType === 'down') {
+  //       // User previously downvoted and clicked downvote again -> Remove vote
+  //       // This increments the vote count because it's undoing the effect of a previous downvote.
+  //       currentVotes++;
+  //       votedEmailsArr.splice(userVoteIndex, 1);
+  //       console.log(`[Downvote] Action: User ${this.currentUserEmail} removed their DOWNVOTE.`);
+  //     } else { // userCurrentVoteType === 'up'
+  //       // User previously upvoted and clicked downvote -> Change vote from up to down
+  //       currentVotes -= 2; // Undo upvote (-1) and add downvote (-1)
+  //       votedEmailsArr[userVoteIndex].type = 'down';
+  //       console.log(`[Downvote] Action: User ${this.currentUserEmail} changed vote from UP to DOWN.`);
+  //     }
+  //   } else {
+  //     // User has not voted yet -> Add downvote (only if votes > 0 after decrement)
+  //     if (currentVotes > 0) { // Only decrement if current votes are positive
+  //       currentVotes--;
+  //       votedEmailsArr.push({ email: this.currentUserEmail, type: 'down' });
+  //       console.log(`[Downvote] Action: User ${this.currentUserEmail} added a DOWNVOTE.`);
+  //     } else {
+  //       console.log(`[Downvote] Action: Cannot downvote when votes are already 0. User ${this.currentUserEmail} attempted to downvote.`);
+  //     }
+  //   }
 
-    // Ensure votes don't go negative
-    answer.votes = Math.max(0, currentVotes);
-    answer.votedEmails = this.serializeVotedEmails(votedEmailsArr);
+  //   // Ensure votes don't go negative
+  //   answer.votes = Math.max(0, currentVotes);
+  //   answer.votedEmails = this.serializeVotedEmails(votedEmailsArr);
 
-    console.log(`[Downvote] Local state updated: Votes=${answer.votes}, VotedEmails='${answer.votedEmails}'`);
+  //   console.log(`[Downvote] Local state updated: Votes=${answer.votes}, VotedEmails='${answer.votedEmails}'`);
 
-    // Call service to update backend
-    this.answesService.editAnswer(answer.id!, answer).subscribe({
-      next: (updatedAnswer) => {
-        console.log(`[Downvote] Backend updated successfully. Final votes from backend: ${updatedAnswer.votes}`);
-        // IMPORTANT: Ensure your backend correctly merges the 'votedEmails' string for this PUT request.
-        // If the backend simply overwrites the 'votedEmails' field with the string sent from frontend,
-        // it will lead to previous users' votes being lost. The backend should parse the string,
-        // update its internal list of voters, and then serialize it back for persistence.
-        const index = this.allAnswers.findIndex(a => a.id === updatedAnswer.id);
-        if (index !== -1) {
-          this.allAnswers[index] = updatedAnswer;
-        }
-      },
-      error: (err) => {
-        console.error('[Downvote] Error updating answer on backend:', err);
-        // Revert local changes if backend update fails
-        if (userHasVoted) {
-          if (userCurrentVoteType === 'down') {
-            answer.votes--; // Revert increment
-            votedEmailsArr.push({ email: this.currentUserEmail, type: 'down' });
-          } else {
-            answer.votes += 2; // Revert decrement
-            votedEmailsArr[userVoteIndex].type = 'up';
-          }
-        } else {
-          // Only revert if a downvote was actually added (i.e., currentVotes was > 0 before decrement)
-          if (currentVotes > 0) { // Check the value of currentVotes *before* the Math.max(0, currentVotes)
-            answer.votes++; // Revert decrement
-            votedEmailsArr.pop(); // Remove added vote
-          }
-        }
-        answer.votedEmails = this.serializeVotedEmails(votedEmailsArr);
-        console.log(`[Downvote] Local state reverted due to backend error: Votes=${answer.votes}, VotedEmails='${answer.votedEmails}'`);
-      }
-    });
-  }
+  //   // Call service to update backend
+  //   this.answesService.editAnswer(answer.id!, answer).subscribe({
+  //     next: (updatedAnswer) => {
+  //       console.log(`[Downvote] Backend updated successfully. Final votes from backend: ${updatedAnswer.votes}`);
+  //       // IMPORTANT: Ensure your backend correctly merges the 'votedEmails' string for this PUT request.
+  //       // If the backend simply overwrites the 'votedEmails' field with the string sent from frontend,
+  //       // it will lead to previous users' votes being lost. The backend should parse the string,
+  //       // update its internal list of voters, and then serialize it back for persistence.
+  //       const index = this.allAnswers.findIndex(a => a.id === updatedAnswer.id);
+  //       if (index !== -1) {
+  //         this.allAnswers[index] = updatedAnswer;
+  //       }
+  //     },
+  //     error: (err) => {
+  //       console.error('[Downvote] Error updating answer on backend:', err);
+  //       // Revert local changes if backend update fails
+  //       if (userHasVoted) {
+  //         if (userCurrentVoteType === 'down') {
+  //           answer.votes--; // Revert increment
+  //           votedEmailsArr.push({ email: this.currentUserEmail, type: 'down' });
+  //         } else {
+  //           answer.votes += 2; // Revert decrement
+  //           votedEmailsArr[userVoteIndex].type = 'up';
+  //         }
+  //       } else {
+  //         // Only revert if a downvote was actually added (i.e., currentVotes was > 0 before decrement)
+  //         if (currentVotes > 0) { // Check the value of currentVotes *before* the Math.max(0, currentVotes)
+  //           answer.votes++; // Revert decrement
+  //           votedEmailsArr.pop(); // Remove added vote
+  //         }
+  //       }
+  //       answer.votedEmails = this.serializeVotedEmails(votedEmailsArr);
+  //       console.log(`[Downvote] Local state reverted due to backend error: Votes=${answer.votes}, VotedEmails='${answer.votedEmails}'`);
+  //     }
+  //   });
+  // }
   // --- End Vote Logic ---
 
   // Open the modal with the full answer

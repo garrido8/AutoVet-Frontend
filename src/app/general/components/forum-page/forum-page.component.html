@@ -32,13 +32,13 @@
                   <i class="icon material-icons">thumb_up</i>
                 </button>
 
-                <button
+                <!-- <button
                   class="vote-button downvote"
                   [ngClass]="{'voted-down': getUserVoteType(answer) === 'down'}"
                   (click)="$event.stopPropagation(); voteDown(answer)"
                 >
                   <i class="icon material-icons">thumb_down</i>
-                </button>
+                </button> -->
             </div>
             <span class="votes-text">Votos: <span class="votes-count">{{ answer.votes }}</span></span>
         </div>
