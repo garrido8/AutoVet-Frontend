@@ -28,7 +28,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 4px solid #a7ffeb; /* Accent border */
+  border: 2px solid #a7ffeb; /* Accent border */
   margin-bottom: 25px; /* Space between photo and file upload section */
   flex-shrink: 0;
 }
