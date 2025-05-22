@@ -1,23 +1,24 @@
 <header class="main" id="main">
-  <h1
-    class="title-text"
-    id="title-text"
-    routerLink="/home"
-  >
-    AutoVet
-  </h1>
+  <div class="header-left-section">
+    <h1 class="title-text" id="title-text" routerLink="/home">
+      AutoVet
+    </h1>
     <button
-    class="btn home-btn"
-    id="forum-btn"
-    routerLink="/forum"
-    routerLinkActive="active"
-    aria-current="page"
-  >
-    Foro social
+      class="btn home-btn"
+      id="forum-btn"
+      routerLink="/forum"
+      routerLinkActive="active"
+      aria-current="page"
+    >
+      Foro social
+    </button>
+  </div>
+
+  <button class="menu-toggle" (click)="toggleFullscreenMenu()">
+    ☰
   </button>
 
   <nav class="pages" id="pages" aria-label="Main Navigation">
-
     <button
       class="btn home-btn"
       id="home-btn"
@@ -45,7 +46,39 @@
     >
       Iniciar sesión
     </button>
-
   </nav>
 
 </header>
+
+@if ( showingFullscreenMenu ) {
+  <div class="fullscreen-menu-overlay" [ngClass]="{'show': showingFullscreenMenu}">
+    <div class="fullscreen-menu-content">
+      <button class="close-btn" (click)="closeFullscreenMenu()">
+        &times; </button>
+
+      <button
+        class="menu-item-btn"
+        routerLink="/question"
+        (click)="closeFullscreenMenu()"
+      >
+        Pregunta
+      </button>
+
+      <button
+        class="menu-item-btn"
+        routerLink="/foods"
+        (click)="closeFullscreenMenu()"
+      >
+        Comidas peligrosas
+      </button>
+
+      <button
+        class="menu-item-btn"
+        routerLink="/auth/login"
+        (click)="closeFullscreenMenu()"
+      >
+        Iniciar sesión
+      </button>
+    </div>
+  </div>
+}
