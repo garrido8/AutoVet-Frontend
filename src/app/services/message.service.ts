@@ -21,6 +21,10 @@ export class MessageService {
     return this.http.get<Message[]>(this.messageUrl);
   }
 
+  public getMessagesByConversationId(conversationId: number): Observable<Message[]> {
+    return this.http.get<Message[]>(`${this.messageUrl}?conversation_id=${conversationId}`);
+  }
+
   /**
    * Adds a new message to the API.
    * @param message The Message object to be added.

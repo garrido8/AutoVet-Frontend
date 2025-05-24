@@ -23,6 +23,8 @@ export class ChatbotComponent implements OnInit, OnDestroy {
 
   private subscriptions = new Subscription();
 
+  public selectedConversation: Conversation | null = null; // Public property to hold the selected conversation
+
   public currentConversation: Conversation | null = null; // Public property to hold the conversation
 
   public userConversations: Conversation[] = []; // Array to hold user conversations
@@ -45,6 +47,12 @@ export class ChatbotComponent implements OnInit, OnDestroy {
         }),
         tap(conversations => {
           this.userConversations = conversations;
+          this.userConversations.forEach( conversation => {
+            this.messageService.getMessagesByConversationId( conversation.id! )
+              .subscribe( messages => {
+                conversation.messages = messages; // Assign messages to the conversation
+              } )
+          } )
           console.log('ChatbotComponent: User conversations loaded:', this.userConversations);
         }),
         catchError(error => {
@@ -60,11 +68,11 @@ export class ChatbotComponent implements OnInit, OnDestroy {
       this.chatStateService.currentConversation$.subscribe(conversation => {
         if (conversation) {
           this.currentConversation = conversation;
+          this.messageService.getMessagesByConversationId( this.currentConversation.id! )
+            .subscribe( messages => {
+              console.log(messages);
+            } )
           console.log('ChatbotComponent received active conversation:', this.currentConversation);
-          // Now you have the conversation object, you can use it to:
-          // - Load messages related to this conversation (e.g., this.loadMessagesForConversation(this.currentConversation.id!);)
-          // - Display conversation title/details in the chat UI
-          // - Automatically select this conversation in a list of userConversations
         } else {
           this.currentConversation = null;
           console.log('ChatbotComponent: No active conversation set.');
@@ -75,6 +83,11 @@ export class ChatbotComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe(); // Unsubscribe from all subscriptions to prevent memory leaks
+  }
+
+  public selectConversation(conversation: Conversation): void {
+    this.selectedConversation = conversation; // Set the selected conversation
+    console.log('ChatbotComponent: Navigating to conversation:', conversation);
   }
 
 }

@@ -1,1 +1,45 @@
-<p>chatbot works!</p>
+<div class="main-container">
+
+  <div class="left-aside">
+    <aside class="conversations">
+      <h2>Conversaciones</h2>
+      @for( conversation of userConversations; track conversation.id) {
+        <div class="conversation-item"
+          (click)="selectConversation(conversation)"
+        >
+          <span class="conversation-name">{{ conversation.title }}</span>
+        </div>
+      }
+    </aside>
+  </div>
+
+  <div class="conversation-chat">
+
+    <div class="messages-container">
+      @if( this.selectedConversation !== null ) {
+        @for( message of selectedConversation.messages ; track message.id) {
+          <div class="message-item">
+            @if( message.type === 'user' ) {
+              <div class="user-message">
+                <span class="message-text">{{ message.content }}</span>
+              </div>
+            } @else {
+              <div class="ia-message">
+                <span class="message-text" [innerHTML]="message.content"></span>
+              </div>
+            }
+          </div>
+        }
+      } @else {
+        <span class="conversation-title">Selecciona una conversación o envía un mensaje para comenzar una conversación nueva</span>
+      }
+    </div>
+
+    <div class="chat-input-area">
+      <textarea class="chat-textarea" placeholder="Escribe tu mensaje..."></textarea>
+      <button class="send-button">Enviar</button>
+    </div>
+
+  </div>
+
+</div>

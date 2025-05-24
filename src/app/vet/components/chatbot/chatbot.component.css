@@ -1,0 +1,236 @@
+/* Basic reset/body height for full page layout */
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%; /* Important for main-container to take full height */
+    font-family: 'Inter', sans-serif;
+    background-color: rgb(30, 30, 30); /* General background color */
+    color: white;
+}
+
+.main-container {
+  display: grid;
+  grid-template-columns: 0.25fr 0.7fr;
+  grid-column-gap: 8%;
+}
+
+.left-aside {
+    /* Ensures left-aside fills its grid area height */
+    min-height: 100%;
+}
+
+.conversations {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 40px; /* Combined padding for simplicity */
+  color: white;
+  min-height: 100%; /* Ensure it grows with main-container */
+  box-sizing: border-box;
+}
+
+.conversations h2 {
+    color: white;
+    margin-top: 0; /* Adjust heading margin */
+    margin-bottom: 15px;
+}
+
+.conversation-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 10px;
+  border-radius: 5px;
+  background-color: rgb(100, 100, 100);
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.conversation-item:hover {
+    background-color: rgb(120, 120, 120);
+}
+
+.conversation-name {
+    color: white;
+}
+
+.conversation-chat {
+  display: flex;
+  flex-direction: column; /* Changed to column for vertical stacking */
+  width: 100%; /* Adjusted to 100% within its grid column */
+  height: 80vh;
+  padding: 30px; /* Keep padding as set by user */
+  padding-bottom: 0; /* Remove bottom padding as input area will add its own */
+  color: white;
+  box-sizing: border-box; /* Include padding in element's total width and height */
+}
+
+.chat-header {
+    width: 100%;
+    margin-bottom: 20px;
+    flex-shrink: 0; /* Prevent header from shrinking */
+}
+
+.chat-header h2 {
+    text-align: center;
+    color: white;
+    margin-bottom: 20px;
+}
+
+/* NEW: Styles for the messages container */
+.messages-container {
+    flex-grow: 1; /* Allows this container to take up all available space */
+    overflow-y: auto; /* Enables vertical scrolling when content overflows */
+    padding-right: 15px; /* Add space for scrollbar so content isn't hidden */
+    padding-bottom: 20px; /* Space above the input area */
+    box-sizing: border-box;
+    max-height: 900px;
+    /* Optional: style scrollbar for webkit browsers */
+    &::-webkit-scrollbar {
+        width: 8px;
+    }
+    &::-webkit-scrollbar-track {
+        background: rgb(60, 60, 60);
+        border-radius: 10px;
+    }
+    &::-webkit-scrollbar-thumb {
+        background: rgb(100, 100, 100);
+        border-radius: 10px;
+    }
+    &::-webkit-scrollbar-thumb:hover {
+        background: rgb(120, 120, 120);
+    }
+}
+
+.conversation-title {
+    text-align: center;
+    margin-top: 50px;
+    color: #ccc;
+    font-style: italic;
+    flex-grow: 1; /* Also allow this to grow if it's the only content */
+    display: flex; /* To center text vertically in the container */
+    align-items: center;
+    justify-content: center;
+}
+
+.message-item {
+  display: flex;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.user-message {
+  background-color: rgb(63, 63, 63);
+  color: white;
+  padding: 15px;
+  border-radius: 15px 0px 15px 15px;
+  max-width: 50%;
+  word-wrap: break-word;
+  margin-left: auto; /* Pushes the user message to the right */
+}
+
+.ia-message {
+  /* No background-color, so it will be transparent on the chat background */
+  color: white;
+  padding: 10px;
+  max-width: 70%;
+  word-wrap: break-word;
+  margin-right: auto; /* Pushes the IA message to the left */
+}
+
+.message-text {
+  font-size: 0.95em;
+  line-height: 1.4;
+}
+
+/* NEW: Styles for the chat input area */
+.chat-input-area {
+    display: flex;
+    gap: 10px;
+    padding-top: 15px;
+    padding-bottom: 15px; /* Add padding below input area */
+    flex-shrink: 0; /* Prevent it from shrinking */
+    width: 100%; /* Ensure it takes full width */
+    box-sizing: border-box; /* Include padding in width */
+}
+
+.chat-textarea {
+    flex-grow: 1; /* Allows textarea to take up available width */
+    padding: 12px 15px;
+    border: 1px solid rgb(90, 90, 90);
+    border-radius: 8px;
+    background-color: rgb(60, 60, 60);
+    color: white;
+    font-size: 1em;
+    resize: vertical; /* Allow vertical resizing */
+    min-height: 40px; /* Minimum height for textarea */
+    max-height: 150px; /* Maximum height to prevent it from growing too large */
+    box-sizing: border-box; /* Include padding in height */
+}
+
+.chat-textarea::placeholder {
+    color: #bbb;
+}
+
+.chat-textarea:focus {
+    outline: none;
+    border-color: #a7ffeb; /* Accent color on focus */
+    box-shadow: 0 0 0 2px rgba(167, 255, 235, 0.3);
+}
+
+.send-button {
+    background-color: #4CAF50; /* Green send button */
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 600;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    flex-shrink: 0; /* Prevent button from shrinking */
+}
+
+.send-button:hover {
+    background-color: #45a049;
+    transform: translateY(-1px);
+}
+
+.send-button:active {
+    background-color: #3e8e41;
+    transform: translateY(0);
+}
+
+
+/* Basic responsive adjustments */
+@media (max-width: 768px) {
+    .main-container {
+        grid-template-columns: 1fr; /* Stack columns on smaller screens */
+        grid-column-gap: 0; /* Remove gap when stacked */
+    }
+
+    .left-aside {
+        width: 100%;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+
+    .conversations {
+        padding: 20px; /* Adjust padding for smaller screens */
+    }
+
+    .conversation-chat {
+        padding: 15px; /* Adjust padding for smaller screens */
+        padding-bottom: 0;
+    }
+
+    .user-message,
+    .ia-message {
+        max-width: 90%; /* Allow messages to take more width */
+    }
+
+    .chat-input-area {
+        padding: 10px;
+        padding-bottom: 10px;
+    }
+}
