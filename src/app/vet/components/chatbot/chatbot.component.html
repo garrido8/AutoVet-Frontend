@@ -36,8 +36,21 @@
     </div>
 
     <div class="chat-input-area">
-      <textarea class="chat-textarea" placeholder="Escribe tu mensaje..."></textarea>
-      <button class="send-button">Enviar</button>
+      <textarea
+        class="chat-textarea"
+        placeholder="Escribe tu mensaje..."
+        #promptValue
+        [(ngModel)]="promptValueText"
+      ></textarea>
+
+      <button
+        class="send-button"
+        (click)="sendMessage()"
+        [disabled]="!promptValueText.trim()"
+        [ngClass]="{ 'disabled': !promptValueText.trim() }"
+      >
+        Enviar
+      </button>
     </div>
 
   </div>

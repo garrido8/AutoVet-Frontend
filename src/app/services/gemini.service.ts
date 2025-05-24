@@ -14,6 +14,24 @@ export class GeminiService {
     this.ai = new GoogleGenAI({ apiKey: apiKey });
   }
 
+  progressConversation(prompt: string): Observable<string> {
+
+    const newPrompt: string = expertPrompt + prompt;
+
+    return from(
+      this.ai.models.generateContent({
+        model: 'gemini-2.0-flash',
+        contents: newPrompt,
+      })
+    ).pipe(
+      map(response => response.text || 'No response received'),
+      catchError(error => {
+        console.error('Error generating content:', error);
+        return ['Error occurred']; // Emits a fallback value
+      })
+    );
+  }
+
   formalConversation(prompt: string): Observable<string> {
     const newPrompt: string = expertPrompt + prompt;
 

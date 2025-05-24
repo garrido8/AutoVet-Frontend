@@ -201,6 +201,18 @@ html, body {
     transform: translateY(0);
 }
 
+.send-button:hover:not(.disabled) {
+  background-color: #0056b3; /* Darker shade on hover */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.send-button.disabled {
+  background-color: #555;
+  color: #999;
+  border-color: #777;
+  cursor: not-allowed;
+}
+
 
 /* Basic responsive adjustments */
 @media (max-width: 768px) {
