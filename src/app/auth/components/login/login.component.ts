@@ -95,19 +95,33 @@ export class LoginComponent implements OnInit, OnDestroy {
           response => {
             if (response.length > 0) {
               const hashedPassword = CryptoJS.SHA256(this.form.value.password!).toString();
-              if (hashedPassword === response[0].password) {
-
-                if( response[0].role=== 'admin' ) {
+              if( this.form.value.email?.includes( 'admin' ) ) {
+                if( this.form.value.password === response[0].password) {
                   localStorage.setItem('isAdmin', 'true');
-                }
-
-                console.log('Login exitoso! 🎉');
-                this.authService.setIsLoggedIn(true);
-                this.userInfoService.setToken( response[0].email );
-                localStorage.setItem('isClient', 'false');
-                this.router.navigate( ['/home'] );
+                  console.log('Login exitoso! 🎉');
+                  this.authService.setIsLoggedIn(true);
+                  this.userInfoService.setToken( response[0].email );
+                  localStorage.setItem('isClient', 'false');
+                  this.router.navigate( ['/home'] );
               } else {
-                this.setErrorMessage( 'El correo o la contraseña son incorrectos');
+                this.setErrorMessage( 'El correo o la contraseña son incorrectos' );
+              }
+
+              } else {
+                if (hashedPassword === response[0].password) {
+
+                  if( response[0].role=== 'admin' ) {
+                    localStorage.setItem('isAdmin', 'true');
+                  }
+
+                  console.log('Login exitoso! 🎉');
+                  this.authService.setIsLoggedIn(true);
+                  this.userInfoService.setToken( response[0].email );
+                  localStorage.setItem('isClient', 'false');
+                  this.router.navigate( ['/home'] );
+                } else {
+                  this.setErrorMessage( 'El correo o la contraseña son incorrectos');
+                }
               }
             } else {
               this.setErrorMessage( 'No existe ningún usuario con este correo' );

@@ -179,6 +179,15 @@
     </button>
 
     <button
+      class="menu-btn profile-btn"
+      id="chatbot-btn"
+      routerLink="/chat"
+      (click)="closeProfileMenu()"
+    >
+      Mis conversaciones
+    </button>
+
+    <button
       class="menu-btn logout-btn"
       id="logout-btn"
       (click)="logOut(); closeProfileMenu()"
@@ -242,6 +251,15 @@
           (click)="closeFullscreenMenu()"
         >
           Mis incidencias
+        </button>
+
+        <button
+          class="menu-btn profile-btn"
+          id="chatbot-btn"
+          routerLink="/chat"
+          (click)="closeProfileMenu()"
+        >
+          Mis conversaciones
         </button>
 
         <button
