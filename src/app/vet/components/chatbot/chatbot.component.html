@@ -37,6 +37,14 @@
             }
           </div>
         }
+
+        @if (isLoading) {
+          <div class="message-item">
+            <div class="ia-message">
+              <span class="message-text">Cargando respuesta...</span>
+            </div>
+          </div>
+        }
       } @else {
         <span class="conversation-title">Selecciona una conversación o envía un mensaje para comenzar una conversación nueva</span>
       }

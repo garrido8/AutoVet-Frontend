@@ -32,6 +32,7 @@ export class ChatbotComponent implements OnInit, OnDestroy {
   private gemini = inject( GeminiService )
 
   public promptValueText: string = '';
+  public isLoading: boolean = false; // Flag to indicate loading state
 
   @ViewChild('promptValue') promptValue?: ElementRef;
 
@@ -103,10 +104,13 @@ export class ChatbotComponent implements OnInit, OnDestroy {
     console.log('ChatbotComponent: Navigating to conversation:', conversation);
   }
 
-  public sendMessage(): void {
+ public sendMessage(): void {
     const messageContent = this.promptValue?.nativeElement.value;
 
     this.promptValue!.nativeElement.value = '';
+
+    // Set loading to true at the very beginning of the message sending process
+    this.isLoading = true;
 
     // Early exit if no message content or no conversation is selected
     if ( !this.selectedConversation ) {
@@ -169,7 +173,7 @@ export class ChatbotComponent implements OnInit, OnDestroy {
             console.log('Attempting to add initial user message:', newUserMessage);
             return this.messageService.addMessage(newUserMessage).pipe(
               tap(newMessage => this.selectedConversation!.messages!.push(newMessage)),
-
+              // isLoading is already true from the start of sendMessage. No need to set again here.
               catchError(error => {
                 console.error('Initial User Message Error: Error adding initial user message', error);
                 throw error;
@@ -225,12 +229,18 @@ export class ChatbotComponent implements OnInit, OnDestroy {
           catchError(overallError => {
             console.error('ChatbotComponent: Overall error during new conversation creation flow.', overallError);
             // Rollback optimistic UI update if initial user message was pushed
-            if (this.selectedConversation!.messages!.length > 0 && this.selectedConversation!.messages![this.selectedConversation!.messages!.length - 1] === newUserMessage) {
+            // The `newUserMessage` might not be defined in this scope if an error occurred earlier in the chain.
+            // A more robust rollback would involve checking the last message in `selectedConversation.messages`.
+            if (this.selectedConversation!.messages!.length > 0 && this.selectedConversation!.messages![this.selectedConversation!.messages!.length - 1]?.type === 'user') {
                this.selectedConversation!.messages!.pop(); // Remove optimistically added user message
             }
             return of(null);
           }),
-          finalize(() => console.log('New conversation creation flow finalized.'))
+          // Ensure isLoading is reset whether the flow succeeds or fails
+          finalize(() => {
+            this.isLoading = false;
+            console.log('New conversation creation flow finalized. isLoading set to false.');
+          })
         ).subscribe());
       return; // Exit sendMessage after initiating the new conversation flow
     }
@@ -317,9 +327,16 @@ export class ChatbotComponent implements OnInit, OnDestroy {
           console.error('ChatbotComponent: Overall error in sendMessage flow:', overallError);
           // Catch-all for any unhandled errors in the chain (e.g., initial messageService.addMessage failed)
           // If the initial user message saving failed, remove the optimistically added message from UI.
-          this.selectedConversation!.messages!.pop(); // Remove the last (optimistically added user) message
+          if (this.selectedConversation!.messages!.length > 0 && this.selectedConversation!.messages![this.selectedConversation!.messages!.length - 1]?.type === 'user') {
+            this.selectedConversation!.messages!.pop(); // Remove the last (optimistically added user) message
+          }
           // Provide user feedback: e.g., this.showErrorMessage('Error al enviar el mensaje.');
           return of(null); // Ensure observable completes gracefully
+        }),
+        // Ensure isLoading is reset whether the flow succeeds or fails
+        finalize(() => {
+          this.isLoading = false;
+          console.log('Existing conversation flow finalized. isLoading set to false.');
         })
       ).subscribe()
     );
