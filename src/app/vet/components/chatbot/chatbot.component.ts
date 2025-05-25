@@ -1,7 +1,7 @@
 import { Component, ElementRef, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MessageService } from '../../../services/message.service';
 import { ConversationService } from '../../../services/conversation.service';
-import { catchError, of, Subscription, switchMap, tap } from 'rxjs';
+import { catchError, finalize, of, Subscription, switchMap, tap } from 'rxjs';
 import { ChatStateService } from '../../../services/chatstate.service';
 import { Conversation } from '../../../interfaces/conversation.interface';
 import { AuthService } from '../../../services/auth.service';
@@ -104,16 +104,136 @@ export class ChatbotComponent implements OnInit, OnDestroy {
   }
 
   public sendMessage(): void {
-    const messageContent = this.promptValue?.nativeElement.value?.trim();
+    const messageContent = this.promptValue?.nativeElement.value;
+
+    this.promptValue!.nativeElement.value = '';
 
     // Early exit if no message content or no conversation is selected
-    if (!messageContent || messageContent.length === 0 || !this.selectedConversation) {
-      console.warn('ChatbotComponent: No message content or conversation selected.');
-      return;
-    }
+    if ( !this.selectedConversation ) {
+      console.log('ChatbotComponent: No conversation selected. Initiating new conversation creation flow.');
 
-    // Immediately clear the input field for better UX
-    this.promptValue!.nativeElement.value = '';
+      this.subscriptions.add(
+        this.authService.getUserPerEmail(this.userInfoService.getToken()!).pipe(
+          tap(user => {
+            if (!user || user.length === 0 || !user[0].id) {
+              console.error('User Fetch Error: User not found or user ID is missing.');
+              throw new Error('User not found or ID missing.');
+            }
+            this.userId = user[0].id!; // Ensure userId is set for subsequent calls
+          }),
+          // Step 1: Get conversation title from Gemini Service
+          switchMap(user => {
+            return this.gemini.getConvsersationTitle(messageContent).pipe( // Use messageContent for title
+              catchError(error => {
+                console.error('Gemini Title Error: Could not get conversation title. Using default.', error);
+                return of('Conversación con el veterinario (Título por defecto)'); // Fallback title
+              }),
+              // Step 2: Create the conversation on the backend
+              switchMap(title => {
+                const newConversation: Conversation = {
+                  client: user[0].id!,
+                  client_name: user[0].name,
+                  title: title,
+                  created_at: new Date(),
+                  messages: [] // Initialize messages array for the new conversation
+                };
+                console.log('Attempting to add new conversation:', newConversation);
+                return this.conversationService.addConversation(newConversation);
+              })
+            );
+          }),
+          // Step 3: Handle the created conversation response and set it as active
+          tap(conversationResponse => {
+            if (!conversationResponse || !conversationResponse.id) {
+              console.error('Conversation Creation Error: Backend did not return a valid Conversation object with an ID.');
+              throw new Error('Conversation ID missing from backend response.');
+            }
+            console.log('New conversation created successfully with ID:', conversationResponse.id);
+            this.selectedConversation = conversationResponse; // Set the newly created conversation as selected
+            this.currentConversation = conversationResponse; // Also set as current
+            this.chatStateService.setConversationItem(conversationResponse); // Store in sessionStorage
+
+            // Optimistically add user message to the UI now that we have a conversation ID
+            if (!this.selectedConversation.messages) {
+              this.selectedConversation.messages = [];
+            }
+          }),
+          // Step 4: Add the initial user message (now that conversation ID is known)
+          switchMap(() => {
+            const newUserMessage: Message = {
+              content: messageContent,
+              conversation: this.selectedConversation!.id!,
+              type: 'user',
+              timestamp: new Date()
+            };
+            console.log('Attempting to add initial user message:', newUserMessage);
+            return this.messageService.addMessage(newUserMessage).pipe(
+              tap(newMessage => this.selectedConversation!.messages!.push(newMessage)),
+
+              catchError(error => {
+                console.error('Initial User Message Error: Error adding initial user message', error);
+                throw error;
+              })
+            );
+          }),
+          // Step 5: Progress conversation with Gemini and add AI message (same logic as existing flow)
+          switchMap(() => {
+              const fullPrompt = messageContent; // For the very first message, the prompt is just the user's message
+              // Or if you want to include title in prompt: this.selectedConversation!.title + '\n' + messageContent;
+
+              return this.gemini.progressConversation(fullPrompt).pipe(
+                catchError(geminiError => {
+                  console.error('ChatbotComponent: Error from Gemini service (new conv flow):', geminiError);
+                  return of('Error: No se pudo obtener una respuesta del bot para la nueva conversación.');
+                }),
+                switchMap(geminiResponse => {
+                  if (geminiResponse.startsWith('Error:')) {
+                    const errorMachineMessage: Message = {
+                        content: geminiResponse,
+                        conversation: this.selectedConversation!.id!,
+                        type: 'machine',
+                        timestamp: new Date()
+                    };
+                    return of(errorMachineMessage);
+                  }
+
+                  const machineContentHtml = marked(geminiResponse).toString();
+                  const newMachineMessage: Message = {
+                    content: machineContentHtml,
+                    conversation: this.selectedConversation!.id!,
+                    type: 'machine',
+                    timestamp: new Date()
+                  };
+                  return this.messageService.addMessage(newMachineMessage).pipe(
+                    tap(savedMachineMessage => {
+                      if (savedMachineMessage) {
+                        this.selectedConversation!.messages!.push(savedMachineMessage);
+                        this.userConversations.unshift(this.selectedConversation!); // Add to user conversations
+                      }
+                    }),
+                    catchError(addMachineMessageError => {
+                      console.error('ChatbotComponent: Error saving machine message (new conv flow):', addMachineMessageError);
+                      return of(null);
+                    })
+                  );
+                })
+              );
+          }),
+          tap(() => {
+            console.log('New conversation flow completed.');
+          }),
+          catchError(overallError => {
+            console.error('ChatbotComponent: Overall error during new conversation creation flow.', overallError);
+            // Rollback optimistic UI update if initial user message was pushed
+            if (this.selectedConversation!.messages!.length > 0 && this.selectedConversation!.messages![this.selectedConversation!.messages!.length - 1] === newUserMessage) {
+               this.selectedConversation!.messages!.pop(); // Remove optimistically added user message
+            }
+            return of(null);
+          }),
+          finalize(() => console.log('New conversation creation flow finalized.'))
+        ).subscribe());
+      return; // Exit sendMessage after initiating the new conversation flow
+    }
 
     const newUserMessage: Message = {
       content: messageContent,
@@ -121,6 +241,7 @@ export class ChatbotComponent implements OnInit, OnDestroy {
       type: 'user',
       timestamp: new Date()
     };
+    // Immediately clear the input field for better UX
 
     // Optimistically add user message to the UI for immediate feedback
     // The messages array is guaranteed to exist due to `selectConversation` or `ngOnInit` logic
@@ -213,6 +334,11 @@ export class ChatbotComponent implements OnInit, OnDestroy {
 
     // 3. Trim leading and trailing whitespace
     return normalizedWhitespaceString.trim();
+  }
+
+  public createConversation(): void {
+    this.chatStateService.clearConversationItem(); // Clear any existing conversation in chat state service
+    this.selectedConversation = null; // Reset the selected conversation
   }
 
 }

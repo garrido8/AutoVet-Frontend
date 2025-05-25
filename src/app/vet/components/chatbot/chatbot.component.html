@@ -3,6 +3,13 @@
   <div class="left-aside">
     <aside class="conversations">
       <h2>Conversaciones</h2>
+
+      <button
+        (click)="createConversation()"
+      >
+        Nueva conversación
+      </button>
+
       @for( conversation of userConversations; track conversation.id) {
         <div class="conversation-item"
           (click)="selectConversation(conversation)"
