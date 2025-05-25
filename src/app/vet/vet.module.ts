@@ -8,6 +8,8 @@ import { ContactComponent } from './components/contact/contact.component';
 import { FormsModule } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 
+import { provideAnimations } from '@angular/platform-browser/animations';
+
 
 @NgModule({
   declarations: [
