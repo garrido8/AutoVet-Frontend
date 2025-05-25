@@ -226,7 +226,7 @@ export class DiagnosisComponent implements OnInit, OnDestroy {
           this.userMessage!.conversation = conversationResponse.id!;
           this.aiMessage!.conversation = conversationResponse.id!;
           // Store the created conversation in the shared service
-          this.chatStateService.setCurrentConversation(conversationResponse);
+          this.chatStateService.setConversationItem(conversationResponse);
         }),
         switchMap(() => {
           console.log('Attempting to add user message:', this.userMessage);

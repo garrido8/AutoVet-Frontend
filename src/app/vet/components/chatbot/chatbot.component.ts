@@ -80,30 +80,26 @@ export class ChatbotComponent implements OnInit, OnDestroy {
       ).subscribe() // Subscribe here and add to subscriptions
     );
 
-    // --- Logic to get the currently active conversation (from goToChatBot in ForumPageComponent) ---
-    this.subscriptions.add(
-      this.chatStateService.currentConversation$.subscribe(conversation => {
-        if (conversation) {
-          this.currentConversation = conversation;
-          this.messageService.getMessagesByConversationId( this.currentConversation.id! )
-            .subscribe( messages => {
-              console.log(messages);
-            } )
-          console.log('ChatbotComponent received active conversation:', this.currentConversation);
-        } else {
-          this.currentConversation = null;
-          console.log('ChatbotComponent: No active conversation set.');
-        }
-      })
-    );
+    const storedConversation = this.chatStateService.getConversationItem()
+    if ( storedConversation ) {
+      this.selectedConversation = storedConversation; // Set the selected conversation from chat state service
+      this.messageService.getMessagesByConversationId( this.selectedConversation.id! )
+        .subscribe( messages => {
+          this.selectedConversation!.messages = messages; // Assign messages to the conversation
+        } )
+      console.log('ChatbotComponent: Selected conversation from chat state service:', this.selectedConversation);
+    }
+
   }
 
   ngOnDestroy(): void {
+    this.chatStateService.clearConversationItem(); // Clear the conversation item from chat state service
     this.subscriptions.unsubscribe(); // Unsubscribe from all subscriptions to prevent memory leaks
   }
 
   public selectConversation(conversation: Conversation): void {
     this.selectedConversation = conversation; // Set the selected conversation
+    this.chatStateService.setConversationItem( conversation ); // Update the chat state service
     console.log('ChatbotComponent: Navigating to conversation:', conversation);
   }
 
