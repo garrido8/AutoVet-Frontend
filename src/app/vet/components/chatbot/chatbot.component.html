@@ -6,7 +6,7 @@
 
       <button
         (click)="createConversation()"
-      >
+        class="new-conversation-button" >
         Nueva conversación
       </button>
 
@@ -21,8 +21,7 @@
   </div>
 
   <div class="conversation-chat">
-
-    <div class="messages-container">
+    <div class="messages-container" #messagesContainer>
       @if( this.selectedConversation !== null ) {
         @for( message of selectedConversation.messages ; track message.id) {
           <div class="message-item">
@@ -53,6 +52,7 @@
     <div class="chat-input-area">
       <textarea
         class="chat-textarea"
+        id="prompt"
         placeholder="Escribe tu mensaje..."
         #promptValue
         [(ngModel)]="promptValueText"
