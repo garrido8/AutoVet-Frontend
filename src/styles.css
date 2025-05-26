@@ -8,6 +8,8 @@
 }
 
 body {
+  margin: 0;
+  padding: 0;
   background-color: var( --new-background );
   color: var( --main-text-color );
   font-family: 'Libre Franklin';

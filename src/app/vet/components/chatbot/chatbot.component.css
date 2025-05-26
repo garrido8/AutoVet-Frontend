@@ -2,7 +2,7 @@
 .main-container {
   display: grid;
   grid-template-columns: 0.25fr 0.7fr;
-  grid-column-gap: 8%;
+  grid-column-gap: 4%;
 }
 
 #prompt {
