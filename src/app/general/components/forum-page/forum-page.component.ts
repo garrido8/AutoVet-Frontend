@@ -7,6 +7,7 @@ import { UserInfoService } from '../../../services/user-info.service';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { KeywordsService } from '../../../services/keywords.service';
 
 @Component({
   selector: 'app-forum-page',
@@ -24,6 +25,7 @@ export class ForumPageComponent implements OnInit, OnDestroy {
   private subscriptions = new Subscription();
   private answesService = inject( AnswersService );
   private userInfoService = inject( UserInfoService );
+  private keywordsService = inject( KeywordsService )
 
   public allAnswers: Answer[] = [];
   public filteredAnswers: Answer[] = [];
@@ -40,6 +42,13 @@ export class ForumPageComponent implements OnInit, OnDestroy {
   public answerContent: string = '';
 
   ngOnInit(): void {
+    this.keywordsService.getKeywords()
+      .subscribe( response => {
+        if (response && response?.length > 0) {
+          this.searchTerm = response
+        }
+      } )
+
     this.answesService.getAnswers()
       .subscribe( (data) => {
         this.allAnswers = data;
@@ -61,23 +70,30 @@ export class ForumPageComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * - Supports multiple keywords in the search term (e.g., "word1 word2").
-   * - Filters for answers that contain ALL of the search words ("AND" logic).
-   * - Parses answer keywords using both spaces and commas as separators.
+   * NEW: Method to perform the search filtering, now supporting multiple keywords.
+   * An answer is included if ANY of its keywords contains ANY of the search terms
+   * provided by the user.
    */
   public performSearch(): void {
     if (!this.searchTerm.trim()) {
-      this.filteredAnswers = [...this.allAnswers];
+      this.filteredAnswers = [...this.allAnswers]; // Show all answers if search term is empty or just whitespace
       return;
     }
+
+    // Split the user's search query by spaces into individual terms,
+    // and filter out any empty strings that might result from multiple spaces.
     const searchTerms = this.searchTerm.toLowerCase().split(' ').filter(term => term.length > 0);
 
     this.filteredAnswers = this.allAnswers.filter(answer => {
+      // Get the answer's keywords, clean them, and convert them to lowercase.
       const answerKeywords = (answer.keywords || '')
-        .split(/[\s,]+/)
-        .map(k => k.trim().toLowerCase())
-        .filter(k => k.length > 0);
-      return searchTerms.every(searchTerm => {
+        .split('\s')
+        .map(k => k.trim().toLowerCase());
+
+      // Check if any of the user's search terms are included in any of the answer's keywords.
+      // This uses a nested 'some' to implement the "OR" logic:
+      // (search_term1 in answer_keywords) OR (search_term2 in answer_keywords) ...
+      return searchTerms.some(searchTerm => {
         return answerKeywords.some(answerKeyword => answerKeyword.includes(searchTerm));
       });
     });
@@ -199,8 +215,7 @@ export class ForumPageComponent implements OnInit, OnDestroy {
   openModal(answer: Answer): void {
     this.selectedAnswer = answer;
     this.answerContent = marked(answer.content || '').toString();
-    // NEW: Use flexible separator for modal keywords as well
-    this.modalKeywords = answer.keywords ? answer.keywords.split(/[\s,]+/).filter(k => k.length > 0) : [];
+    this.modalKeywords = answer.keywords ? answer.keywords.split(',') : [];
     this.showModal = true;
     document.body.style.overflow = 'hidden';
   }

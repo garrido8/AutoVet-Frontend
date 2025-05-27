@@ -19,6 +19,7 @@ import { ConversationService } from '../../../services/conversation.service';
 import { Conversation } from '../../../interfaces/conversation.interface';
 import { Router } from '@angular/router';
 import { ChatStateService } from '../../../services/chatstate.service';
+import { KeywordsService } from '../../../services/keywords.service';
 
 @Component({
   selector: 'app-diagnosis',
@@ -41,6 +42,7 @@ export class DiagnosisComponent implements OnInit, OnDestroy {
   private conversationsService = inject( ConversationService )
   private route = inject( Router )
   private chatStateService = inject( ChatStateService )
+  private keywordsService = inject( KeywordsService )
 
   public isLoading: boolean = false;
 
@@ -59,6 +61,8 @@ export class DiagnosisComponent implements OnInit, OnDestroy {
   private aiMessage: Message | null = null;
 
   private subscriptions = new Subscription();
+
+  private answerKeywords: string = ''
 
   ngOnInit(): void {
     const userSubscription = this.authService.getUserPerEmail(this.UserInfoService.getToken()!).pipe(
@@ -120,7 +124,7 @@ export class DiagnosisComponent implements OnInit, OnDestroy {
       .pipe(finalize(() => this.isLoading = false))
       .subscribe({
         next: response => {
-          // this.addAnswer( response )#ff6666
+          this.addAnswer( response )
           this.responseText = response;
           this.formattedResponse = marked(response).toString(); // Convert Markdown to HTML
 
@@ -163,7 +167,8 @@ export class DiagnosisComponent implements OnInit, OnDestroy {
     this.gemini.getKeyWords(response)
       .pipe(
         tap(words => answer.keywords = words),
-        switchMap(() => this.answersService.addAnswer(answer))
+        tap( words => this.answerKeywords = words ),
+        // switchMap(() => this.answersService.addAnswer(answer))
       )
       .subscribe(
         response => console.log('Respuesta agregada correctamente'),
@@ -179,6 +184,16 @@ export class DiagnosisComponent implements OnInit, OnDestroy {
       this.selectedPet = undefined;
       this.selected = false
     }
+  }
+
+  private removeCommas( text: string ): string {
+    return text.replace(/,/g, '')
+  }
+
+  public goToForum(): void {
+    const words = this.removeCommas( this.answerKeywords )
+    this.keywordsService.setKeywords( words )
+    this.route.navigate(['/forum'])
   }
 
   public goToChatBot(): void {
