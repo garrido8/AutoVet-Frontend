@@ -3,9 +3,10 @@ import { AnswersService } from '../../../services/answers.service';
 import { Subscription } from 'rxjs';
 import { Answer } from '../../../interfaces/answer.interface';
 import { marked } from 'marked';
-import { UserInfoService } from '../../../services/user-info.service'; // Ensure this is imported
+import { UserInfoService } from '../../../services/user-info.service';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms'; // NEW: Import FormsModule for ngModel
 
 @Component({
   selector: 'app-forum-page',
@@ -14,27 +15,29 @@ import { RouterModule } from '@angular/router';
   styleUrl: './forum-page.component.css',
   imports: [
     CommonModule,
-    RouterModule
+    RouterModule,
+    FormsModule // NEW: Add FormsModule to imports
   ],
 })
 export class ForumPageComponent implements OnInit, OnDestroy {
 
   private subscriptions = new Subscription();
   private answesService = inject( AnswersService );
-  private userInfoService = inject( UserInfoService ); // Inject the UserInfoService
+  private userInfoService = inject( UserInfoService );
 
   public allAnswers: Answer[] = [];
+  public filteredAnswers: Answer[] = []; // NEW: Array to hold filtered answers
+  public searchTerm: string = ''; // NEW: Property for search input
 
-  // Changed currentUserEmail to a getter to always retrieve the latest token
   private get currentUserEmail(): string {
-    return this.userInfoService.getToken()!; // Get the actual user email dynamically
+    return this.userInfoService.getToken()!;
   }
 
   // Modal State
   public showModal: boolean = false;
   public selectedAnswer: Answer | null = null;
   public modalKeywords: string[] = [];
-  public answerContent: string = ''; // For the marked content in modal
+  public answerContent: string = '';
 
   ngOnInit(): void {
     this.answesService.getAnswers()
@@ -46,14 +49,35 @@ export class ForumPageComponent implements OnInit, OnDestroy {
             answer.votes = 0;
           }
           if (typeof answer.votedEmails === 'undefined' || answer.votedEmails === null) {
-            answer.votedEmails = ''; // Initialize as empty string if not present
+            answer.votedEmails = '';
           }
         });
+        this.filteredAnswers = [...this.allAnswers]; // NEW: Initialize filteredAnswers
       });
   }
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
+  }
+
+  // NEW: Method to perform the search filtering
+  public performSearch(): void {
+    if (!this.searchTerm.trim()) {
+      this.filteredAnswers = [...this.allAnswers]; // Show all answers if search term is empty or just whitespace
+      return;
+    }
+
+    const lowerCaseSearchTerm = this.searchTerm.toLowerCase();
+
+    this.filteredAnswers = this.allAnswers.filter(answer => {
+      // Ensure answer.keywords is a string and handle potential null/undefined
+      const keywords = (answer.keywords || '')
+        .split(',')
+        .map(k => k.trim().toLowerCase());
+
+      // Check if any keyword includes the search term
+      return keywords.some(keyword => keyword.includes(lowerCaseSearchTerm));
+    });
   }
 
   // Helper to truncate text for card preview
@@ -73,34 +97,26 @@ export class ForumPageComponent implements OnInit, OnDestroy {
       return 'Fecha inválida';
     }
     const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Fixed this line
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const year = date.getFullYear();
     const hours = date.getHours().toString().padStart(2, '0');
     const minutes = date.getMinutes().toString().padStart(2, '0');
     return `${day}/${month}/${year} a las ${hours}:${minutes}`;
   }
 
-  // Helper to parse votedEmails string into an array of objects { email: string, type: 'up' | 'down' }
   private parseVotedEmails(votedEmailsStr: string): { email: string, type: 'up' | 'down' }[] {
     if (!votedEmailsStr) return [];
     return votedEmailsStr.split(',').map(entry => {
       const parts = entry.split(':');
       return { email: parts[0], type: parts[1] as 'up' | 'down' };
-    }).filter(entry => entry.email && entry.type); // Filter out malformed entries
+    }).filter(entry => entry.email && entry.type);
   }
 
-  // Helper to serialize array of vote objects back to string
   private serializeVotedEmails(votedEmailsArr: { email: string, type: 'up' | 'down' }[]): string {
     return votedEmailsArr.map(entry => `${entry.email}:${entry.type}`).join(',');
   }
 
-  /**
-   * Determines if the current user has voted on a given answer and in which direction.
-   * @param answer The answer to check.
-   * @returns 'up' if upvoted, 'down' if downvoted, or null if not voted.
-   */
   getUserVoteType(answer: Answer): 'up' | 'down' | null {
-    // Access currentUserEmail via the getter to get the latest value
     if (!this.currentUserEmail || !answer.votedEmails) {
       return null;
     }
@@ -111,7 +127,6 @@ export class ForumPageComponent implements OnInit, OnDestroy {
 
   // --- Vote Logic ---
   voteUp(answer: Answer): void {
-    // Access currentUserEmail via the getter to get the latest value
     if (!answer || !this.currentUserEmail) {
       console.warn('Cannot vote: Answer or current user email is missing.');
       return;
@@ -127,65 +142,76 @@ export class ForumPageComponent implements OnInit, OnDestroy {
 
     if (userHasVoted) {
       if (userCurrentVoteType === 'up') {
-        // User previously upvoted and clicked upvote again -> Remove vote
         currentVotes--;
         votedEmailsArr.splice(userVoteIndex, 1);
         console.log(`[Upvote] Action: User ${this.currentUserEmail} removed their UPVOTE.`);
       } else { // userCurrentVoteType === 'down'
-        // User previously downvoted and clicked upvote -> Change vote from down to up
-        currentVotes += 2; // Undo downvote (-1) and add upvote (+1)
+        currentVotes += 2;
         votedEmailsArr[userVoteIndex].type = 'up';
         console.log(`[Upvote] Action: User ${this.currentUserEmail} changed vote from DOWN to UP.`);
       }
     } else {
-      // User has not voted yet -> Add upvote
       currentVotes++;
       votedEmailsArr.push({ email: this.currentUserEmail, type: 'up' });
       console.log(`[Upvote] Action: User ${this.currentUserEmail} added an UPVOTE.`);
     }
 
-    // Update answer object
     answer.votes = currentVotes;
     answer.votedEmails = this.serializeVotedEmails(votedEmailsArr);
 
     console.log(`[Upvote] Local state updated: Votes=${answer.votes}, VotedEmails='${answer.votedEmails}'`);
 
-    // Call service to update backend
     this.answesService.editAnswer(answer.id!, answer).subscribe({
       next: (updatedAnswer) => {
         console.log(`[Upvote] Backend updated successfully. Final votes from backend: ${updatedAnswer.votes}`);
-        // IMPORTANT: Ensure your backend correctly merges the 'votedEmails' string for this PUT request.
-        // If the backend simply overwrites the 'votedEmails' field with the string sent from frontend,
-        // it will lead to previous users' votes being lost. The backend should parse the string,
-        // update its internal list of voters, and then serialize it back for persistence.
         const index = this.allAnswers.findIndex(a => a.id === updatedAnswer.id);
         if (index !== -1) {
           this.allAnswers[index] = updatedAnswer;
+          // IMPORTANT: Re-run search to update filtered list if necessary
+          this.performSearch();
         }
       },
       error: (err) => {
         console.error('[Upvote] Error updating answer on backend:', err);
         // Revert local changes if backend update fails
-        // This is a simplified revert, a more robust solution might track original state
         if (userHasVoted) {
           if (userCurrentVoteType === 'up') {
-            answer.votes++; // Revert decrement
+            answer.votes++;
             votedEmailsArr.push({ email: this.currentUserEmail, type: 'up' });
           } else {
-            answer.votes -= 2; // Revert increment
+            answer.votes -= 2;
             votedEmailsArr[userVoteIndex].type = 'down';
           }
         } else {
-          answer.votes--; // Revert increment
-          votedEmailsArr.pop(); // Remove added vote
+          answer.votes--;
+          votedEmailsArr.pop();
         }
         answer.votedEmails = this.serializeVotedEmails(votedEmailsArr);
         console.log(`[Upvote] Local state reverted due to backend error: Votes=${answer.votes}, VotedEmails='${answer.votedEmails}'`);
+        // Re-run search after reverting to maintain UI consistency
+        this.performSearch();
       }
     });
   }
 
-  // voteDown(answer: Answer): void {
+  // Open the modal with the full answer
+  openModal(answer: Answer): void {
+    this.selectedAnswer = answer;
+    this.answerContent = marked(answer.content || '').toString();
+    this.modalKeywords = answer.keywords ? answer.keywords.split(',') : [];
+    this.showModal = true;
+    document.body.style.overflow = 'hidden';
+  }
+
+  // Close the modal
+  closeModal(): void {
+    this.showModal = false;
+    this.selectedAnswer = null;
+    this.modalKeywords = [];
+    document.body.style.overflow = '';
+  }
+
+    // voteDown(answer: Answer): void {
   //   // Access currentUserEmail via the getter to get the latest value
   //   if (!answer || !this.currentUserEmail) {
   //     console.warn('Cannot vote: Answer or current user email is missing.');
@@ -267,22 +293,4 @@ export class ForumPageComponent implements OnInit, OnDestroy {
   //     }
   //   });
   // }
-  // --- End Vote Logic ---
-
-  // Open the modal with the full answer
-  openModal(answer: Answer): void {
-    this.selectedAnswer = answer;
-    this.answerContent = marked(answer.content || '').toString();
-    this.modalKeywords = answer.keywords ? answer.keywords.split(',') : [];
-    this.showModal = true;
-    document.body.style.overflow = 'hidden';
-  }
-
-  // Close the modal
-  closeModal(): void {
-    this.showModal = false;
-    this.selectedAnswer = null;
-    this.modalKeywords = [];
-    document.body.style.overflow = '';
-  }
 }

@@ -1,15 +1,20 @@
 <div class="main-container">
 
   <div class="search">
-    Buscador
+    <input
+      type="text"
+      placeholder="Buscar por palabras clave..."
+      [(ngModel)]="searchTerm"
+      (ngModelChange)="performSearch()"
+      class="search-input"
+    >
   </div>
 
   <h1 class="main-title">Foro de preguntas</h1>
   <p class="description">Encuentra preguntas y ayuda para problemas de tus mascotas</p>
 
   <div class="answers-container">
-    @for (answer of allAnswers; track $index) {
-      <div class="answer-card">
+    @for (answer of filteredAnswers; track $index) { <div class="answer-card">
         <div class="answer-header">
           <h2 class="answer-user">
             <span class="user-label">Generada por:</span>
@@ -21,9 +26,9 @@
             <p class="answer-content-preview">{{ getTruncatedContent(answer.content) }}</p>
             <div class="answer-details">
                 <div class="answer-keywords">
-                    @for (keyword of (answer.keywords ? answer.keywords.split(',') : []); track $index) {
-                        <span class="keyword">{{ keyword }}</span>
-                    }
+                  @for (keyword of (answer.keywords ? answer.keywords.split(',') : []); track $index) {
+                      <span class="keyword">{{ keyword }}</span>
+                  }
                 </div>
             </div>
         </div>
@@ -37,14 +42,7 @@
                   <i class="icon material-icons">thumb_up</i>
                 </button>
 
-                <!-- <button
-                  class="vote-button downvote"
-                  [ngClass]="{'voted-down': getUserVoteType(answer) === 'down'}"
-                  (click)="$event.stopPropagation(); voteDown(answer)"
-                >
-                  <i class="icon material-icons">thumb_down</i>
-                </button> -->
-            </div>
+                </div>
             <span class="votes-text">Votos: <span class="votes-count">{{ answer.votes }}</span></span>
         </div>
       </div>
