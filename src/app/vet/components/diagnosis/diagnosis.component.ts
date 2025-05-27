@@ -168,7 +168,7 @@ export class DiagnosisComponent implements OnInit, OnDestroy {
       .pipe(
         tap(words => answer.keywords = words),
         tap( words => this.answerKeywords = words ),
-        // switchMap(() => this.answersService.addAnswer(answer))
+        switchMap(() => this.answersService.addAnswer(answer))
       )
       .subscribe(
         response => console.log('Respuesta agregada correctamente'),
