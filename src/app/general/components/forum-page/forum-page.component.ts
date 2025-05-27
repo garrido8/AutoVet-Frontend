@@ -6,7 +6,7 @@ import { marked } from 'marked';
 import { UserInfoService } from '../../../services/user-info.service';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { FormsModule } from '@angular/forms'; // NEW: Import FormsModule for ngModel
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-forum-page',
@@ -16,7 +16,7 @@ import { FormsModule } from '@angular/forms'; // NEW: Import FormsModule for ngM
   imports: [
     CommonModule,
     RouterModule,
-    FormsModule // NEW: Add FormsModule to imports
+    FormsModule
   ],
 })
 export class ForumPageComponent implements OnInit, OnDestroy {
@@ -26,8 +26,8 @@ export class ForumPageComponent implements OnInit, OnDestroy {
   private userInfoService = inject( UserInfoService );
 
   public allAnswers: Answer[] = [];
-  public filteredAnswers: Answer[] = []; // NEW: Array to hold filtered answers
-  public searchTerm: string = ''; // NEW: Property for search input
+  public filteredAnswers: Answer[] = [];
+  public searchTerm: string = '';
 
   private get currentUserEmail(): string {
     return this.userInfoService.getToken()!;
@@ -52,7 +52,7 @@ export class ForumPageComponent implements OnInit, OnDestroy {
             answer.votedEmails = '';
           }
         });
-        this.filteredAnswers = [...this.allAnswers]; // NEW: Initialize filteredAnswers
+        this.filteredAnswers = [...this.allAnswers]; // Initialize filteredAnswers
       });
   }
 
@@ -60,23 +60,26 @@ export class ForumPageComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
-  // NEW: Method to perform the search filtering
+  /**
+   * - Supports multiple keywords in the search term (e.g., "word1 word2").
+   * - Filters for answers that contain ALL of the search words ("AND" logic).
+   * - Parses answer keywords using both spaces and commas as separators.
+   */
   public performSearch(): void {
     if (!this.searchTerm.trim()) {
-      this.filteredAnswers = [...this.allAnswers]; // Show all answers if search term is empty or just whitespace
+      this.filteredAnswers = [...this.allAnswers];
       return;
     }
-
-    const lowerCaseSearchTerm = this.searchTerm.toLowerCase();
+    const searchTerms = this.searchTerm.toLowerCase().split(' ').filter(term => term.length > 0);
 
     this.filteredAnswers = this.allAnswers.filter(answer => {
-      // Ensure answer.keywords is a string and handle potential null/undefined
-      const keywords = (answer.keywords || '')
-        .split(',')
-        .map(k => k.trim().toLowerCase());
-
-      // Check if any keyword includes the search term
-      return keywords.some(keyword => keyword.includes(lowerCaseSearchTerm));
+      const answerKeywords = (answer.keywords || '')
+        .split(/[\s,]+/)
+        .map(k => k.trim().toLowerCase())
+        .filter(k => k.length > 0);
+      return searchTerms.every(searchTerm => {
+        return answerKeywords.some(answerKeyword => answerKeyword.includes(searchTerm));
+      });
     });
   }
 
@@ -167,8 +170,7 @@ export class ForumPageComponent implements OnInit, OnDestroy {
         const index = this.allAnswers.findIndex(a => a.id === updatedAnswer.id);
         if (index !== -1) {
           this.allAnswers[index] = updatedAnswer;
-          // IMPORTANT: Re-run search to update filtered list if necessary
-          this.performSearch();
+          this.performSearch(); // Re-run search to update filtered list if necessary
         }
       },
       error: (err) => {
@@ -188,8 +190,7 @@ export class ForumPageComponent implements OnInit, OnDestroy {
         }
         answer.votedEmails = this.serializeVotedEmails(votedEmailsArr);
         console.log(`[Upvote] Local state reverted due to backend error: Votes=${answer.votes}, VotedEmails='${answer.votedEmails}'`);
-        // Re-run search after reverting to maintain UI consistency
-        this.performSearch();
+        this.performSearch(); // Re-run search after reverting to maintain UI consistency
       }
     });
   }
@@ -198,7 +199,8 @@ export class ForumPageComponent implements OnInit, OnDestroy {
   openModal(answer: Answer): void {
     this.selectedAnswer = answer;
     this.answerContent = marked(answer.content || '').toString();
-    this.modalKeywords = answer.keywords ? answer.keywords.split(',') : [];
+    // NEW: Use flexible separator for modal keywords as well
+    this.modalKeywords = answer.keywords ? answer.keywords.split(/[\s,]+/).filter(k => k.length > 0) : [];
     this.showModal = true;
     document.body.style.overflow = 'hidden';
   }
@@ -211,7 +213,7 @@ export class ForumPageComponent implements OnInit, OnDestroy {
     document.body.style.overflow = '';
   }
 
-    // voteDown(answer: Answer): void {
+      // voteDown(answer: Answer): void {
   //   // Access currentUserEmail via the getter to get the latest value
   //   if (!answer || !this.currentUserEmail) {
   //     console.warn('Cannot vote: Answer or current user email is missing.');

@@ -67,6 +67,7 @@
     padding: 1.5rem;
     border: 1px solid #444;
     display: flex;
+    max-width: 500px;
     flex-direction: column;
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.2s;
 }
