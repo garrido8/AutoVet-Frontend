@@ -119,6 +119,7 @@
 }
 
 .keyword {
+  text-transform: capitalize;
   background-color: #3a3a3a;
   color: #c0c0c0;
   padding: 0.3rem 0.6rem;
