@@ -6,4 +6,5 @@ export interface Answer {
   votes:       number;
   votedEmails: string;
   userEmail:   string;
+  topAnswer:   boolean;
 }

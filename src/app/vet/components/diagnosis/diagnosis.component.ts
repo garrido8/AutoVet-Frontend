@@ -161,7 +161,8 @@ export class DiagnosisComponent implements OnInit, OnDestroy {
       keywords: '',
       votes: 0,
       votedEmails: '',
-      userEmail: email || 'Anónimo'
+      userEmail: email || 'Anónimo',
+      topAnswer: false
     };
 
     this.gemini.getKeyWords(response)
