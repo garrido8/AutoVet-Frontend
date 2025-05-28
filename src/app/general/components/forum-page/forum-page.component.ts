@@ -70,7 +70,7 @@ export class ForumPageComponent implements OnInit, OnDestroy {
             if (typeof answer.topAnswer === 'undefined' || answer.topAnswer === null) {
               answer.topAnswer = false;
             }
-            // NEW: Update the topAnswer status for each answer on load
+            // Update the topAnswer status for each answer on load
             this._updateTopAnswerStatus(answer);
           });
           this.filteredAnswers = [...this.allAnswers]; // Initialize filteredAnswers with all answers
@@ -84,7 +84,7 @@ export class ForumPageComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * NEW: Helper method to determine and set the topAnswer status.
+   * Helper method to determine and set the topAnswer status.
    * This method updates the `topAnswer` property of an `Answer` object
    * based on whether any of its `votedEmails` contain the "autovet" substring.
    * This logic *only* updates the local `answer` object; the persistence to the backend
@@ -105,15 +105,30 @@ export class ForumPageComponent implements OnInit, OnDestroy {
    * - Supports multiple keywords in the search term (e.g., "word1 word2").
    * - Filters for answers that contain ALL of the search words ("AND" logic).
    * - Parses answer keywords using both spaces and commas as separators.
+   * - NEW: Sorts the filtered answers with `topAnswer`s first, then by date ascending.
    */
   public performSearch(): void {
     if (!this.searchTerm.trim()) {
       this.filteredAnswers = [...this.allAnswers]; // Show all answers if search term is empty or just whitespace
+      // Apply sorting even when no search term is provided
+      this.filteredAnswers.sort((a, b) => {
+        // Primary sort: topAnswer (true comes before false)
+        if (a.topAnswer && !b.topAnswer) {
+          return -1; // a (true) comes before b (false)
+        }
+        if (!a.topAnswer && b.topAnswer) {
+          return 1; // b (true) comes before a (false)
+        }
+
+        // Secondary sort: If topAnswer status is the same, sort by date ascending (oldest first)
+        const dateA = new Date(a.time!);
+        const dateB = new Date(b.time!);
+        return dateA.getTime() - dateB.getTime(); // Ascending sort for dates
+      });
       return;
     }
 
     // Split the user's search query by spaces into individual terms.
-    // Filter out any empty strings that might result from multiple spaces.
     const searchTerms = this.searchTerm.toLowerCase().split(' ').filter(term => term.length > 0);
 
     this.filteredAnswers = this.allAnswers.filter(answer => {
@@ -125,12 +140,26 @@ export class ForumPageComponent implements OnInit, OnDestroy {
         .filter(k => k.length > 0); // Ensure no empty keywords from splitting (e.g., ", ,")
 
       // Use 'every' for searchTerms (AND logic)
-      // An answer is included if ALL of the user's `searchTerms` are found
-      // within ANY of the answer's `answerKeywords`.
       return searchTerms.every(searchTerm => {
-        // For each searchTerm (e.g., "apetito"), check if it's included in any of the answer's keywords.
+        // For each searchTerm, check if it's included in any of the answer's keywords.
         return answerKeywords.some(answerKeyword => answerKeyword.includes(searchTerm));
       });
+    });
+
+    // NEW: Sort filteredAnswers with topAnswers first, then by date ascending
+    this.filteredAnswers.sort((a, b) => {
+      // Primary sort: topAnswer (true comes before false)
+      if (a.topAnswer && !b.topAnswer) {
+        return -1; // a (true) comes before b (false)
+      }
+      if (!a.topAnswer && b.topAnswer) {
+        return 1; // b (true) comes before a (false)
+      }
+
+      // Secondary sort: If topAnswer status is the same, sort by date ascending (oldest first)
+      const dateA = new Date(a.time!);
+      const dateB = new Date(b.time!);
+      return dateA.getTime() - dateB.getTime(); // Ascending sort for dates
     });
   }
 
@@ -213,7 +242,7 @@ export class ForumPageComponent implements OnInit, OnDestroy {
     answer.votes = currentVotes;
     answer.votedEmails = this.serializeVotedEmails(votedEmailsArr);
 
-    // NEW: Update topAnswer locally based on the new votedEmails state, *before* sending to backend
+    // Update topAnswer locally based on the new votedEmails state, *before* sending to backend
     this._updateTopAnswerStatus(answer);
 
     console.log(`[Upvote] Local state updated: Votes=${answer.votes}, VotedEmails='${answer.votedEmails}', TopAnswer=${answer.topAnswer}`);
@@ -223,23 +252,33 @@ export class ForumPageComponent implements OnInit, OnDestroy {
         console.log(`[Upvote] Backend updated successfully. Final votes from backend: ${updatedAnswer.votes}`);
         const index = this.allAnswers.findIndex(a => a.id === updatedAnswer.id);
         if (index !== -1) {
-          // Update the answer in the allAnswers array with the response from the backend
           this.allAnswers[index] = updatedAnswer;
-          // Re-apply topAnswer status just to be absolutely sure local state matches (redundant if backend sends it correctly)
+          // Re-apply topAnswer status just to be absolutely sure local state matches
           this._updateTopAnswerStatus(this.allAnswers[index]);
-          this.performSearch(); // Re-run search to update filtered list if necessary
+          this.performSearch(); // Re-run search to update filtered list and re-sort
         }
       },
       error: (err) => {
         console.error('[Upvote] Error updating answer on backend:', err);
         // Revert local changes if backend update fails
-        // ... (existing revert logic) ...
-
-        // NEW: Revert topAnswer locally based on the reverted votedEmails state
+        if (userHasVoted) {
+          if (userCurrentVoteType === 'up') {
+            answer.votes++;
+            votedEmailsArr.push({ email: this.currentUserEmail, type: 'up' });
+          } else {
+            answer.votes -= 2;
+            votedEmailsArr[userVoteIndex].type = 'down';
+          }
+        } else {
+          answer.votes--;
+          votedEmailsArr.pop();
+        }
+        answer.votedEmails = this.serializeVotedEmails(votedEmailsArr);
+        // Revert topAnswer locally based on the reverted votedEmails state
         this._updateTopAnswerStatus(answer);
 
         console.log(`[Upvote] Local state reverted due to backend error: Votes=${answer.votes}, VotedEmails='${answer.votedEmails}', TopAnswer=${answer.topAnswer}`);
-        this.performSearch(); // Re-run search after reverting to maintain UI consistency
+        this.performSearch(); // Re-run search after reverting to maintain UI consistency and re-sort
       }
     });
   }
@@ -261,4 +300,87 @@ export class ForumPageComponent implements OnInit, OnDestroy {
     this.modalKeywords = [];
     document.body.style.overflow = '';
   }
+
+        // voteDown(answer: Answer): void {
+  //   // Access currentUserEmail via the getter to get the latest value
+  //   if (!answer || !this.currentUserEmail) {
+  //     console.warn('Cannot vote: Answer or current user email is missing.');
+  //     return;
+  //   }
+
+  //   let currentVotes = answer.votes || 0;
+  //   let votedEmailsArr = this.parseVotedEmails(answer.votedEmails);
+  //   const userVoteIndex = votedEmailsArr.findIndex(v => v.email === this.currentUserEmail);
+  //   const userHasVoted = userVoteIndex !== -1;
+  //   const userCurrentVoteType = userHasVoted ? votedEmailsArr[userVoteIndex].type : null;
+
+  //   console.log(`[Downvote] Initial state for ${answer.userEmail}: Votes=${currentVotes}, UserVoteType=${userCurrentVoteType}, VotedEmails='${answer.votedEmails}'`);
+
+
+  //   if (userHasVoted) {
+  //     if (userCurrentVoteType === 'down') {
+  //       // User previously downvoted and clicked downvote again -> Remove vote
+  //       // This increments the vote count because it's undoing the effect of a previous downvote.
+  //       currentVotes++;
+  //       votedEmailsArr.splice(userVoteIndex, 1);
+  //       console.log(`[Downvote] Action: User ${this.currentUserEmail} removed their DOWNVOTE.`);
+  //     } else { // userCurrentVoteType === 'up'
+  //       // User previously upvoted and clicked downvote -> Change vote from up to down
+  //       currentVotes -= 2; // Undo upvote (-1) and add downvote (-1)
+  //       votedEmailsArr[userVoteIndex].type = 'down';
+  //       console.log(`[Downvote] Action: User ${this.currentUserEmail} changed vote from UP to DOWN.`);
+  //     }
+  //   } else {
+  //     // User has not voted yet -> Add downvote (only if votes > 0 after decrement)
+  //     if (currentVotes > 0) { // Only decrement if current votes are positive
+  //       currentVotes--;
+  //       votedEmailsArr.push({ email: this.currentUserEmail, type: 'down' });
+  //       console.log(`[Downvote] Action: User ${this.currentUserEmail} added a DOWNVOTE.`);
+  //     } else {
+  //       console.log(`[Downvote] Action: Cannot downvote when votes are already 0. User ${this.currentUserEmail} attempted to downvote.`);
+  //     }
+  //   }
+
+  //   // Ensure votes don't go negative
+  //   answer.votes = Math.max(0, currentVotes);
+  //   answer.votedEmails = this.serializeVotedEmails(votedEmailsArr);
+
+  //   console.log(`[Downvote] Local state updated: Votes=${answer.votes}, VotedEmails='${answer.votedEmails}'`);
+
+  //   // Call service to update backend
+  //   this.answersService.editAnswer(answer.id!, answer).subscribe({
+  //     next: (updatedAnswer) => {
+  //       console.log(`[Downvote] Backend updated successfully. Final votes from backend: ${updatedAnswer.votes}`);
+  //       // IMPORTANT: Ensure your backend correctly merges the 'votedEmails' string for this PUT request.
+  //       // If the backend simply overwrites the 'votedEmails' field with the string sent from frontend,
+  //       // it will lead to previous users' votes being lost. The backend should parse the string,
+  //       // update its internal list of voters, and then serialize it back for persistence.
+  //       const index = this.allAnswers.findIndex(a => a.id === updatedAnswer.id);
+  //       if (index !== -1) {
+  //         this.allAnswers[index] = updatedAnswer;
+  //       }
+  //     },
+  //     error: (err) => {
+  //       console.error('[Downvote] Error updating answer on backend:', err);
+  //       // Revert local changes if backend update fails
+  //       if (userHasVoted) {
+  //         if (userCurrentVoteType === 'down') {
+  //           answer.votes--; // Revert increment
+  //           votedEmailsArr.push({ email: this.currentUserEmail, type: 'down' });
+  //         } else {
+  //           answer.votes += 2; // Revert decrement
+  //           votedEmailsArr[userVoteIndex].type = 'up';
+  //         }
+  //       } else {
+  //         // Only revert if a downvote was actually added (i.e., currentVotes was > 0 before decrement)
+  //         if (currentVotes > 0) { // Check the value of currentVotes *before* the Math.max(0, currentVotes)
+  //           answer.votes++; // Revert decrement
+  //           votedEmailsArr.pop(); // Remove added vote
+  //         }
+  //       }
+  //       answer.votedEmails = this.serializeVotedEmails(votedEmailsArr);
+  //       console.log(`[Downvote] Local state reverted due to backend error: Votes=${answer.votes}, VotedEmails='${answer.votedEmails}'`);
+  //     }
+  //   });
+  // }
 }

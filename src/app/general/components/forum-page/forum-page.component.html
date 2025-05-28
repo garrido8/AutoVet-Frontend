@@ -42,8 +42,17 @@
                   <i class="icon material-icons">thumb_up</i>
                 </button>
 
-                </div>
-            <span class="votes-text">Votos: <span class="votes-count">{{ answer.votes }}</span></span>
+            </div>
+
+            @if( answer.topAnswer ) {
+              <div class="top-answer-container">
+                <span class="top-answer">Pregunta verificada</span>
+              </div>
+            }
+
+            <div class="votes-container">
+              <span class="votes-text">Votos: <span class="votes-count">{{ answer.votes }}</span></span>
+            </div>
         </div>
       </div>
     }
