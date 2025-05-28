@@ -1,4 +1,4 @@
-<div class="main-container">
+<div class="main-container" (click)="onClickOutsideMenu()">
 
   <div class="left-aside">
     <aside class="conversations">
@@ -10,13 +10,40 @@
         Nueva conversación
       </button>
 
-      @for( conversation of userConversations; track conversation.id) {
-        <div class="conversation-item"
-          (click)="selectConversation(conversation)"
-        >
-          <span class="conversation-name">{{ conversation.title }}</span>
-        </div>
-      }
+      <div class="conversations-container">
+        @for( conversation of userConversations; track conversation.id) {
+          <div class="conversation-item"
+            (click)="selectConversation(conversation)"
+            [ngClass]="{
+              'active': this.selectedConversation?.id === conversation.id,
+              'active-menu': activeConversationIdForMenu === conversation.id
+            }"
+          >
+            <span class="conversation-name">{{ conversation.title }}</span>
+
+            <div class="button-menu-container">
+              <i class="icon material-icons"
+                (click)="toggleConversationMenu($event, conversation.id!)"
+              >
+                more_vert
+              </i>
+
+              @if (showConversationMenu && activeConversationIdForMenu === conversation.id) {
+                <div class="conversation-menu"
+                     (click)="$event.stopPropagation()"
+                >
+                  <div class="menu-item" (click)="editConversation(conversation.id!)">
+                    <span>Editar</span>
+                  </div>
+                  <div class="menu-item delete-item" (click)="deleteConversation(conversation.id!)">
+                    <span>Eliminar</span>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
     </aside>
   </div>
 
