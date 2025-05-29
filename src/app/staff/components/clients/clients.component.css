@@ -1,61 +1,100 @@
+/* Reusing most of your existing CSS for consistency */
+
 .main-content {
-  padding: 20px; /* Adjusted padding for better overall spacing */
-  color: #f0f0f0; /* White text color */
+  padding: 30px 20px;
+  color: #f0f0f0;
 }
 
-.cards-div {
-  display: flex;
-  flex-wrap: wrap; /* Allow cards to wrap to the next line */
-  gap: 20px;
-  padding: 20px 0; /* Add some top and bottom padding for the cards container */
-  justify-content: flex-start; /* Align cards to the left initially */
+.capitalize {
+  text-transform: capitalize; /* Keep if needed for any client data */
 }
 
-.card {
-  display: flex;
-  gap: 20px; /* Adjusted gap to match the cards-div */
+.upper-part {
+  padding-bottom: 40px;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(-10px);
+  animation: fade-in-up 0.5s ease-out forwards;
+}
+
+.upper-part h2 {
+  color: #a7ffeb;
+  margin-bottom: 10px;
+}
+
+.upper-part p {
+  line-height: 1.6;
+  font-size: 1.1em;
+}
+
+/* Re-using the existing fade-in-up keyframes */
+@keyframes fade-in-up {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Updated container and table styles for clients, mirroring pets */
+.clients-table-container { /* Renamed from pets-table-container for clarity */
+  overflow-x: auto;
+  background-color: #2c2c2c;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   padding: 20px;
-  border: 1px solid #333; /* Slightly lighter dark border */
-  border-radius: 8px; /* Slightly less rounded corners */
-  width: fit-content;
-  background-color: #2c2c2c; /* Slightly lighter dark card background */
-  box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3); /* Subtle shadow for depth */
-  transition: transform 0.3s ease-in-out; /* Smooth hover effect */
+  margin-top: 20px;
+  opacity: 0;
+  transform: translateY(-10px);
+  animation: fade-in-up 0.5s ease-out forwards;
+  animation-delay: 0.2s;
 }
 
-.card:hover {
-  transform: translateY(-5px); /* Slight lift on hover */
-  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.4); /* Enhanced shadow on hover */
+table {
+  width: 100%;
+  border-collapse: collapse;
 }
 
-.photo {
+table th,
+table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #444;
+}
+
+table th {
+  background-color: #3a3a3a;
+  color: #a7ffeb;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 0.9em;
+  letter-spacing: 0.05em;
+}
+
+table tbody tr {
+  transition: background-color 0.2s ease-in-out;
+  cursor: pointer; /* Indicate rows are clickable, if routerLink is used */
+}
+
+table tbody tr:hover {
+  background-color: #333;
+}
+
+table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+table td {
+  color: #ddd;
+  font-size: 0.95em;
+}
+
+/* Removed incidents-count-pill as it's not applicable to clients table directly */
+
+.no-clients { /* Renamed from no-pets for clarity */
   display: flex;
-  flex-direction: column;
   justify-content: center;
-  align-items: center; /* Center the "Foto Usuario" text */
-  width: 80px; /* Fixed width for the photo area */
-  height: 80px; /* Fixed height for the photo area */
-  border-radius: 50%; /* Make it circular */
-  background-color: #444; /* Darker background for the photo area */
-  color: #f0f0f0; /* White text for "Foto Usuario" */
-  font-size: 0.8em; /* Slightly smaller font size */
-}
-
-.pet-info {
-  display: flex;
-  flex-direction: column;
-  gap: 8px; /* Adjust spacing between client info lines */
-}
-
-.pet-info p {
-  margin: 0; /* Remove default paragraph margins */
-}
-
-.no-clients {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 200px; /* Example height, adjust as needed */
-  font-size: 1.2em;
-  color: #ccc; /* Slightly lighter text for the message */
+  padding-top: 30px;
+  color: #ccc;
+  font-size: 1.1em;
+  text-align: center;
 }
