@@ -121,11 +121,11 @@
   border: 1px solid rgb(80, 80, 80);
   border-radius: 5px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  min-width: 150px;
+  width: fit-content;
   z-index: 101; /* Higher than active-menu to ensure it's on top of its own parent item */
   padding: 5px 0;
   top: 100%; /* Position below the button-menu-container */
-  right: 0; /* Position to the right of the button-menu-container */
+  right: -70px; /* Position to the right of the button-menu-container */
   transform: translateY(5px); /* Add a small gap below the button */
   /* Remove top/left dynamic styles from component, rely on CSS */
 }
@@ -309,7 +309,11 @@
     box-shadow: 0 0 0 2px rgba(167, 255, 235, 0.5);
 }
 
-/* ... existing chatbot.component.css styles ... */
+.menu-text {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 
 /* Modal Overlay */
 .modal-overlay {
@@ -331,161 +335,136 @@
   padding: 30px;
   border-radius: 10px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  width: 90%;
-  max-width: 500px;
+  width: 400px; /* Set a fixed width or max-width */
+  max-width: 90%; /* Ensure it's responsive on smaller screens */
   color: white;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
 }
 
 .modal-content h2 {
   margin-top: 0;
-  color: #a7ffeb; /* A nice highlight color */
+  color: #a7ffeb;
+  margin-bottom: 20px;
   text-align: center;
 }
 
-/* Form Group for label and input */
-.form-group {
+.modal-content p {
+  font-size: 1.1em;
+  line-height: 1.5;
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.modal-actions {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  justify-content: space-between;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.form-group {
+  margin-bottom: 20px;
 }
 
 .form-group label {
-  font-weight: bold;
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
   color: #ccc;
 }
 
-.form-group input {
-  padding: 12px;
+.form-group input[type="text"] {
+  width: 100%;
+  padding: 10px;
   border: 1px solid rgb(90, 90, 90);
-  border-radius: 6px;
+  border-radius: 5px;
   background-color: rgb(60, 60, 60);
   color: white;
   font-size: 1em;
-  outline: none;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  box-sizing: border-box; /* Include padding and border in the element's total width and height */
 }
 
-.form-group input:focus {
+.form-group input[type="text"]:focus {
+  outline: none;
   border-color: #a7ffeb;
   box-shadow: 0 0 0 2px rgba(167, 255, 235, 0.3);
 }
 
-.form-group input::placeholder {
-  color: #888;
-}
-
-/* Modal Action Buttons */
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 20px;
-}
-
-.modal-actions button {
+/* Button styles for modals */
+.cancel-button {
+  background-color: rgb(70, 70, 70);
+  color: white;
   padding: 10px 20px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   font-size: 1em;
-  font-weight: 600;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  outline: none;
+  transition: background-color 0.3s ease;
+}
+
+.cancel-button:hover:not(:disabled) {
+  background-color: rgb(90, 90, 90);
+}
+
+.cancel-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .save-button {
   background-color: #007bff;
   color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.3s ease;
 }
 
 .save-button:hover:not(:disabled) {
   background-color: #0056b3;
-  transform: translateY(-1px);
 }
 
-.save-button:active:not(:disabled) {
-  background-color: #004085;
-  transform: translateY(0);
-}
-
-.cancel-button {
-  background-color: rgb(80, 80, 80);
-  color: white;
-}
-
-.cancel-button:hover:not(:disabled) {
-  background-color: rgb(100, 100, 100);
-  transform: translateY(-1px);
-}
-
-.cancel-button:active:not(:disabled) {
-  background-color: rgb(60, 60, 60);
-  transform: translateY(0);
-}
-
-.modal-actions button:disabled {
-  background-color: #555;
-  color: #999;
+.save-button:disabled {
+  opacity: 0.6;
   cursor: not-allowed;
-  transform: none;
 }
 
-/* Responsive adjustments for modal */
-@media (max-width: 600px) {
-  .modal-content {
-    padding: 20px;
-    margin: 15px;
-  }
-
-  .modal-actions {
-    flex-direction: column-reverse;
-    gap: 8px;
-  }
-
-  .modal-actions button {
-    width: 100%;
-  }
+/* NEW: Styles for the delete confirmation modal and its buttons */
+.modal-content.delete-modal {
+  border: 1px solid #ff6347; /* Red border for a warning */
+  background-color: rgb(50, 30, 30); /* Slightly darker red background */
 }
 
+.modal-content.delete-modal h2 {
+  color: #ff6347; /* Red title */
+}
 
-/* Basic responsive adjustments */
-@media (max-width: 768px) {
-    .main-container {
-        grid-template-columns: 1fr;
-        grid-column-gap: 0;
-        height: auto;
-    }
+.modal-content.delete-modal p {
+    color: #f8d7da; /* Lighter red text for readability */
+}
 
-    .left-aside {
-        width: 100%;
-        padding: 0;
-    }
+.conversation-title-bold {
+    font-weight: bold;
+    color: white;
+}
 
-    .conversations {
-        padding: 20px;
-        min-height: auto;
-    }
+.delete-button-confirm {
+  background-color: #dc3545; /* Bootstrap-like red */
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.3s ease;
+}
 
-    .conversation-chat {
-        padding: 15px;
-        padding-bottom: 0;
-        height: auto;
-    }
+.delete-button-confirm:hover:not(:disabled) {
+  background-color: #c82333; /* Darker red on hover */
+}
 
-    .messages-container {
-      max-height: 60vh;
-    }
-
-    .user-message,
-    .ia-message {
-        max-width: 90%;
-    }
-
-    .chat-input-area {
-        padding: 10px;
-        padding-bottom: 10px;
-    }
+.delete-button-confirm:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }

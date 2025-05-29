@@ -12,7 +12,6 @@ import { FormsModule } from '@angular/forms';
 import { GeminiService } from '../../../services/gemini.service';
 import { marked } from 'marked';
 import { Router } from '@angular/router';
-// REMOVED: import { EditConversationModalComponent } from '../../components/edit-conversation-modal/edit-conversation-modal.component';
 
 @Component({
   selector: 'app-chatbot',
@@ -22,7 +21,6 @@ import { Router } from '@angular/router';
   imports: [
     CommonModule,
     FormsModule
-    // REMOVED: EditConversationModalComponent
   ]
 })
 export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
@@ -53,11 +51,16 @@ export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
   public menuPosition: { top: string, left: string } = { top: '0px', left: '0px' };
   public activeConversationIdForMenu: number | null = null;
 
-  // NEW: Properties for in-component modal control
+  // Properties for in-component modal control
   public showEditModal: boolean = false;
   public conversationToEdit: Conversation | null = null;
   public editedTitle: string = ''; // Holds the title currently being edited in the modal input
   public isEditingLoading: boolean = false; // Loading state for the edit operation
+
+  // NEW: Properties for in-component DELETE confirmation modal control
+  public showDeleteConfirmModal: boolean = false;
+  public conversationToDelete: Conversation | null = null;
+  public isDeletingLoading: boolean = false; // Loading state for the delete operation
 
 
   ngOnInit(): void {
@@ -410,7 +413,7 @@ export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   public onClickOutsideMenu(): void {
-    // This will close both the conversation menu and the edit modal
+    // This will close both the conversation menu and any active modal
     if (this.showConversationMenu) {
       this.showConversationMenu = false;
       this.activeConversationIdForMenu = null;
@@ -418,24 +421,59 @@ export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
     if (this.showEditModal) {
       this.cancelEdit(); // Call cancelEdit to reset modal state
     }
+    // NEW: Close delete confirmation modal
+    if (this.showDeleteConfirmModal) {
+        this.cancelDelete();
+    }
   }
 
+  // UPDATED: deleteConversation now prepares and shows the confirmation modal
   public deleteConversation(conversationId: number): void {
-    console.log('Deleting conversation with ID:', conversationId);
-    this.conversationService.deleteConversation(conversationId).subscribe({
-      next: () => {
-        console.log(`Conversation ${conversationId} deleted successfully.`);
-        this.userConversations = this.userConversations.filter(conv => conv.id !== conversationId);
-        if (this.selectedConversation?.id === conversationId) {
-          this.createConversation();
+    const conversation = this.userConversations.find(c => c.id === conversationId);
+    if (conversation) {
+      this.conversationToDelete = conversation;
+      this.showDeleteConfirmModal = true; // Show the new confirmation modal
+      this.showConversationMenu = false; // Close the context menu
+      this.activeConversationIdForMenu = null;
+    } else {
+      console.warn('Conversation not found for deletion:', conversationId);
+    }
+  }
+
+  // NEW: Method to confirm and proceed with deletion
+  public confirmDelete(): void {
+    if (this.conversationToDelete && this.conversationToDelete.id) {
+      this.isDeletingLoading = true;
+      console.log('Confirming delete of conversation with ID:', this.conversationToDelete.id);
+      this.conversationService.deleteConversation(this.conversationToDelete.id).pipe(
+        finalize(() => this.isDeletingLoading = false)
+      ).subscribe({
+        next: () => {
+          console.log(`Conversation ${this.conversationToDelete!.id} deleted successfully.`);
+          this.userConversations = this.userConversations.filter(conv => conv.id !== this.conversationToDelete!.id);
+          if (this.selectedConversation?.id === this.conversationToDelete!.id) {
+            this.createConversation(); // Clear selected conversation if it was the one deleted
+          }
+          this.closeDeleteConfirmModal();
+        },
+        error: (err) => {
+          console.error(`Error deleting conversation ${this.conversationToDelete!.id}:`, err);
+          // Optionally display an error message to the user
         }
-        this.showConversationMenu = false;
-        this.activeConversationIdForMenu = null;
-      },
-      error: (err) => {
-        console.error(`Error deleting conversation ${conversationId}:`, err);
-      }
-    });
+      });
+    }
+  }
+
+  // NEW: Method to cancel deletion
+  public cancelDelete(): void {
+    this.closeDeleteConfirmModal();
+  }
+
+  // NEW: Method to close the delete confirmation modal and reset its state
+  private closeDeleteConfirmModal(): void {
+    this.showDeleteConfirmModal = false;
+    this.conversationToDelete = null;
+    this.isDeletingLoading = false;
   }
 
   public editConversation(conversationId: number): void {
@@ -443,15 +481,15 @@ export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
     if (conversation) {
       this.conversationToEdit = { ...conversation }; // Create a copy to prevent direct modification
       this.editedTitle = conversation.title; // Initialize input with current title
-      this.showEditModal = true;             // Show the modal
-      this.showConversationMenu = false;     // Close the context menu
+      this.showEditModal = true;              // Show the modal
+      this.showConversationMenu = false;      // Close the context menu
       this.activeConversationIdForMenu = null;
     } else {
       console.warn('Conversation not found for editing:', conversationId);
     }
   }
 
-  // NEW: Methods for managing the in-component edit modal
+  // Methods for managing the in-component edit modal
   public saveEditedConversation(): void {
     if (this.conversationToEdit && this.editedTitle.trim()) {
       this.isEditingLoading = true;

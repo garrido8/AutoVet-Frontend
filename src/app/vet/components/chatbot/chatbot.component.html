@@ -33,10 +33,10 @@
                      (click)="$event.stopPropagation()"
                 >
                   <div class="menu-item" (click)="editConversation(conversation.id!)">
-                    <span>Editar</span>
+                    <span class="menu-text"><i class="icon material-icons">edit</i> Renombrar</span>
                   </div>
                   <div class="menu-item delete-item" (click)="deleteConversation(conversation.id!)">
-                    <span>Eliminar</span>
+                    <span class="menu-text"><i class="icon material-icons">delete</i> Eliminar</span>
                   </div>
                 </div>
               }
@@ -119,6 +119,25 @@
               Guardando...
             } @else {
               Guardar
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (showDeleteConfirmModal && conversationToDelete) {
+    <div class="modal-overlay" (click)="cancelDelete()">
+      <div class="modal-content delete-modal" (click)="$event.stopPropagation()">
+        <h2>Confirmar Eliminación</h2>
+        <p>¿Estás seguro de que quieres eliminar la conversación "<span class="conversation-title-bold">{{ conversationToDelete.title }}</span>"? Esta acción no se puede deshacer.</p>
+        <div class="modal-actions">
+          <button class="cancel-button" (click)="cancelDelete()" [disabled]="isDeletingLoading">Cancelar</button>
+          <button class="delete-button-confirm" (click)="confirmDelete()" [disabled]="isDeletingLoading">
+            @if (isDeletingLoading) {
+              Eliminando...
+            } @else {
+              Eliminar
             }
           </button>
         </div>
