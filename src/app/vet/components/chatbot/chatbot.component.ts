@@ -510,8 +510,15 @@ export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
           }
           // If the currently selected conversation was the one edited, update it
           if (this.selectedConversation?.id === response.id) {
-            this.selectedConversation = response;
-            this.chatStateService.setConversationItem(response); // Update session storage
+              this.selectedConversation = response;
+              this.currentConversation = response;
+              this.messageService.getMessagesByConversationId( this.selectedConversation!.id! )
+              .subscribe( messages => {
+          this.selectedConversation!.messages = messages;
+          console.log('ChatbotComponent: Selected conversation from chat state service:', this.selectedConversation);
+          this.scrollToBottom();
+        });
+            this.chatStateService.setConversationItem(response);
           }
           this.closeEditModal();
         },
