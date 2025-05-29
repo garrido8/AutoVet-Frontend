@@ -45,5 +45,14 @@ export class PetsComponent implements OnInit {
     }
   }
 
+  public formatWeight( weight: number ): string {
+    if( weight >= 1 ) {
+      return weight + ' kg'
+    } else {
+      return weight*1000 + ' g'
+    }
+
+  }
+
 
 }
