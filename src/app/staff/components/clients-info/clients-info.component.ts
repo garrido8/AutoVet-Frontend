@@ -9,10 +9,11 @@ import { AppoinmentService } from '../../../services/appoinment.service';
 import { Appoinment } from '../../../interfaces/appoinment.interface';
 import { UserInfoService } from '../../../services/user-info.service';
 import { forkJoin } from 'rxjs'; // Import forkJoin for parallel fetching
+import { Staff } from '../../../interfaces/staff.interface'; // Import Staff interface
 
 @Component({
   selector: 'app-clients-info',
-  standalone: false, // Keep as false if it's part of a larger module
+  standalone: false,
   templateUrl: './clients-info.component.html',
   styleUrl: './clients-info.component.css'
 })
@@ -25,54 +26,95 @@ export class ClientsInfoComponent implements OnInit, OnDestroy {
   private appoinmentService = inject( AppoinmentService );
   private userInfoService = inject( UserInfoService)
 
-  private subscriptions = new Subscription(); // Renamed from suscriptions for consistency
+  private subscriptions = new Subscription();
 
   public client: Client | null = null;
   public pets: Pet[] = [];
-  // Use an object to manage visibility for each pet's appointments section
   public appointmentsVisibility: { [petId: number]: boolean } = {};
-  public selectedPetPk: number | null = null; // To highlight the selected pet or show its details
+  public selectedPetPk: number | null = null;
 
-  public profileUrl: string = ''
+  public profileUrl: string = ''; // This property isn't directly used in HTML, but client.photo is.
   private backendBaseUrl: string = 'http://127.0.0.1:8000';
+
+  public currentWorker: Staff | null = null; // New property to store the current worker's info
+  public isAdmin: boolean = localStorage.getItem('isAdmin') === 'true'; // Check if current user is admin
 
   ngOnInit(): void {
     const idParam = this.route.snapshot.paramMap.get('id');
 
+    // First, get the current logged-in staff member (worker)
+    const userEmail = this.userInfoService.getToken();
+    if (userEmail) {
+      this.subscriptions.add(
+        this.authService.getStaffPerEmail(userEmail).subscribe(
+          (staffMembers: Staff[]) => {
+            if (staffMembers.length > 0) {
+              this.currentWorker = staffMembers[0];
+              this.loadClientData(idParam); // Now load client data using worker's PK
+            } else {
+              console.warn('No staff member found for the current user email.');
+              this.currentWorker = null; // Ensure it's null if not found
+              this.loadClientData(idParam); // Attempt to load client data anyway, though appointments won't filter
+            }
+          },
+          error => {
+            console.error('Error fetching current staff member:', error);
+            this.currentWorker = null;
+            this.loadClientData(idParam); // Continue to load client data even on error
+          }
+        )
+      );
+    } else {
+      console.warn('No user email found in token. Cannot identify current worker.');
+      this.currentWorker = null; // Ensure null if no email
+      this.loadClientData(idParam); // Load client data without worker filter
+    }
+  }
+
+  // New method to encapsulate client and pet data loading
+  private loadClientData(idParam: string | null): void {
     if (idParam) {
       const clientId = Number(idParam);
       const userSub = this.authService.getUserPerId(clientId)
         .subscribe( user => {
           if ( user ) {
             this.client = user;
-            this.client.photo = `${this.backendBaseUrl}${user.photo}`; // Set the profile URL for the client
-            // Fetch all pets for this client
+            // Assuming 'photo' property exists on Client interface for profile pictures
+            if (user.photo) {
+              this.client.photo = `${this.backendBaseUrl}${user.photo}`;
+            } else {
+              this.client.photo = ''; // Ensure it's an empty string if no photo
+            }
+
             const petSub = this.petService.getPetByOwner(user.id!)
               .subscribe(pets => {
                 if (pets && pets.length > 0) {
-                  // For each pet, fetch its appointments in parallel
                   const petAppointmentObservables = pets.map(pet =>
                     this.appoinmentService.getAppoinmentByPet(pet.pk!).pipe(
-                      map(appointments => ({ ...pet, appoinments: appointments || [] })) // Ensure appoinments is an array
+                      map(appointments => {
+                        // Filter appointments based on worker's PK if not an admin
+                        const filteredAppointments = this.isAdmin || !this.currentWorker
+                          ? appointments // Admins see all, or if no worker context
+                          : appointments.filter(app => app.trabajador_asignado === this.currentWorker!.pk);
+
+                        return { ...pet, appoinments: filteredAppointments || [] };
+                      })
                     )
                   );
 
-                  // Once all pet appointments are fetched, assign to this.pets
                   this.subscriptions.add(
                     forkJoin(petAppointmentObservables).subscribe(
                       (petsWithAppointments: Pet[]) => {
                         this.pets = petsWithAppointments;
-                        // Initialize visibility for all pets to false (collapsed)
                         this.pets.forEach(pet => {
                           this.appointmentsVisibility[pet.pk!] = false;
                         });
-                        // console.log('Client and Pets with Appointments loaded:', this.client, this.pets);
                       },
                       error => console.error('Error fetching pet appointments:', error)
                     )
                   );
                 } else {
-                  this.pets = []; // No pets found
+                  this.pets = [];
                 }
               },
               error => console.error('Error fetching pets for client:', error)
@@ -80,7 +122,7 @@ export class ClientsInfoComponent implements OnInit, OnDestroy {
             this.subscriptions.add(petSub);
           } else {
             console.warn('Client not found with ID:', clientId);
-            this.router.navigate(['/staff/clients']); // Redirect if client not found
+            this.router.navigate(['/staff/clients']);
           }
         },
         error => console.error('Error fetching client info:', error)
@@ -88,7 +130,7 @@ export class ClientsInfoComponent implements OnInit, OnDestroy {
       this.subscriptions.add(userSub);
     } else {
       console.warn('No client ID provided in route.');
-      this.router.navigate(['/staff/clients']); // Redirect if no ID
+      this.router.navigate(['/staff/clients']);
     }
   }
 
@@ -106,12 +148,6 @@ export class ClientsInfoComponent implements OnInit, OnDestroy {
 
   public toggleAppointmentsVisibility(petId: number): void {
     this.appointmentsVisibility[petId] = !this.appointmentsVisibility[petId];
-    // Optionally, close others when one is opened
-    // Object.keys(this.appointmentsVisibility).forEach(key => {
-    //   if (Number(key) !== petId) {
-    //     this.appointmentsVisibility[Number(key)] = false;
-    //   }
-    // });
   }
 
   public goToAddPet(): void {
@@ -120,7 +156,6 @@ export class ClientsInfoComponent implements OnInit, OnDestroy {
       this.router.navigate([ '/staff/add-pet' ]);
     } else {
       console.error('Cannot add pet: Client ID is not available.');
-      // Optionally, show a user-friendly message
     }
   }
 }
