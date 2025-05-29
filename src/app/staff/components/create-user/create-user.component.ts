@@ -33,6 +33,8 @@ export class CreateUserComponent implements OnInit, OnDestroy {
 
   public client = false;
 
+  public exit: boolean = false;
+
   public form = this.fb.group({
         name: ['', Validators.required],
         email: ['', [Validators.required, Validators.email]],
@@ -72,6 +74,7 @@ export class CreateUserComponent implements OnInit, OnDestroy {
 
         this.authService.addUser( client )
           .subscribe( ( response ) => {
+            this.exit = true
             this.form.reset();
             console.log( response );
           } );
@@ -89,6 +92,7 @@ export class CreateUserComponent implements OnInit, OnDestroy {
 
         this.authService.addWorker( staff )
           .subscribe( ( response ) => {
+            this.exit = true
             this.form.reset();
             console.log( response );
           } );

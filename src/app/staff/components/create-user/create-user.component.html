@@ -56,3 +56,19 @@
 
   </div>
 </div>
+
+@if ( exit ) {
+  <div class="modal">
+    <div class="modal-content">
+      <i class="icon material-icons">check</i>
+      <p class="modal-text">{{ client ? 'Cliente añadido correctamente' : 'Trabajador añadido correctamente' }}</p>
+      <button
+        class="close-btn pointer"
+        id="close-btn"
+        (click)="exit = false"
+      >
+        Cerrar
+      </button>
+    </div>
+  </div>
+}

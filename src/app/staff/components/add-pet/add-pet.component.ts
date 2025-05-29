@@ -28,6 +28,8 @@ export class AddPetComponent implements OnDestroy{
 
   private fb = inject( FormBuilder )
 
+  public exit: boolean = false
+
 
   public form = this.fb.group( {
     nombre: ['', Validators.required ],
@@ -80,7 +82,7 @@ export class AddPetComponent implements OnDestroy{
       const addPetSub = this.petService.addPet(pet)
         .subscribe( response => {
           if ( response ) {
-            alert('Mascota añadida correctamente')
+            this.exit = true
             this.form.reset();
           }
         } )
