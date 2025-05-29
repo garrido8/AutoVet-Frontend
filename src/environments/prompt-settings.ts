@@ -11,9 +11,9 @@
 
   export const guessBreed: string = 'Podrías decirme la raza del animal que aparece en la imagen. Solo la raza, no quiero más palabras, simplemente el nombre de la raza'
 
-  export const generateSummaryName: string = 'Dame un nombre a modo de resumen de lo que te diga a continuación, omite nombres propios, céntrate solo en el problema. No escojas entre varios nombres, dime solo uno. No des el nombre en negrita ni con ninguna otra cosa, solo el nombre. No des más información que el nombre.'
+  export const generateSummaryName: string = 'Dame un nombre a modo de resumen de lo que te diga a continuación, omite nombres propios, céntrate solo en el problema. No escojas entre varios nombres, dime solo uno. No des el nombre en negrita ni con ninguna otra cosa, solo el nombre. No des más información que el nombre. No incluyas asteriscos ni ningún caracter especial.'
 
-  export const generateDescription: string = 'Dame un resumen profesional a modo de descripción del problema que te pongo a continuación'
+  export const generateDescription: string = 'Dame un resumen profesional a modo de descripción del problema que te pongo a continuación. No incluyas asteriscos ni ningún caracter especial.'
 
   export const breedsNames: string = 'Dime como mucho 60 razas que te sepas del animal que te pondré a continuación, no digas nada más que no sean los nombres. No pongas números en la respuesta'
 
