@@ -39,6 +39,10 @@ export class AuthService {
     return this.http.get<Client[]>(this.clientsUrl);
   }
 
+  public getStaffMembers(): Observable<Staff[]> {
+    return this.http.get<Staff[]>(this.staffUrl);
+  }
+
   public getStaffPerEmail(email: string): Observable<Staff[]> {
     return this.http.get<Staff[]>(`${this.staffUrl}?email=${email}`);
   }

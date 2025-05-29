@@ -11,6 +11,6 @@ export interface Appoinment {
   estado:                string;
   urgencia?:             boolean;
   archivo_adjuntado?:    null;
-  trabajador_asignado?:  number;
+  trabajador_asignado?:  number | null;
   workerName?:         string;
 }

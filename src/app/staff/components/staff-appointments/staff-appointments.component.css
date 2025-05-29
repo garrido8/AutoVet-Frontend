@@ -136,3 +136,38 @@ table td {
   background-color: #0056b3;
   transform: scale(1.05);
 }
+
+/* New: Styling for the worker selector dropdown */
+.worker-select {
+  background-color: #3a3a3a; /* Dark background */
+  color: #a7ffeb; /* Accent text color */
+  border: 1px solid #555;
+  border-radius: 5px;
+  padding: 6px 10px;
+  font-size: 0.9em;
+  cursor: pointer;
+  appearance: none; /* Remove default browser styling for select */
+  -webkit-appearance: none; /* For Safari */
+  -moz-appearance: none; /* For Firefox */
+  background-image: url('data:image/svg+xml;utf8,<svg fill="%23a7ffeb" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); /* Custom dropdown arrow */
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 16px;
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  min-width: 150px; /* Ensure sufficient width */
+}
+
+.worker-select:hover {
+  border-color: #a7ffeb;
+}
+
+.worker-select:focus {
+  outline: none;
+  border-color: #a7ffeb;
+  box-shadow: 0 0 0 2px rgba(167, 255, 235, 0.4); /* Focus halo */
+}
+
+.worker-select option {
+  background-color: #3a3a3a; /* Background for options */
+  color: #f0f0f0; /* Text color for options */
+}

@@ -59,7 +59,7 @@
         </thead>
         <tbody>
           @for (appoinment of allAppoinments; track $index) {
-            <tr [routerLink]="isAdmin ? '/staff/appointment-info/' + appoinment.pk : null">
+            <tr [routerLink]="isAdmin && appoinment.pk ? '/staff/appointment-info/' + appoinment.pk : null">
               <td>{{ appoinment.titulo }}</td>
               <td>{{ appoinment.descripcion }}</td>
               <td>
@@ -74,7 +74,17 @@
                   </button>
                 </td>
               } @else {
-                <td>{{ appoinment.workerName || 'No asignado' }}</td>
+                <td>
+                  <select
+                    [ngModel]="appoinment.trabajador_asignado"
+                    (ngModelChange)="reassignAppoinment(appoinment, $event)"
+                    (click)="$event.stopPropagation()" class="worker-select">
+                    <option [ngValue]="null">Sin Asignar</option>
+                    @for (staff of allStaffMembers; track staff.pk) {
+                      <option [ngValue]="staff.pk">{{ staff.name }}</option>
+                    }
+                  </select>
+                </td>
               }
             </tr>
           }
