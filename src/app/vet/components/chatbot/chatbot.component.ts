@@ -12,6 +12,7 @@ import { FormsModule } from '@angular/forms';
 import { GeminiService } from '../../../services/gemini.service';
 import { marked } from 'marked';
 import { Router } from '@angular/router';
+// REMOVED: import { EditConversationModalComponent } from '../../components/edit-conversation-modal/edit-conversation-modal.component';
 
 @Component({
   selector: 'app-chatbot',
@@ -21,6 +22,7 @@ import { Router } from '@angular/router';
   imports: [
     CommonModule,
     FormsModule
+    // REMOVED: EditConversationModalComponent
   ]
 })
 export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
@@ -31,7 +33,7 @@ export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
   private conversationService = inject( ConversationService );
   private chatStateService = inject( ChatStateService );
   private gemini = inject( GeminiService );
-  private router = inject( Router ); // Injected Router
+  private router = inject( Router );
 
   public promptValueText: string = '';
   public isLoading: boolean = false;
@@ -47,12 +49,38 @@ export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   private userId: number | null = null;
 
-  // NEW: State for showing/hiding the conversation menu
   public showConversationMenu: boolean = false;
   public menuPosition: { top: string, left: string } = { top: '0px', left: '0px' };
-  public activeConversationIdForMenu: number | null = null; // To track which conversation's menu is open
+  public activeConversationIdForMenu: number | null = null;
+
+  // NEW: Properties for in-component modal control
+  public showEditModal: boolean = false;
+  public conversationToEdit: Conversation | null = null;
+  public editedTitle: string = ''; // Holds the title currently being edited in the modal input
+  public isEditingLoading: boolean = false; // Loading state for the edit operation
+
 
   ngOnInit(): void {
+    this.fetchUserConversations();
+    const storedConversation = this.chatStateService.getConversationItem();
+    if ( storedConversation ) {
+      this.selectedConversation = storedConversation;
+      this.currentConversation = storedConversation;
+      this.messageService.getMessagesByConversationId( this.selectedConversation.id! )
+        .subscribe( messages => {
+          this.selectedConversation!.messages = messages;
+          console.log('ChatbotComponent: Selected conversation from chat state service:', this.selectedConversation);
+          this.scrollToBottom();
+        });
+    } else {
+        this.selectedConversation = null;
+        this.currentConversation = null;
+        this.chatStateService.clearConversationItem();
+        console.log('ChatbotComponent: No active conversation set. Clearing sessionStorage if any.');
+    }
+  }
+
+  private fetchUserConversations(): void {
     this.subscriptions.add(
       this.authService.getUserPerEmail(this.userInfoService.getToken()!).pipe(
         tap(user => {
@@ -76,6 +104,14 @@ export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
               });
           });
           console.log('ChatbotComponent: User conversations loaded:', this.userConversations);
+          // If the selected conversation was updated, ensure its title is fresh
+          if (this.selectedConversation && this.selectedConversation.id) {
+            const updatedConv = this.userConversations.find(c => c.id === this.selectedConversation!.id);
+            if (updatedConv) {
+              this.selectedConversation.title = updatedConv.title;
+              this.chatStateService.setConversationItem(updatedConv); // Update session storage
+            }
+          }
         }),
         catchError(error => {
           console.error('ChatbotComponent: Error fetching user conversations:', error);
@@ -84,23 +120,6 @@ export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
         })
       ).subscribe()
     );
-
-    const storedConversation = this.chatStateService.getConversationItem();
-    if ( storedConversation ) {
-      this.selectedConversation = storedConversation;
-      this.currentConversation = storedConversation;
-      this.messageService.getMessagesByConversationId( this.selectedConversation.id! )
-        .subscribe( messages => {
-          this.selectedConversation!.messages = messages;
-          console.log('ChatbotComponent: Selected conversation from chat state service:', this.selectedConversation);
-          this.scrollToBottom();
-        });
-    } else {
-        this.selectedConversation = null;
-        this.currentConversation = null;
-        this.chatStateService.clearConversationItem();
-        console.log('ChatbotComponent: No active conversation set. Clearing sessionStorage if any.');
-    }
   }
 
   ngAfterViewChecked(): void {
@@ -139,7 +158,6 @@ export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
     } else {
         setTimeout(() => this.scrollToBottom(), 0);
     }
-    // NEW: Close the menu when selecting a conversation
     this.showConversationMenu = false;
     this.activeConversationIdForMenu = null;
   }
@@ -253,7 +271,7 @@ export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
                     tap(savedMachineMessage => {
                       if (savedMachineMessage) {
                         this.selectedConversation!.messages!.push(savedMachineMessage);
-                        this.userConversations.unshift(this.selectedConversation!);
+                        this.userConversations.unshift(this.selectedConversation!); // Add to top of list
                         this.scrollToBottom();
                       }
                     }),
@@ -372,70 +390,109 @@ export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
   public createConversation(): void {
     this.chatStateService.clearConversationItem();
     this.selectedConversation = null;
-    // NEW: Close the menu when starting a new conversation
     this.showConversationMenu = false;
     this.activeConversationIdForMenu = null;
   }
 
-  // NEW: Toggle conversation menu
   public toggleConversationMenu(event: MouseEvent, conversationId: number): void {
-    event.stopPropagation(); // Prevent selectConversation from being called
+    event.stopPropagation();
 
-    // If the clicked menu is already open, close it
     if (this.showConversationMenu && this.activeConversationIdForMenu === conversationId) {
       this.showConversationMenu = false;
       this.activeConversationIdForMenu = null;
     } else {
-      // Close any currently open menu before opening a new one
-      this.showConversationMenu = false; // Ensure previous menu is closed
-      this.activeConversationIdForMenu = null; // Clear previous active ID
+      this.showConversationMenu = false;
+      this.activeConversationIdForMenu = null;
 
-      // Open the new menu
       this.activeConversationIdForMenu = conversationId;
       this.showConversationMenu = true;
-
-      // No need for position calculation here, CSS handles it
     }
   }
 
-  // NEW: Handle click outside the menu to close it
   public onClickOutsideMenu(): void {
-    // Only close if a menu is actually open
+    // This will close both the conversation menu and the edit modal
     if (this.showConversationMenu) {
       this.showConversationMenu = false;
       this.activeConversationIdForMenu = null;
     }
+    if (this.showEditModal) {
+      this.cancelEdit(); // Call cancelEdit to reset modal state
+    }
   }
 
-  // NEW: Implement menu actions
   public deleteConversation(conversationId: number): void {
     console.log('Deleting conversation with ID:', conversationId);
-    // Add your conversation deletion logic here
     this.conversationService.deleteConversation(conversationId).subscribe({
       next: () => {
         console.log(`Conversation ${conversationId} deleted successfully.`);
-        // Remove from local array
         this.userConversations = this.userConversations.filter(conv => conv.id !== conversationId);
-        // If the deleted conversation was the selected one, clear selection
         if (this.selectedConversation?.id === conversationId) {
-          this.createConversation(); // Clears selection and sets up for new conversation
+          this.createConversation();
         }
-        this.showConversationMenu = false; // Close menu after action
+        this.showConversationMenu = false;
         this.activeConversationIdForMenu = null;
       },
       error: (err) => {
         console.error(`Error deleting conversation ${conversationId}:`, err);
-        // Handle error, e.g., show a user-friendly message
       }
     });
   }
 
   public editConversation(conversationId: number): void {
-    console.log('Editing conversation with ID:', conversationId);
-    // Add your conversation editing logic here
-    // For example, navigate to an edit page or open a modal
-    this.router.navigate(['/edit-conversation', conversationId]); // Example navigation
-    this.showConversationMenu = false; // Close menu after action
-    this.activeConversationIdForMenu = null;
+    const conversation = this.userConversations.find(c => c.id === conversationId);
+    if (conversation) {
+      this.conversationToEdit = { ...conversation }; // Create a copy to prevent direct modification
+      this.editedTitle = conversation.title; // Initialize input with current title
+      this.showEditModal = true;             // Show the modal
+      this.showConversationMenu = false;     // Close the context menu
+      this.activeConversationIdForMenu = null;
+    } else {
+      console.warn('Conversation not found for editing:', conversationId);
+    }
+  }
+
+  // NEW: Methods for managing the in-component edit modal
+  public saveEditedConversation(): void {
+    if (this.conversationToEdit && this.editedTitle.trim()) {
+      this.isEditingLoading = true;
+      const updatedConversation: Conversation = {
+        ...this.conversationToEdit,
+        title: this.editedTitle.trim()
+      };
+
+      this.conversationService.editConversation(updatedConversation.id!, updatedConversation).pipe(
+        finalize(() => this.isEditingLoading = false) // Ensure loading state is reset
+      ).subscribe({
+        next: ( response ) => {
+          console.log('Conversation updated successfully:', response);
+          // Update the conversation in the local array
+          const index = this.userConversations.findIndex(c => c.id === response.id);
+          if (index !== -1) {
+            this.userConversations[index] = response;
+          }
+          // If the currently selected conversation was the one edited, update it
+          if (this.selectedConversation?.id === response.id) {
+            this.selectedConversation = response;
+            this.chatStateService.setConversationItem(response); // Update session storage
+          }
+          this.closeEditModal();
+        },
+        error: ( err ) => {
+          console.error('Error updating conversation:', err);
+          // Optionally display an error message to the user
+        }
+      });
+    }
+  }
+
+  public cancelEdit(): void {
+    this.closeEditModal();
+  }
+
+  private closeEditModal(): void {
+    this.showEditModal = false;
+    this.conversationToEdit = null; // Clear the conversation data
+    this.editedTitle = ''; // Clear the input field
+    this.isEditingLoading = false; // Reset loading state just in case
   }
 }

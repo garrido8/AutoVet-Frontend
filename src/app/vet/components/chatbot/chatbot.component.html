@@ -97,4 +97,32 @@
 
   </div>
 
+  @if (showEditModal && conversationToEdit) {
+    <div class="modal-overlay" (click)="cancelEdit()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <h2>Editar Conversación</h2>
+        <div class="form-group">
+          <label for="conversationTitle">Título de la Conversación:</label>
+          <input
+            id="conversationTitle"
+            type="text"
+            [(ngModel)]="editedTitle"
+            required
+            placeholder="Introduce el nuevo título"
+            [disabled]="isEditingLoading"
+          >
+        </div>
+        <div class="modal-actions">
+          <button class="cancel-button" (click)="cancelEdit()" [disabled]="isEditingLoading">Cancelar</button>
+          <button class="save-button" (click)="saveEditedConversation()" [disabled]="!editedTitle.trim() || isEditingLoading">
+            @if (isEditingLoading) {
+              Guardando...
+            } @else {
+              Guardar
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 </div>
