@@ -117,6 +117,7 @@ export class LoginComponent implements OnInit, OnDestroy {
                   console.log('Login exitoso! 🎉');
                   this.authService.setIsLoggedIn(true);
                   this.userInfoService.setToken( response[0].email );
+                  this.userInfoService.setFullStaffToken( response[0] );
                   localStorage.setItem('isClient', 'false');
                   this.router.navigate( ['/home'] );
                 } else {

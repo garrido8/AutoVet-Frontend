@@ -29,7 +29,7 @@
           <option *ngFor="let estado of estados" [value]="estado">{{ estado }}</option>
         </select>
          <div *ngIf="form.get('estado')?.invalid && (form.get('estado')?.dirty || form.get('estado')?.touched)">
-          <p>Estado es requerido</p>
+          <p class="error">Estado es requerido</p>
         </div>
       </div>
 
@@ -38,7 +38,13 @@
         <input type="checkbox" id="urgencia" formControlName="urgencia" />
       </div>
 
-      <input type="submit" value="Guardar" [disabled]="form.invalid" />
+      <div class="buttons">
+        <input type="submit" value="Guardar" [disabled]="form.invalid" />
+
+        <button class="reassign-button" type="button" (click)="openReassignmentModal()">
+          Solicitar reasignación
+        </button>
+      </div>
     </form>
   </div>
 </div>
@@ -47,5 +53,24 @@
   <div class="modal-content">
     <p class="modal-text">{{ modalMessage }}</p>
     <button (click)="closeModalAndNavigate()">Volver</button>
+  </div>
+</div>
+
+<div *ngIf="showReassignmentModal" class="modal">
+  <div class="modal-content">
+    <h4 class="modal-title">Solicitar Reasignación</h4>
+    <form [formGroup]="reassignmentForm" (ngSubmit)="onReassignmentSubmit()">
+      <div class="form-group">
+        <label for="reassignmentReason">Motivo de la reasignación:</label>
+        <textarea id="reassignmentReason" formControlName="reason" rows="4" placeholder="Describe el motivo de la reasignación..."></textarea>
+        <div *ngIf="reassignmentForm.get('reason')?.invalid && (reassignmentForm.get('reason')?.dirty || reassignmentForm.get('reason')?.touched)">
+          <p class="error">El motivo es requerido.</p>
+        </div>
+      </div>
+      <div class="modal-buttons">
+        <button type="submit" [disabled]="reassignmentForm.invalid">Enviar Solicitud</button>
+        <button type="button" (click)="closeReassignmentModal()" class="cancel-button">Cancelar</button>
+      </div>
+    </form>
   </div>
 </div>

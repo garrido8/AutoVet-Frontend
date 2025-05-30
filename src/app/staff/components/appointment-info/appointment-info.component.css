@@ -1,4 +1,3 @@
-/* General body and page styling to ensure full-height black background */
 .main-content {
   padding: 40px 40px 0px 40px;
 }
@@ -50,13 +49,15 @@ label {
 
 /* Styling for input fields */
 input[type="datetime-local"],
-select {
+select,
+textarea { /* Added textarea here */
   width: 100%;
   padding: 8px;
   border-radius: 4px;
   border: 1px solid rgba(255, 255, 255, 0.3);
   background-color: rgba(255, 255, 255, 0.1);
   color: white;
+  box-sizing: border-box; /* Ensures padding doesn't increase total width */
 }
 
 /* Styling for checkbox */
@@ -72,9 +73,7 @@ input[type="submit"] {
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  width: auto; /* Adjust width to content */
-  display: block;
-  margin: 20px auto; /* Center the button */
+  transition: background-color 0.3s ease;
 }
 
 input[type="submit"]:hover {
@@ -90,6 +89,7 @@ input[type="submit"]:disabled {
 p.error {
   color: #ff6666;
   font-size: 0.9em;
+  margin-top: 5px;
 }
 
 
@@ -100,7 +100,7 @@ p.error {
 }
 
 
-/* Modal Styles */
+/* Modal Styles (reused for both modals) */
 .modal {
   position: fixed; /* Stay in place */
   z-index: 1000; /* Sit on top */
@@ -150,4 +150,69 @@ p.error {
 
 .modal-text {
   color: black;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.reassign-button {
+  background-color: #28a745; /* Green button */
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.reassign-button:hover {
+  background-color: #218838; /* Darker green on hover */
+}
+
+.buttons {
+  padding-top: 30px;
+  display: flex;
+  justify-content: space-around;
+  gap: 10px; /* Space between buttons */
+  flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+}
+
+/* New styles for reassignment modal specific elements */
+.modal-title {
+  color: #333; /* Darker color for modal title */
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  color: #555; /* Darker color for modal labels */
+}
+
+.form-group textarea {
+  background-color: #f0f0f0; /* Lighter background for textarea in modal */
+  color: #333;
+  border: 1px solid #ccc;
+  resize: vertical; /* Allow vertical resizing */
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 20px;
+}
+
+.modal-buttons button {
+  flex: 1; /* Make buttons take equal width */
+  margin: 0 5px; /* Add some space between buttons */
+}
+
+.cancel-button {
+  background-color: #dc3545; /* Red for cancel button */
+}
+
+.cancel-button:hover {
+  background-color: #c82333;
 }

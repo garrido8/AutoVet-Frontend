@@ -85,6 +85,7 @@ export class AuthService {
     this.setIsLoggedIn(false);
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('token');
+    localStorage.removeItem('fullToken');
   }
 
 }

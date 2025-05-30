@@ -62,4 +62,32 @@ export class UserInfoService {
     return decryptedEmail;
   }
 
+  public setFullClientToken( client: Client ): void {
+    const encryptedUser = CryptoJS.AES.encrypt(JSON.stringify(client), this.SECRET_KEY).toString();
+    localStorage.setItem('fullToken', encryptedUser);
+  }
+
+  public getFullClientToken(): Client | null {
+    const encryptedUser = localStorage.getItem('fullToken');
+    if (!encryptedUser) return null;
+
+    const bytes = CryptoJS.AES.decrypt(encryptedUser, this.SECRET_KEY);
+    const decryptedUser = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+    return decryptedUser;
+  }
+
+  public setFullStaffToken( staff: Staff ): void {
+    const encryptedUser = CryptoJS.AES.encrypt(JSON.stringify(staff), this.SECRET_KEY).toString();
+    localStorage.setItem('fullToken', encryptedUser);
+  }
+
+  public getFullStaffToken(): Staff | null {
+    const encryptedUser = localStorage.getItem('fullToken');
+    if (!encryptedUser) return null;
+
+    const bytes = CryptoJS.AES.decrypt(encryptedUser, this.SECRET_KEY);
+    const decryptedUser = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+    return decryptedUser;
+  }
+
 }
