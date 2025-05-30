@@ -9,6 +9,7 @@ import { CreateUserComponent } from './components/create-user/create-user.compon
 import { LoginGuard } from '../guards/login.guard';
 import { WorkerGuard } from '../guards/worker.guard';
 import { AdminGuard } from '../guards/admin.guard';
+import { ReassignmentsComponent } from './components/reassignments/reassignments/reassignments.component';
 
 const routes: Routes = [
   {
@@ -44,6 +45,11 @@ const routes: Routes = [
   {
     path: 'add-worker',
     component: CreateUserComponent,
+    canActivate: [LoginGuard, AdminGuard]
+  },
+  {
+    path: 'reassignments',
+    component: ReassignmentsComponent,
     canActivate: [LoginGuard, AdminGuard]
   },
 ];

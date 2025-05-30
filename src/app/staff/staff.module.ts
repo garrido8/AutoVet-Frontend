@@ -8,6 +8,7 @@ import { AppointmentInfoComponent } from './components/appointment-info/appointm
 import { RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CreateUserComponent } from './components/create-user/create-user.component';
+import { ReassignmentsComponent } from './components/reassignments/reassignments/reassignments.component';
 
 
 
@@ -16,6 +17,7 @@ import { CreateUserComponent } from './components/create-user/create-user.compon
     // ClientsComponent,
     // StaffAppointmentsComponent,
     ClientsInfoComponent,
+    ReassignmentsComponent,
     // CreateUserComponent,
     // AddPetComponent,
     // AppointmentInfoComponent
