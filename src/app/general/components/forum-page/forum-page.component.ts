@@ -31,6 +31,8 @@ export class ForumPageComponent implements OnInit, OnDestroy {
   public filteredAnswers: Answer[] = [];
   public searchTerm: string = '';
 
+  public showLoginRequiredModal: boolean = false;
+
   private get currentUserEmail(): string {
     return this.userInfoService.getToken()!;
   }
@@ -212,6 +214,7 @@ export class ForumPageComponent implements OnInit, OnDestroy {
   voteUp(answer: Answer): void {
     if (!answer || !this.currentUserEmail) {
       console.warn('Cannot vote: Answer or current user email is missing.');
+      this.openLoginRequiredModal();
       return;
     }
 
@@ -281,6 +284,15 @@ export class ForumPageComponent implements OnInit, OnDestroy {
         this.performSearch(); // Re-run search after reverting to maintain UI consistency and re-sort
       }
     });
+  }
+
+    // New methods for the login required modal
+  openLoginRequiredModal(): void {
+    this.showLoginRequiredModal = true;
+  }
+
+  closeLoginRequiredModal(): void {
+    this.showLoginRequiredModal = false;
   }
 
   // Open the modal with the full answer

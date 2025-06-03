@@ -85,4 +85,17 @@
       </div>
     </div>
   }
+
+  @if (showLoginRequiredModal) {
+    <div class="modal-overlay" (click)="closeLoginRequiredModal()">
+      <div class="modal-content login-required-modal" (click)="$event.stopPropagation()">
+        <button class="modal-close-button" (click)="closeLoginRequiredModal()">X</button>
+        <h2 class="modal-title">¡Inicia Sesión para Votar!</h2>
+        <p class="modal-message">Necesitas iniciar sesión para poder votar en las respuestas. Por favor, regístrate o inicia sesión para continuar.</p>
+        <div class="modal-actions">
+            <button class="action-button close-button" routerLink="/auth/login">Iniciar sesión</button>
+        </div>
+      </div>
+    </div>
+  }
 </div>

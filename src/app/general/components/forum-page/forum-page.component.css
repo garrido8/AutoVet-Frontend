@@ -3,7 +3,6 @@
     padding: 20px;
     color: #f0f0f0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    min-height: 100vh;
     background-color: #1a1a1a;
 }
 
@@ -56,6 +55,7 @@
     grid-column-gap: 2%;
     grid-row-gap: 3%;
     margin-top: 1.5rem;
+    padding-bottom: 100px;
 }
 
 .answer-card {
@@ -324,4 +324,67 @@
 .response ul {
     margin-left: 1.5em;
     list-style-type: disc;
+}
+
+/* NEW: Styles for Login Required Modal */
+.login-required-modal .modal-title {
+    font-size: 1.8rem;
+    color: #ffeb3b; /* A warning yellow */
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.login-required-modal .modal-message {
+    color: #e0e0e0;
+    font-size: 1rem;
+    line-height: 1.5;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.login-required-modal .modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.login-required-modal .action-button {
+    padding: 0.8rem 1.5rem;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+    border: none;
+}
+
+.login-required-modal .action-button.primary-button {
+    background-color: #a7ffeb;
+    color: #1a1a1a;
+}
+
+.login-required-modal .action-button.primary-button:hover {
+    background-color: #66ffda;
+    transform: translateY(-2px);
+}
+
+.login-required-modal .action-button.secondary-button {
+    background-color: #4a4a4a;
+    color: #e0e0e0;
+}
+
+.login-required-modal .action-button.secondary-button:hover {
+    background-color: #5a5a5a;
+    transform: translateY(-2px);
+}
+
+.login-required-modal .action-button.close-button {
+    background-color: #666;
+    color: #e0e0e0;
+}
+
+.login-required-modal .action-button.close-button:hover {
+    background-color: #777;
+    transform: translateY(-2px);
 }
