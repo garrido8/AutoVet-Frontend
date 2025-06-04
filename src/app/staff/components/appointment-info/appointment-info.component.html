@@ -20,17 +20,23 @@
 
       <div>
         <label for="fecha_resolucion">Fecha de Resolución:</label>
-        <input type="datetime-local" id="fecha_resolucion" formControlName="fecha_resolucion" />
-      </div>
+        <input
+          type="datetime-local"
+          id="fecha_resolucion"
+          [(ngModel)]="fechaResolucionInput"
+          (input)="updateFechaResolucion($event)"
+          [ngModelOptions]="{ standalone: true }"
+        />
+        </div>
 
       <div>
         <label for="estado">Estado:</label>
         <select id="estado" formControlName="estado">
           <option *ngFor="let estado of estados" [value]="estado">{{ estado }}</option>
         </select>
-         <div *ngIf="form.get('estado')?.invalid && (form.get('estado')?.dirty || form.get('estado')?.touched)">
-          <p class="error">Estado es requerido</p>
-        </div>
+          <div *ngIf="form.get('estado')?.invalid && (form.get('estado')?.dirty || form.get('estado')?.touched)">
+           <p class="error">Estado es requerido</p>
+         </div>
       </div>
 
       <div class="emergency">
