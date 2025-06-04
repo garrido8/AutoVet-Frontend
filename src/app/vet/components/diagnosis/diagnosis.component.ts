@@ -124,7 +124,6 @@ export class DiagnosisComponent implements OnInit, OnDestroy {
       .pipe(finalize(() => this.isLoading = false))
       .subscribe({
         next: response => {
-          this.addAnswer( response )
           this.responseText = response;
           this.formattedResponse = marked(response).toString(); // Convert Markdown to HTML
 
@@ -153,11 +152,11 @@ export class DiagnosisComponent implements OnInit, OnDestroy {
       });
   }
 
-  public addAnswer(response: string): void {
+  public addAnswer(): void {
     const email = this.UserInfoService.getToken();
     const answer: Answer = {
       time: new Date(),
-      content: response,
+      content: this.responseText,
       keywords: '',
       votes: 0,
       votedEmails: '',
@@ -165,7 +164,7 @@ export class DiagnosisComponent implements OnInit, OnDestroy {
       topAnswer: false
     };
 
-    this.gemini.getKeyWords(response)
+    this.gemini.getKeyWords(this.responseText)
       .pipe(
         tap(words => answer.keywords = words),
         tap( words => this.answerKeywords = words ),
