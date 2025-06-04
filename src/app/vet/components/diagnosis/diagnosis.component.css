@@ -99,6 +99,45 @@
   cursor: not-allowed;
 }
 
+.buttons {
+  display: flex; /* Arrange buttons in a row */
+  flex-wrap: wrap; /* Allow buttons to wrap to the next line on smaller screens */
+  justify-content: center; /* Center the buttons horizontally */
+  gap: 15px; /* Space between buttons */
+  margin-top: 25px; /* Add some space above the buttons */
+  width: 100%; /* Ensure container takes full width */
+}
+
+/* Styling for the individual buttons within the .buttons container */
+/* This targets the .send-btn class only when it's inside the .buttons container */
+.buttons .send-btn {
+  background-color: #007bff; /* A more vibrant blue */
+  color: white; /* White text for contrast */
+  border: none; /* Remove default border */
+  border-radius: 8px; /* Slightly rounded corners for a softer look */
+  padding: 14px 28px; /* Generous padding for a clickable area */
+  font-size: 1.1em; /* Slightly larger font size */
+  cursor: pointer; /* Indicate it's clickable */
+  transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transition for hover effects */
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3); /* Subtle shadow for depth */
+  text-align: center; /* Ensure text is centered */
+  width: 200px; /* Ensure a consistent minimum width for all buttons */
+  /* Override align-self from previous .send-btn rule if necessary for these buttons */
+  align-self: auto;
+}
+
+.buttons .send-btn:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+  transform: translateY(-2px); /* Slight lift effect on hover */
+  box-shadow: 0 6px 16px rgba(0, 123, 255, 0.4); /* Enhanced shadow on hover */
+}
+
+.buttons .send-btn:active {
+  background-color: #004085; /* Even darker blue when clicked */
+  transform: translateY(0); /* Press down effect */
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
+}
+
 .response-container {
   width: 550px;
   max-width: 95%;
@@ -208,12 +247,6 @@
   color: #222;
   transform: translateY(-2px);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-}
-
-.buttons {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
 }
 
 @keyframes rotation {
