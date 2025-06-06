@@ -4,46 +4,80 @@
     <p>Consulta el estado de las solicitudes de reasignación.</p>
   </div>
 
-  @if( reassignments.length > 0 ) {
-    <div class="incidents-table-container">
-      <table>
-        <thead>
-          <tr>
-            <th>Título de Cita</th>
-            <th>Solicitante</th>
-            <th>Motivo</th>
-            <th>Estado</th>
-            <th>Fecha Solicitud</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (reassignment of reassignments; track reassignment.id) {
+  @if( isAdmin ) {
+    @if( reassignments.length > 0 ) {
+      <div class="incidents-table-container">
+        <table>
+          <thead>
             <tr>
-              <td>{{ reassignment.appointment_title }}</td>
-              <td>{{ reassignment.requesting_worker_name }}</td>
-              <td>{{ reassignment.reason }}</td>
-              <td>
-                <select
-                  [(ngModel)]="reassignment.status"
-                  (change)="onStatusChange(reassignment, reassignment.status)"
-                  class="status-selector {{ getStatusClass(reassignment.status) }}"
-                >
-                  @for (statusOption of availableStatuses; track statusOption) {
-                    <option [value]="statusOption">
-                      {{ getDisplayStatus(statusOption) }}
-                    </option>
-                  }
-                </select>
-              </td>
-              <td>{{ getDate( reassignment.requested_at ) }}</td>
+              <th>Título de Cita</th>
+              <th>Solicitante</th>
+              <th>Motivo</th>
+              <th>Estado</th>
+              <th>Fecha Solicitud</th>
             </tr>
-          }
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            @for (reassignment of reassignments; track reassignment.id) {
+              <tr>
+                <td>{{ reassignment.appointment_title }}</td>
+                <td>{{ reassignment.requesting_worker_name }}</td>
+                <td>{{ reassignment.reason }}</td>
+                <td>
+                  <select
+                    [(ngModel)]="reassignment.status"
+                    (change)="onStatusChange(reassignment, reassignment.status)"
+                    class="status-selector {{ getStatusClass(reassignment.status) }}"
+                  >
+                    @for (statusOption of availableStatuses; track statusOption) {
+                      <option [value]="statusOption">
+                        {{ getDisplayStatus(statusOption) }}
+                      </option>
+                    }
+                  </select>
+                </td>
+                <td>{{ getDate( reassignment.requested_at ) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <div class="no-reassignments">
+        <p>No hay solicitudes de reasignación pendientes.</p>
+      </div>
+    }
   } @else {
-    <div class="no-reassignments">
-      <p>No hay solicitudes de reasignación pendientes.</p>
-    </div>
+      @if( workerReassignments.length > 0 ) {
+        <div class="incidents-table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Título de Cita</th>
+                <th>Solicitante</th>
+                <th>Motivo</th>
+                <th>Estado</th>
+                <th>Fecha Solicitud</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (reassignment of workerReassignments; track reassignment.id) {
+                <tr>
+                  <td>{{ reassignment.appointment_title }}</td>
+                  <td>{{ reassignment.requesting_worker_name }}</td>
+                  <td>{{ reassignment.reason }}</td>
+                  <td class="status-selector {{ getStatusClass(reassignment.status) }}">{{ reassignment.status }}</td>
+                  <td>{{ getDate( reassignment.requested_at ) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="no-reassignments">
+          <p>No hay solicitudes de reasignación pendientes.</p>
+        </div>
+      }
   }
+
 </div>

@@ -24,6 +24,15 @@ export class ReassignmentService {
   }
 
   /**
+   * Fetches the reassignments of a user
+   * @param id. The id of the user..
+   * @returns An Observable that emits an array of Reassignment objects.
+   */
+  public getReassignmentByUser(id: number): Observable<Reassignment[]> {
+    return this.http.get<Reassignment[]>(`${this.reassignmentUrl}?requesting_worker_id=${id}`);
+  }
+
+  /**
    * Adds a new reassignment request to the API.
    * @param reassignment The Reassignment object to be added.
    * @returns An Observable that emits the newly created Reassignment object.

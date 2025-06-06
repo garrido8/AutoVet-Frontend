@@ -5,6 +5,8 @@ import { Reassignment } from '../../../../interfaces/reassignment.interface'; //
 import { Subscription } from 'rxjs';
 import localeEs from '@angular/common/locales/es';
 import { FormsModule } from '@angular/forms'; // Import FormsModule for ngModel
+import { UserInfoService } from '../../../../services/user-info.service';
+import { Staff } from '../../../../interfaces/staff.interface';
 
 registerLocaleData(localeEs, 'es-ES'); // Register locale for date formatting
 
@@ -24,7 +26,11 @@ export class ReassignmentsComponent implements OnInit, OnDestroy {
 
   private reassignmentService = inject(ReassignmentService);
 
+  private userInfoService = inject( UserInfoService )
+
   public reassignments: Reassignment[] = [];
+
+  public workerReassignments: Reassignment[] = []
 
   // Define the available statuses for the dropdown
   public availableStatuses: string[] = [
@@ -33,19 +39,31 @@ export class ReassignmentsComponent implements OnInit, OnDestroy {
     'rejected'
   ];
 
+  public isAdmin: boolean = localStorage.getItem('isAdmin') === 'true' ? true : false;
+
   ngOnInit(): void {
     // Fetch reassignments when the component initializes
-    this.subscriptions.add(
-      this.reassignmentService.getReassignments()
-        .subscribe( response => {
-          this.reassignments = response;
-          console.log('Fetched Reassignments:', this.reassignments); // For debugging
-        },
-        error => {
-          console.error('Error fetching reassignments:', error);
-          // Handle error, e.g., show a user-friendly message
-        })
-    );
+    const staff: Staff = this.userInfoService.getFullStaffToken()!
+
+    if( this.isAdmin ) {
+      this.subscriptions.add(
+        this.reassignmentService.getReassignments()
+          .subscribe( response => {
+            this.reassignments = response;
+            console.log('Fetched Reassignments:', this.reassignments); // For debugging
+          },
+          error => {
+            console.error('Error fetching reassignments:', error);
+            // Handle error, e.g., show a user-friendly message
+          })
+
+
+        );
+    } else {
+      this.reassignmentService.getReassignmentByUser( staff.pk! ).subscribe( response => {
+        this.workerReassignments = response
+      } )
+    }
   }
 
   ngOnDestroy(): void {

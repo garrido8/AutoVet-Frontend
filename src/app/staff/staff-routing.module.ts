@@ -50,7 +50,7 @@ const routes: Routes = [
   {
     path: 'reassignments',
     component: ReassignmentsComponent,
-    canActivate: [LoginGuard, AdminGuard]
+    canActivate: [LoginGuard, WorkerGuard]
   },
 ];
 
