@@ -1,86 +1,82 @@
-<div class="main-content">
-  <div class="container">
-    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+<div class="page-layout">
 
-      <div>
-        <h3>{{ appointment?.titulo }}</h3>
+  <div class="appointment-container">
+    <div class="main-content">
+      <div class="container">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <div>
+            <h3>{{ appointment?.titulo }}</h3>
+          </div>
+          <div>
+            <p><b>{{petName}}</b></p>
+          </div>
+          <div>
+            <p>{{ appointment?.descripcion }}</p>
+          </div>
+          <div>
+            <p>{{ getDate( appointment?.fecha_creacion! ) }}</p>
+          </div>
+          <div>
+            <label for="fecha_resolucion">Fecha de Resolución:</label>
+            <input
+              type="datetime-local"
+              id="fecha_resolucion"
+              [(ngModel)]="fechaResolucionInput"
+              (input)="updateFechaResolucion($event)"
+              [ngModelOptions]="{ standalone: true }"
+            />
+          </div>
+          <div>
+            <label for="estado">Estado:</label>
+            <select id="estado" formControlName="estado">
+              <option *ngFor="let estado of estados" [value]="estado">{{ estado }}</option>
+            </select>
+            <div *ngIf="form.get('estado')?.invalid && (form.get('estado')?.dirty || form.get('estado')?.touched)">
+              <p class="error">Estado es requerido</p>
+            </div>
+          </div>
+          <div class="emergency">
+            <label for="urgencia">Urgencia:</label>
+            <input type="checkbox" id="urgencia" formControlName="urgencia" />
+          </div>
+          <div class="buttons">
+            <input type="submit" value="Guardar" [disabled]="form.invalid" />
+            <button class="reassign-button" type="button" (click)="openReassignmentModal()">
+              Solicitar reasignación
+            </button>
+          </div>
+        </form>
       </div>
-
-      <div>
-        <p><b>{{petName}}</b></p>
-      </div>
-
-      <div>
-        <p>{{ appointment?.descripcion }}</p>
-      </div>
-
-      <div>
-        <p>{{ getDate( appointment?.fecha_creacion! ) }}</p>
-      </div>
-
-      <div>
-        <label for="fecha_resolucion">Fecha de Resolución:</label>
-        <input
-          type="datetime-local"
-          id="fecha_resolucion"
-          [(ngModel)]="fechaResolucionInput"
-          (input)="updateFechaResolucion($event)"
-          [ngModelOptions]="{ standalone: true }"
-        />
-        </div>
-
-      <div>
-        <label for="estado">Estado:</label>
-        <select id="estado" formControlName="estado">
-          <option *ngFor="let estado of estados" [value]="estado">{{ estado }}</option>
-        </select>
-          <div *ngIf="form.get('estado')?.invalid && (form.get('estado')?.dirty || form.get('estado')?.touched)">
-           <p class="error">Estado es requerido</p>
-         </div>
-      </div>
-
-      <div class="emergency">
-        <label for="urgencia">Urgencia:</label>
-        <input type="checkbox" id="urgencia" formControlName="urgencia" />
-      </div>
-
-      <div class="buttons">
-        <input type="submit" value="Guardar" [disabled]="form.invalid" />
-
-        <button class="reassign-button" type="button" (click)="openReassignmentModal()">
-          Solicitar reasignación
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<div *ngIf="showModal" class="modal">
-  <div class="modal-content">
-    <p class="modal-text">{{ modalMessage }}</p>
-    <div class="button-div">
-      <button class="go-back" (click)="closeModalAndNavigate()">Volver</button>
     </div>
   </div>
-</div>
 
-<div *ngIf="showReassignmentModal" class="modal">
-  <div class="modal-content">
-    <h4 class="modal-title">Solicitar Reasignación</h4>
-    <form class="reassign-form" [formGroup]="reassignmentForm" (ngSubmit)="onReassignmentSubmit()">
-      <div>
-        <div class="form-group">
-          <label for="reassignmentReason">Motivo de la reasignación:</label>
-          <textarea id="reassignmentReason" formControlName="reason" rows="4" placeholder="Describe el motivo de la reasignación..."></textarea>
-          <div *ngIf="reassignmentForm.get('reason')?.invalid && (reassignmentForm.get('reason')?.dirty || reassignmentForm.get('reason')?.touched)">
-            <p class="error">El motivo es requerido.</p>
+
+  <div class="chat-container">
+    <h3 class="chat-title">Conversación</h3>
+
+    <div class="messages-display">
+      <div *ngIf="appointment?.messages && appointment!.messages!.length > 0; else noMessages">
+        <div *ngFor="let message of appointment!.messages" class="message-card">
+          <div class="message-header">
+            <strong>{{ message.user }}</strong>
+            <span class="message-timestamp">{{ message.timestamp | date:'dd/MM HH:mm' }}</span>
           </div>
-        </div>
-        <div class="modal-buttons">
-          <button type="submit" [disabled]="reassignmentForm.invalid">Enviar Solicitud</button>
-          <button type="button" (click)="closeReassignmentModal()" class="cancel-button">Cancelar</button>
+          <p class="message-content">{{ message.content }}</p>
         </div>
       </div>
+      <ng-template #noMessages>
+        <p class="no-messages-text">No hay mensajes. ¡Sé el primero en escribir!</p>
+      </ng-template>
+    </div>
+
+    <form class="message-input-area" [formGroup]="messageForm" (ngSubmit)="onSendMessage()">
+      <textarea formControlName="content" placeholder="Escribe tu mensaje..."></textarea>
+      <button type="submit" [disabled]="messageForm.invalid">Enviar</button>
     </form>
   </div>
-</div>
+
+
+</div> <div *ngIf="showModal" class="modal">
+  </div>
+<div *ngIf="showReassignmentModal" class="modal">
+  </div>

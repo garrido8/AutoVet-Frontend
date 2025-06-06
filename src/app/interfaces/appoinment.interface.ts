@@ -1,3 +1,4 @@
+import { AppointmentMessage } from "./appointment-message.interface";
 import { Staff } from "./staff.interface";
 
 export interface Appoinment {
@@ -13,4 +14,5 @@ export interface Appoinment {
   archivo_adjuntado?:    null;
   trabajador_asignado?:  number | null;
   workerName?:         string;
+  messages?: AppointmentMessage[];
 }
