@@ -102,35 +102,37 @@ table td {
 }
 
 .status-value {
-  display: inline-block;
-  padding: 5px 10px !important;
+  display: inline-flex; /* Changed to inline-flex for better vertical alignment control */
+  align-items: center; /* Vertically centers the text within the flex container */
+  justify-content: center; /* Horizontally centers the text (optional, but good for badges) */
+  padding: 5px 10px; /* Kept existing padding */
+  height: 28px; /* Set a fixed height to match other cells or form elements */
+  line-height: 1; /* Reset line-height to 1 to ensure height is respected */
   border-radius: 20px;
   font-size: 0.85em;
   font-weight: bold;
   text-align: center;
   white-space: nowrap;
-  border: none; /* Remove default select border */
-  appearance: none; /* Remove default system styling for select */
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  cursor: pointer;
-  outline: none; /* Remove outline on focus */
+  border: none;
+  cursor: default; /* Changed cursor to default as it's not interactive */
+  outline: none;
+  box-sizing: border-box; /* Ensures padding and border are included in the element's total width and height */
 }
 
 /* Specific status colors for Reassignments */
 .status-pending {
   background-color: #ffc107; /* Yellow for pending */
-  color: #333 !important;
+  color: #333; /* This color will now apply correctly to the span text */
 }
 
 .status-approved {
   background-color: #4caf50; /* Green for approved */
-  color: #fff;
+  color: #fff; /* This color will now apply correctly to the span text */
 }
 
 .status-rejected {
   background-color: #dc3545; /* Red for rejected */
-  color: #fff;
+  color: #fff; /* This color will now apply correctly to the span text */
 }
 
 /* Style for options within the select to ensure they inherit colors */
