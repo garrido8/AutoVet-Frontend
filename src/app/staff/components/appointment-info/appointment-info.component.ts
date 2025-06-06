@@ -2,7 +2,7 @@ import { CommonModule, formatDate, registerLocaleData } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { forkJoin, Subscription } from 'rxjs';
 
 // Services
 import { AppoinmentService } from '../../../services/appoinment.service';
@@ -10,20 +10,22 @@ import { PetService } from '../../../services/pet.service';
 import { UserInfoService } from '../../../services/user-info.service';
 import { ReassignmentService } from '../../../services/reassignment.service';
 import { AppointmentMessageService } from '../../../services/appointment-message.service';
+import { ShareAppointmentService } from '../../../services/share-appointment.service'; // Import the new service
+import { AuthService } from '../../../services/auth.service';
 
 // Interfaces
 import { Appoinment } from '../../../interfaces/appoinment.interface';
 import { Reassignment } from '../../../interfaces/reassignment.interface';
 import { Staff } from '../../../interfaces/staff.interface';
 import { AppointmentMessage } from '../../../interfaces/appointment-message.interface';
+import { ShareAppointment } from '../../../interfaces/share-appointment.interface'; // Import the interface
+import { Client } from '../../../interfaces/client.interface';
 
 // Locale configuration
 import localeEs from '@angular/common/locales/es';
-import { Client } from '../../../interfaces/client.interface';
-import { AuthService } from '../../../services/auth.service';
-registerLocaleData(localeEs, 'es-ES');
+registerLocaleData( localeEs, 'es-ES' );
 
-@Component({
+@Component( {
   selector: 'app-appointment-info',
   standalone: true,
   templateUrl: './appointment-info.component.html',
@@ -34,27 +36,29 @@ registerLocaleData(localeEs, 'es-ES');
     ReactiveFormsModule,
     FormsModule
   ]
-})
+} )
 export class AppointmentInfoComponent implements OnInit, OnDestroy {
 
-  public estados: string[] = ['Pendiente', 'En proceso', 'Resuelta'];
+  public estados: string[] = [ 'Pendiente', 'En proceso', 'Resuelta' ];
+  public permissions: string[] = [ 'VIEW', 'EDIT' ]; // Permissions for the share modal
   public showModal = false;
   public modalMessage = '';
   public showReassignmentModal = false;
   public showShareModal = false;
 
   public possibleColaborators: Staff[] = [];
-  public selectedCollaborators = new Set<Staff>(); // To handle multi-select
+  public selectedCollaborators = new Set<Staff>();
 
-  private fb = inject(FormBuilder);
-  private appointmentService = inject(AppoinmentService);
-  private userInfoService = inject(UserInfoService);
-  private petService = inject(PetService);
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
-  private reassignmentService = inject(ReassignmentService);
-  private appointmentMessageService = inject(AppointmentMessageService);
-  private authService = inject(AuthService)
+  private fb = inject( FormBuilder );
+  private appointmentService = inject( AppoinmentService );
+  private userInfoService = inject( UserInfoService );
+  private petService = inject( PetService );
+  private route = inject( ActivatedRoute );
+  private router = inject( Router );
+  private reassignmentService = inject( ReassignmentService );
+  private appointmentMessageService = inject( AppointmentMessageService );
+  private authService = inject( AuthService );
+  private shareAppointmentService = inject( ShareAppointmentService ); // Inject the service
 
   private subscriptions = new Subscription();
   public petName: string = '';
@@ -63,139 +67,201 @@ export class AppointmentInfoComponent implements OnInit, OnDestroy {
   private staff: Staff | null = null;
   public fechaResolucionInput: string | null = null;
 
-  public form = this.fb.group({
-    fecha_resolucion: [null as Date | null],
-    estado: ['pendiente', Validators.required],
-    urgencia: [false],
-  });
+  public form = this.fb.group( {
+    fecha_resolucion: [ null as Date | null ],
+    estado: [ 'pendiente', Validators.required ],
+    urgencia: [ false ],
+  } );
 
-  public reassignmentForm = this.fb.group({
-    reason: ['', Validators.required]
-  });
+  public reassignmentForm = this.fb.group( {
+    reason: [ '', Validators.required ]
+  } );
 
-  public messageForm = this.fb.group({
-    content: ['', Validators.required]
-  });
+  public messageForm = this.fb.group( {
+    content: [ '', Validators.required ]
+  } );
+
+  // Form for the share modal
+  public shareForm = this.fb.group( {
+    permission: [ 'VIEW', Validators.required ]
+  } );
 
   ngOnInit(): void {
     this.user = this.userInfoService.getFullStaffToken() || this.userInfoService.getFullClientToken();
     this.staff = this.userInfoService.getFullStaffToken();
-    const id = parseInt(this.route.snapshot.paramMap.get('id')!);
+    const id = parseInt( this.route.snapshot.paramMap.get( 'id' )! );
 
     this.authService.getStaffMembers().subscribe( response => {
-      if( response ) {
-        this.possibleColaborators = response.filter(staff => staff.pk !== this.staff?.pk && !staff.email.includes('admin'));
+      if ( response ) {
+        this.possibleColaborators = response.filter( staff => staff.pk !== this.staff?.pk && !staff.email.includes( 'admin' ) );
       }
-    })
+    } )
 
-    const appointmentSub = this.appointmentService.getAppoinmentById(id)
-      .subscribe(response => {
-        if (response) {
+    const appointmentSub = this.appointmentService.getAppoinmentById( id )
+      .subscribe( response => {
+        if ( response ) {
           this.appointment = response;
 
-          const petNameSub = this.petService.getPetById(response.mascota)
-            .subscribe(petResponse => {
-              if (petResponse) this.petName = petResponse.nombre;
-            });
-          this.subscriptions.add(petNameSub);
+          const petNameSub = this.petService.getPetById( response.mascota )
+            .subscribe( petResponse => {
+              if ( petResponse ) this.petName = petResponse.nombre;
+            } );
+          this.subscriptions.add( petNameSub );
 
-          const messagesSub = this.appointmentMessageService.getMessagesByAppointment(response.pk!)
-            .subscribe(messages => {
-              if (this.appointment) this.appointment.messages = messages;
-            });
-          this.subscriptions.add(messagesSub);
+          const messagesSub = this.appointmentMessageService.getMessagesByAppointment( response.pk! )
+            .subscribe( messages => {
+              if ( this.appointment ) this.appointment.messages = messages;
+            } );
+          this.subscriptions.add( messagesSub );
 
-          this.form.patchValue({
-            estado: this.getDisplayStatus(response.estado),
+          this.form.patchValue( {
+            estado: this.getDisplayStatus( response.estado ),
             urgencia: response.urgencia,
-          });
+          } );
 
-          if (response.fecha_resolucion) {
-            this.fechaResolucionInput = this._formatDateForInput(response.fecha_resolucion);
-            this.form.controls.fecha_resolucion.setValue(new Date(response.fecha_resolucion));
+          if ( response.fecha_resolucion ) {
+            this.fechaResolucionInput = this._formatDateForInput( response.fecha_resolucion );
+            this.form.controls.fecha_resolucion.setValue( new Date( response.fecha_resolucion ) );
           }
         }
-      });
-    this.subscriptions.add(appointmentSub);
+      } );
+    this.subscriptions.add( appointmentSub );
   }
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
   }
 
+  // Closes the simple modal. Decides whether to navigate based on the message.
+  public closeModal(): void {
+    const shouldNavigate = this.modalMessage.includes( 'modificada correctamente' ) || this.modalMessage.includes( 'reasignación enviada' ) || this.modalMessage.includes( 'compartida' );
+    this.showModal = false;
+    if ( shouldNavigate && !this.modalMessage.includes( 'Error' ) ) {
+      if ( this.modalMessage.includes( 'modificada' ) || this.modalMessage.includes( 'reasignación' ) ) {
+        this.router.navigate( [ '/staff/appointments' ] );
+      }
+      // If shared, just close the modal without navigating away
+    }
+  }
+
+  public openShareModal(): void {
+    this.selectedCollaborators.clear();
+    this.shareForm.reset( { permission: 'VIEW' } ); // Reset form to default
+    this.showShareModal = true;
+  }
+
+  public confirmShare(): void {
+    if ( this.shareForm.invalid || this.selectedCollaborators.size === 0 || !this.appointment || !this.staff ) {
+      return; // Exit if form is invalid, no one is selected, or data is missing
+    }
+
+    const permission = this.shareForm.value.permission!;
+    const collaboratorsArray = Array.from( this.selectedCollaborators );
+
+    // Create an array of Observables for each share request
+    const shareRequests = collaboratorsArray.map( collaborator => {
+      const shareData: Partial<ShareAppointment> = {
+        appointment: this.appointment!.pk,
+        shared_by: this.staff!.pk,
+        shared_with: { pk: collaborator.pk } as any, // Backend expects the PK of the user to share with
+        permission: permission
+      };
+      return this.shareAppointmentService.shareAppointment( shareData );
+    } );
+
+    // Use forkJoin to execute all requests in parallel
+    const shareSub = forkJoin( shareRequests ).subscribe( {
+      next: () => {
+        const names = collaboratorsArray.map( c => c.name ).join( ', ' );
+        this.modalMessage = `Cita compartida correctamente con: ${ names }.`;
+        this.closeShareModal();
+        this.showModal = true;
+      },
+      error: ( err ) => {
+        console.error( 'Error sharing appointment:', err );
+        this.modalMessage = 'Error al compartir la cita. Por favor, inténtelo de nuevo.';
+        this.closeShareModal();
+        this.showModal = true;
+      }
+    } );
+
+    this.subscriptions.add( shareSub );
+  }
+
+  // ... ( keep all your other existing methods like onSendMessage, getDate, onSubmit, etc. )
   private messageUser(): string {
-    if (!this.user) {
+    if ( !this.user ) {
       return 'Usuario Desconocido';
     }
-    if (this.user.email.includes('autovet')) {
-      return `${this.user!.name} (Trabajador)`;
+    if ( this.user.email.includes( 'autovet' ) ) {
+      return `${ this.user!.name } (Trabajador)`;
     } else {
-      return `${this.user!.name} (Cliente)`;
+      return `${ this.user!.name } (Cliente)`;
     }
   }
 
   public onSendMessage(): void {
-    if (this.messageForm.valid && this.appointment?.pk) {
+    if ( this.messageForm.valid && this.appointment?.pk ) {
       const newMessage: Partial<AppointmentMessage> = {
         user: this.messageUser(),
         appointment: this.appointment.pk,
         content: this.messageForm.value.content!,
       };
 
-      const messageSub = this.appointmentMessageService.addMessage(newMessage)
-        .subscribe({
-          next: (savedMessage) => {
-            this.appointment?.messages?.push(savedMessage);
+      const messageSub = this.appointmentMessageService.addMessage( newMessage )
+        .subscribe( {
+          next: ( savedMessage ) => {
+            this.appointment?.messages?.push( savedMessage );
             this.messageForm.reset();
           },
-          error: (err) => console.error('Error sending message:', err)
-        });
-      this.subscriptions.add(messageSub);
+          error: ( err ) => console.error( 'Error sending message:', err )
+        } );
+      this.subscriptions.add( messageSub );
     }
   }
 
-  public getDate(date: Date): string {
-    return formatDate(date, 'dd/MM/yyyy', 'es-ES');
+  public getDate( date: Date ): string {
+    return formatDate( date, 'dd/MM/yyyy', 'es-ES' );
   }
 
-  private _formatDateForInput(dateInput: string | Date): string {
-    const date = new Date(dateInput);
-    if (isNaN(date.getTime())) return '';
+  private _formatDateForInput( dateInput: string | Date ): string {
+    const date = new Date( dateInput );
+    if ( isNaN( date.getTime() ) ) return '';
     const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
+    const month = ( date.getMonth() + 1 ).toString().padStart( 2, '0' );
+    const day = date.getDate().toString().padStart( 2, '0' );
+    const hours = date.getHours().toString().padStart( 2, '0' );
+    const minutes = date.getMinutes().toString().padStart( 2, '0' );
+    return `${ year }-${ month }-${ day }T${ hours }:${ minutes }`;
   }
 
-  public updateFechaResolucion(event: Event): void {
+  public updateFechaResolucion( event: Event ): void {
     const inputElement = event.target as HTMLInputElement;
     const dateString = inputElement.value;
-    const dateObject = dateString ? new Date(dateString) : null;
-    this.form.controls.fecha_resolucion.setValue(dateObject && !isNaN(dateObject.getTime()) ? dateObject : null);
+    const dateObject = dateString ? new Date( dateString ) : null;
+    this.form.controls.fecha_resolucion.setValue( dateObject && !isNaN( dateObject.getTime() ) ? dateObject : null );
   }
 
-  private getStatus(estado: string): string {
-    const statusMap: { [key: string]: string } = { 'Pendiente': 'pendiente', 'En proceso': 'en_proceso', 'Resuelta': 'resuelta' };
-    return statusMap[estado] || 'pendiente';
+  private getStatus( estado: string ): string {
+    const statusMap: { [ key: string ]: string } = { 'Pendiente': 'pendiente', 'En proceso': 'en_proceso', 'Resuelta': 'resuelta' };
+    return statusMap[ estado ] || 'pendiente';
   }
 
-  private getDisplayStatus(estado: string): string {
-    const displayMap: { [key: string]: string } = { 'pendiente': 'Pendiente', 'en_proceso': 'En proceso', 'resuelta': 'Resuelta' };
-    return displayMap[estado] || 'Desconocido';
+  private getDisplayStatus( estado: string ): string {
+    const displayMap: { [ key: string ]: string } = { 'pendiente': 'Pendiente', 'en_proceso': 'En proceso', 'resuelta': 'Resuelta' };
+    return displayMap[ estado ] || 'Desconocido';
   }
 
   public onSubmit(): void {
-    if (this.form.valid && this.appointment) {
+    if ( this.form.valid && this.appointment ) {
       const appointmentToUpdate: Appoinment = {
         ...this.appointment,
-        estado: this.getStatus(this.form.value.estado!),
+        estado: this.getStatus( this.form.value.estado! ),
         urgencia: this.form.value.urgencia!,
         fecha_resolucion: this.form.value.fecha_resolucion!,
       };
-      const editSub = this.appointmentService.editAppoinment(this.appointment.pk!, appointmentToUpdate)
-        .subscribe({
+      const editSub = this.appointmentService.editAppoinment( this.appointment.pk!, appointmentToUpdate )
+        .subscribe( {
           next: () => {
             this.modalMessage = 'Cita modificada correctamente.';
             this.showModal = true;
@@ -204,13 +270,13 @@ export class AppointmentInfoComponent implements OnInit, OnDestroy {
             this.modalMessage = 'Error al modificar la cita.';
             this.showModal = true;
           }
-        });
-      this.subscriptions.add(editSub);
+        } );
+      this.subscriptions.add( editSub );
     }
   }
 
   public onReassignmentSubmit(): void {
-    if (this.reassignmentForm.valid && this.appointment && this.staff) {
+    if ( this.reassignmentForm.valid && this.appointment && this.staff ) {
       const reassignment: Reassignment = {
         appointment: this.appointment.pk!,
         appointment_title: this.appointment.titulo!,
@@ -220,8 +286,8 @@ export class AppointmentInfoComponent implements OnInit, OnDestroy {
         status: 'pending',
         requested_at: new Date()
       };
-      const reassignmentSub = this.reassignmentService.addReassignment(reassignment)
-        .subscribe({
+      const reassignmentSub = this.reassignmentService.addReassignment( reassignment )
+        .subscribe( {
           next: () => {
             this.modalMessage = 'Solicitud de reasignación enviada.';
             this.showReassignmentModal = false;
@@ -231,17 +297,8 @@ export class AppointmentInfoComponent implements OnInit, OnDestroy {
             this.modalMessage = 'Error al enviar la solicitud.';
             this.showModal = true;
           }
-        });
-      this.subscriptions.add(reassignmentSub);
-    }
-  }
-
-  // Closes the simple modal. Decides whether to navigate based on the message.
-  public closeModal(): void {
-    const shouldNavigate = this.modalMessage.includes('modificada correctamente') || this.modalMessage.includes('reasignación enviada');
-    this.showModal = false;
-    if (shouldNavigate) {
-      this.router.navigate(['/staff/appointments']);
+        } );
+      this.subscriptions.add( reassignmentSub );
     }
   }
 
@@ -254,44 +311,19 @@ export class AppointmentInfoComponent implements OnInit, OnDestroy {
     this.showReassignmentModal = false;
   }
 
-  public openShareModal(): void {
-    this.selectedCollaborators.clear();
-    this.showShareModal = true;
-  }
-
   public closeShareModal(): void {
     this.showShareModal = false;
   }
 
-  public toggleCollaboratorSelection(collaborator: Staff): void {
-    if (this.selectedCollaborators.has(collaborator)) {
-      this.selectedCollaborators.delete(collaborator);
+  public toggleCollaboratorSelection( collaborator: Staff ): void {
+    if ( this.selectedCollaborators.has( collaborator ) ) {
+      this.selectedCollaborators.delete( collaborator );
     } else {
-      this.selectedCollaborators.add(collaborator);
+      this.selectedCollaborators.add( collaborator );
     }
   }
 
-  public isSelected(collaborator: Staff): boolean {
-    return this.selectedCollaborators.has(collaborator);
-  }
-
-  public confirmShare(): void {
-    if (this.selectedCollaborators.size === 0) {
-      this.modalMessage = 'Por favor, selecciona al menos un compañero.';
-      this.showModal = true;
-      return;
-    }
-
-    const collaboratorsArray = Array.from(this.selectedCollaborators);
-    const collaboratorIds = collaboratorsArray.map(c => c.pk);
-    const names = collaboratorsArray.map(c => c.name).join(', ');
-
-    // Here you would typically make a service call to share the appointment
-    console.log(`Sharing appointment with IDs: ${collaboratorIds}`);
-
-
-    this.closeShareModal();
-    this.modalMessage = `Cita compartida con: ${names}.`;
-    this.showModal = true;
+  public isSelected( collaborator: Staff ): boolean {
+    return this.selectedCollaborators.has( collaborator );
   }
 }

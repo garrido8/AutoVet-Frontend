@@ -1,5 +1,5 @@
 export interface ShareAppointment {
-  id:          number;
+  id?:          number;
   shared_with: SharedWith;
   permission:  string;
   shared_at:   Date;
