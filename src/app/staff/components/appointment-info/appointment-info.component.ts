@@ -20,6 +20,7 @@ import { AppointmentMessage } from '../../../interfaces/appointment-message.inte
 // Locale configuration
 import localeEs from '@angular/common/locales/es';
 import { Client } from '../../../interfaces/client.interface';
+import { AuthService } from '../../../services/auth.service';
 registerLocaleData(localeEs, 'es-ES');
 
 @Component({
@@ -49,6 +50,9 @@ export class AppointmentInfoComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private reassignmentService = inject(ReassignmentService);
   private appointmentMessageService = inject(AppointmentMessageService);
+  private authService = inject(AuthService)
+
+  public possibleColaborators: Staff[] = [];
 
   private subscriptions = new Subscription();
   public petName: string = '';
@@ -75,6 +79,12 @@ export class AppointmentInfoComponent implements OnInit, OnDestroy {
     this.user = this.userInfoService.getFullStaffToken() || this.userInfoService.getFullClientToken();
     this.staff = this.userInfoService.getFullStaffToken();
     const id = parseInt(this.route.snapshot.paramMap.get('id')!);
+
+    this.authService.getStaffMembers().subscribe( response => {
+      if( response ) {
+        this.possibleColaborators = response.filter(staff => staff.pk !== this.staff?.pk && !staff.email.includes('admin'));
+      }
+    })
 
     const appointmentSub = this.appointmentService.getAppoinmentById(id)
       .subscribe(response => {
