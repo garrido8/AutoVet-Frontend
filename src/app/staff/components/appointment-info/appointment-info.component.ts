@@ -19,6 +19,7 @@ import { AppointmentMessage } from '../../../interfaces/appointment-message.inte
 
 // Locale configuration
 import localeEs from '@angular/common/locales/es';
+import { Client } from '../../../interfaces/client.interface';
 registerLocaleData(localeEs, 'es-ES');
 
 @Component({
@@ -40,18 +41,19 @@ export class AppointmentInfoComponent implements OnInit, OnDestroy {
   public modalMessage = '';
   public showReassignmentModal = false;
 
-  private fb = inject( FormBuilder );
-  private appointmentService = inject( AppoinmentService );
-  private userInfoService = inject( UserInfoService );
-  private petService = inject( PetService );
-  private route = inject( ActivatedRoute );
-  private router = inject( Router );
-  private reassignmentService = inject( ReassignmentService );
-  private appointmentMessageService = inject( AppointmentMessageService );
+  private fb = inject(FormBuilder);
+  private appointmentService = inject(AppoinmentService);
+  private userInfoService = inject(UserInfoService);
+  private petService = inject(PetService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private reassignmentService = inject(ReassignmentService);
+  private appointmentMessageService = inject(AppointmentMessageService);
 
   private subscriptions = new Subscription();
   public petName: string = '';
   public appointment?: Appoinment;
+  private user: Client | Staff | null = null;
   private staff: Staff | null = null;
   public fechaResolucionInput: string | null = null;
 
@@ -65,11 +67,12 @@ export class AppointmentInfoComponent implements OnInit, OnDestroy {
     reason: ['', Validators.required]
   });
 
-  public messageForm = this.fb.group( {
+  public messageForm = this.fb.group({
     content: ['', Validators.required]
-  } );
+  });
 
   ngOnInit(): void {
+    this.user = this.userInfoService.getFullStaffToken() || this.userInfoService.getFullClientToken();
     this.staff = this.userInfoService.getFullStaffToken();
     const id = parseInt(this.route.snapshot.paramMap.get('id')!);
 
@@ -108,22 +111,37 @@ export class AppointmentInfoComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
+  private messageUser(): string {
+    // Ensure we have a user object before trying to access its properties
+    if (!this.user) {
+      return 'Usuario Desconocido'; // Return a default value if user is null
+    }
+
+    // CORRECTED: Use ${...} to insert the variable's value into the string
+    if (this.user.email.includes('autovet')) {
+      return `${this.user!.name} (Trabajador)`;
+    } else {
+      return `${this.user!.name} (Cliente)`;
+    }
+  }
+
   public onSendMessage(): void {
-    if ( this.messageForm.valid && this.appointment?.pk ) {
+    if (this.messageForm.valid && this.appointment?.pk) {
       const newMessage: Partial<AppointmentMessage> = {
+        user: this.messageUser(),
         appointment: this.appointment.pk,
         content: this.messageForm.value.content!,
       };
 
-      const messageSub = this.appointmentMessageService.addMessage( newMessage )
-        .subscribe( {
-          next: ( savedMessage ) => {
-            this.appointment?.messages?.push( savedMessage );
+      const messageSub = this.appointmentMessageService.addMessage(newMessage)
+        .subscribe({
+          next: (savedMessage) => {
+            this.appointment?.messages?.push(savedMessage);
             this.messageForm.reset();
           },
-          error: ( err ) => console.error( 'Error sending message:', err )
-        } );
-      this.subscriptions.add( messageSub );
+          error: (err) => console.error('Error sending message:', err)
+        });
+      this.subscriptions.add(messageSub);
     }
   }
 
