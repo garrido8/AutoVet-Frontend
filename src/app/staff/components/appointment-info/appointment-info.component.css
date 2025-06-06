@@ -448,3 +448,9 @@ p.error {
 .share-modal-footer .confirm-btn:hover {
   background-color: #218838;
 }
+
+.share-modal-footer .confirm-btn:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+  color: #ccc;
+}

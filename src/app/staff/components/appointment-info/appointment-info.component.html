@@ -134,7 +134,7 @@
     </div>
     <div class="share-modal-footer">
         <button class="cancel-btn" (click)="closeShareModal()">Cancelar</button>
-        <button class="confirm-btn" (click)="confirmShare()">Compartir</button>
+        <button class="confirm-btn" [disabled]="this.selectedCollaborators.size===0" (click)="confirmShare()">Compartir</button>
     </div>
   </div>
 </div>
