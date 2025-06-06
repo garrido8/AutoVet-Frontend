@@ -1,5 +1,6 @@
 <div class="page-layout">
 
+  <!-- Main Content: Appointment Form -->
   <div class="appointment-container">
     <div class="main-content">
       <div class="container">
@@ -44,7 +45,7 @@
             <button class="reassign-button" type="button" (click)="openReassignmentModal()">
               Solicitar reasignación
             </button>
-            <button class="reassign-button" type="button">
+            <button class="share-button" type="button" (click)="openShareModal()">
               Compartir
             </button>
           </div>
@@ -53,7 +54,7 @@
     </div>
   </div>
 
-
+  <!-- Chat Sidebar -->
   <div class="chat-container">
     <h3 class="chat-title">Conversación</h3>
 
@@ -78,8 +79,62 @@
     </form>
   </div>
 
+</div>
 
-</div> <div *ngIf="showModal" class="modal">
+<!-- Generic Confirmation/Info Modal -->
+<div *ngIf="showModal" class="modal">
+  <div class="modal-content">
+      <p class="modal-text">{{ modalMessage }}</p>
+      <div class="button-div">
+          <button class="go-back" (click)="closeModal()">Cerrar</button>
+      </div>
   </div>
+</div>
+
+
+<!-- Reassignment Request Modal -->
 <div *ngIf="showReassignmentModal" class="modal">
+  <div class="modal-content">
+    <h4 class="modal-title">Solicitar Reasignación</h4>
+    <form class="reassign-form" [formGroup]="reassignmentForm" (ngSubmit)="onReassignmentSubmit()">
+        <div class="form-group">
+          <label for="reassignmentReason">Motivo de la reasignación:</label>
+          <textarea id="reassignmentReason" formControlName="reason" rows="4" placeholder="Describe el motivo..."></textarea>
+          <div *ngIf="reassignmentForm.get('reason')?.invalid && reassignmentForm.get('reason')?.touched">
+            <p class="error">El motivo es requerido.</p>
+          </div>
+        </div>
+        <div class="modal-buttons">
+          <button type="submit" [disabled]="reassignmentForm.invalid">Enviar Solicitud</button>
+          <button type="button" (click)="closeReassignmentModal()" class="cancel-button">Cancelar</button>
+        </div>
+    </form>
   </div>
+</div>
+
+<!-- Share with Collaborators Modal -->
+<div *ngIf="showShareModal" class="modal">
+  <div class="modal-content">
+    <div class="share-modal-header">
+      <h3>Compartir con compañeros</h3>
+      <button class="share-close-button" (click)="closeShareModal()">&times;</button>
+    </div>
+    <div class="share-modal-body">
+      <p>Selecciona uno o más compañeros para compartir esta cita:</p>
+      <ul class="collaborators-list">
+        <li *ngFor="let collaborator of possibleColaborators"
+            (click)="toggleCollaboratorSelection(collaborator)"
+            [class.selected]="isSelected(collaborator)">
+          {{ collaborator.name }} ({{ collaborator.email }})
+        </li>
+      </ul>
+       <div *ngIf="possibleColaborators.length === 0">
+          <p>No hay otros compañeros disponibles para compartir.</p>
+        </div>
+    </div>
+    <div class="share-modal-footer">
+        <button class="cancel-btn" (click)="closeShareModal()">Cancelar</button>
+        <button class="confirm-btn" (click)="confirmShare()">Compartir</button>
+    </div>
+  </div>
+</div>

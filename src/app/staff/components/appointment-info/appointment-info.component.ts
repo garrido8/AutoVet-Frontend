@@ -41,6 +41,10 @@ export class AppointmentInfoComponent implements OnInit, OnDestroy {
   public showModal = false;
   public modalMessage = '';
   public showReassignmentModal = false;
+  public showShareModal = false;
+
+  public possibleColaborators: Staff[] = [];
+  public selectedCollaborators = new Set<Staff>(); // To handle multi-select
 
   private fb = inject(FormBuilder);
   private appointmentService = inject(AppoinmentService);
@@ -51,8 +55,6 @@ export class AppointmentInfoComponent implements OnInit, OnDestroy {
   private reassignmentService = inject(ReassignmentService);
   private appointmentMessageService = inject(AppointmentMessageService);
   private authService = inject(AuthService)
-
-  public possibleColaborators: Staff[] = [];
 
   private subscriptions = new Subscription();
   public petName: string = '';
@@ -122,12 +124,9 @@ export class AppointmentInfoComponent implements OnInit, OnDestroy {
   }
 
   private messageUser(): string {
-    // Ensure we have a user object before trying to access its properties
     if (!this.user) {
-      return 'Usuario Desconocido'; // Return a default value if user is null
+      return 'Usuario Desconocido';
     }
-
-    // CORRECTED: Use ${...} to insert the variable's value into the string
     if (this.user.email.includes('autovet')) {
       return `${this.user!.name} (Trabajador)`;
     } else {
@@ -237,9 +236,13 @@ export class AppointmentInfoComponent implements OnInit, OnDestroy {
     }
   }
 
-  public closeModalAndNavigate(): void {
+  // Closes the simple modal. Decides whether to navigate based on the message.
+  public closeModal(): void {
+    const shouldNavigate = this.modalMessage.includes('modificada correctamente') || this.modalMessage.includes('reasignación enviada');
     this.showModal = false;
-    this.router.navigate(['/staff/appointments']);
+    if (shouldNavigate) {
+      this.router.navigate(['/staff/appointments']);
+    }
   }
 
   public openReassignmentModal(): void {
@@ -249,5 +252,46 @@ export class AppointmentInfoComponent implements OnInit, OnDestroy {
 
   public closeReassignmentModal(): void {
     this.showReassignmentModal = false;
+  }
+
+  public openShareModal(): void {
+    this.selectedCollaborators.clear();
+    this.showShareModal = true;
+  }
+
+  public closeShareModal(): void {
+    this.showShareModal = false;
+  }
+
+  public toggleCollaboratorSelection(collaborator: Staff): void {
+    if (this.selectedCollaborators.has(collaborator)) {
+      this.selectedCollaborators.delete(collaborator);
+    } else {
+      this.selectedCollaborators.add(collaborator);
+    }
+  }
+
+  public isSelected(collaborator: Staff): boolean {
+    return this.selectedCollaborators.has(collaborator);
+  }
+
+  public confirmShare(): void {
+    if (this.selectedCollaborators.size === 0) {
+      this.modalMessage = 'Por favor, selecciona al menos un compañero.';
+      this.showModal = true;
+      return;
+    }
+
+    const collaboratorsArray = Array.from(this.selectedCollaborators);
+    const collaboratorIds = collaboratorsArray.map(c => c.pk);
+    const names = collaboratorsArray.map(c => c.name).join(', ');
+
+    // Here you would typically make a service call to share the appointment
+    console.log(`Sharing appointment with IDs: ${collaboratorIds}`);
+
+
+    this.closeShareModal();
+    this.modalMessage = `Cita compartida con: ${names}.`;
+    this.showModal = true;
   }
 }
