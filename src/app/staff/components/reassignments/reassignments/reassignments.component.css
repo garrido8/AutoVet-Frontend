@@ -101,10 +101,26 @@ table td {
   padding-right: 25px; /* Make space for the custom arrow */
 }
 
+.status-value {
+  display: inline-block;
+  padding: 5px 10px !important;
+  border-radius: 20px;
+  font-size: 0.85em;
+  font-weight: bold;
+  text-align: center;
+  white-space: nowrap;
+  border: none; /* Remove default select border */
+  appearance: none; /* Remove default system styling for select */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+  outline: none; /* Remove outline on focus */
+}
+
 /* Specific status colors for Reassignments */
 .status-pending {
   background-color: #ffc107; /* Yellow for pending */
-  color: #333;
+  color: #333 !important;
 }
 
 .status-approved {

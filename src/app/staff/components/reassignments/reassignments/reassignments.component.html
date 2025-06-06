@@ -66,7 +66,7 @@
                   <td>{{ reassignment.appointment_title }}</td>
                   <td>{{ reassignment.requesting_worker_name }}</td>
                   <td>{{ reassignment.reason }}</td>
-                  <td class="status-selector {{ getStatusClass(reassignment.status) }}">{{ reassignment.status }}</td>
+                  <td class="status-value {{ getStatusClass(reassignment.status) }}">{{ reassignment.status }}</td>
                   <td>{{ getDate( reassignment.requested_at ) }}</td>
                 </tr>
               }
