@@ -50,6 +50,7 @@ export class AppointmentInfoComponent implements OnInit, OnDestroy {
   public modalMessage = '';
   public showReassignmentModal = false;
   public showShareModal = false;
+  public isClient = localStorage.getItem( 'isClient' ) === 'true';
 
   public possibleColaborators: Staff[] = [];
   public selectedCollaborators = new Set<Staff>();

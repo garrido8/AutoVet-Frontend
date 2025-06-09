@@ -36,19 +36,23 @@
               <p class="error">Estado es requerido</p>
             </div>
           </div>
-          <div class="emergency">
-            <label for="urgencia">Urgencia:</label>
-            <input type="checkbox" id="urgencia" formControlName="urgencia" />
-          </div>
-          <div class="buttons">
-            <input type="submit" value="Guardar" [disabled]="form.invalid" />
-            <button class="reassign-button" type="button" (click)="openReassignmentModal()">
-              Solicitar reasignación
-            </button>
-            <button class="share-button" type="button" (click)="openShareModal()">
-              Compartir
-            </button>
-          </div>
+
+          @if( !isClient ) {
+            <div class="emergency">
+              <label for="urgencia">Urgencia:</label>
+              <input type="checkbox" id="urgencia" formControlName="urgencia" />
+            </div>
+            <div class="buttons">
+              <input type="submit" value="Guardar" [disabled]="form.invalid" />
+              <button class="reassign-button" type="button" (click)="openReassignmentModal()">
+                Solicitar reasignación
+              </button>
+              <button class="share-button" type="button" (click)="openShareModal()">
+                Compartir
+              </button>
+            </div>
+          }
+
         </form>
       </div>
     </div>
