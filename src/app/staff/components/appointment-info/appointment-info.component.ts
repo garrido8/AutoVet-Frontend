@@ -155,48 +155,45 @@ export class AppointmentInfoComponent implements OnInit, OnDestroy {
     this.showShareModal = true;
   }
 
-  public confirmShare(): void {
-    if (
-      this.shareForm.invalid ||
-      this.selectedCollaborators.size === 0 ||
-      !this.appointment
-    ) {
+public confirmShare(): void {
+    if ( this.shareForm.invalid || this.selectedCollaborators.size === 0 || !this.appointment ) {
       return;
     }
 
-    const permission = this.shareForm.value.permission as
-      | 'readonly'
-      | 'editing';
-    const collaboratorsArray = Array.from(this.selectedCollaborators);
+    const permission = this.shareForm.value.permission as 'readonly' | 'editing';
+    const collaboratorsArray = Array.from( this.selectedCollaborators );
 
-    const shareRequests = collaboratorsArray.map((collaborator) => {
-      const shareData: ShareAppointment = {
-        appointment: this.appointment!.pk!,
-        shared_with: collaborator!.pk!, // Send only the PK
-        permission: permission,
-        shared_by: this.staff?.pk!
+    const shareRequests = collaboratorsArray.map( collaborator => {
+      const shareData: Partial<ShareAppointment> = {
+        appointment: this.appointment!.pk,
+        shared_with: collaborator.pk,
+        permission: permission
       };
-      console.log(shareData);
-      return this.shareAppointmentService.shareAppointment(shareData);
-    });
+      return this.shareAppointmentService.shareAppointment( shareData );
+    } );
 
-    const shareSub = forkJoin(shareRequests).subscribe({
+    const shareSub = forkJoin( shareRequests ).subscribe( {
       next: () => {
-        const names = collaboratorsArray.map((c) => c.name).join(', ');
-        this.modalMessage = `Cita compartida correctamente con: ${names}.`;
-        this.closeShareModal();
-        this.showModal = true;
+        // --- FIX for ExpressionChangedAfterItHasBeenCheckedError ---
+        setTimeout(() => {
+          const names = collaboratorsArray.map( c => c.name ).join( ', ' );
+          this.modalMessage = `Cita compartida correctamente con: ${ names }.`;
+          this.closeShareModal();
+          this.showModal = true;
+        }, 0);
       },
-      error: (err) => {
-        console.error('Error sharing appointment:', err);
-        this.modalMessage =
-          'Error al compartir la cita. Por favor, inténtelo de nuevo.';
-        this.closeShareModal();
-        this.showModal = true;
-      },
-    });
+      error: ( err ) => {
+        // --- FIX for ExpressionChangedAfterItHasBeenCheckedError ---
+        setTimeout(() => {
+          console.error( 'Error sharing appointment:', err );
+          this.modalMessage = 'Error al compartir la cita. Por favor, inténtelo de nuevo.';
+          this.closeShareModal();
+          this.showModal = true;
+        }, 0);
+      }
+    } );
 
-    this.subscriptions.add(shareSub);
+    this.subscriptions.add( shareSub );
   }
 
   // --- Other methods are correct, keeping them for brevity ---
