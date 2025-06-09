@@ -3,34 +3,76 @@
   @if ( !isAdmin ) {
     <h1 class="section-title">Mis incidencias</h1>
 
-    @if( workerAppoinments.length > 0 ) {
-      <div class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>Título</th>
-              <th>Descripción</th>
-              <th>Estado</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (appoinment of workerAppoinments; track $index) {
-              <tr routerLink="/staff/appointment-info/{{ appoinment.pk }}">
-                <td>{{ appoinment.titulo }}</td>
-                <td>{{ appoinment.descripcion }}</td>
-                <td>
-                  <span class="status-pill status-{{ appoinment.estado | lowercase }}">
-                    {{ getDisplayStatus( appoinment.estado )}}
-                  </span>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
+    <div class="appointments-container">
+
+      <div class="assigneds">
+        <h2 class="section-title">Asignadas</h2>
+
+        @if( workerAppoinments.length > 0 ) {
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Título</th>
+                  <th>Descripción</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (appoinment of workerAppoinments; track $index) {
+                  <tr routerLink="/staff/appointment-info/{{ appoinment.pk }}">
+                    <td>{{ appoinment.titulo }}</td>
+                    <td>{{ appoinment.descripcion }}</td>
+                    <td>
+                      <span class="status-pill status-{{ appoinment.estado | lowercase }}">
+                        {{ getDisplayStatus( appoinment.estado )}}
+                      </span>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <p class="no-data-message">No tienes incidencias asignadas.</p>
+        }
       </div>
-    } @else {
-      <p class="no-data-message">No tienes incidencias asignadas.</p>
-    }
+
+
+      <div class="collaborator-on">
+        <h2 class="section-title">Compartidas conmigo</h2>
+        @if( colaboratorAppointments.length > 0 ) {
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Título</th>
+                  <th>Descripción</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (appoinment of colaboratorAppointments; track $index) {
+                  <tr routerLink="/staff/appointment-info/{{ appoinment.pk }}">
+                    <td>{{ appoinment.titulo }}</td>
+                    <td>{{ appoinment.descripcion }}</td>
+                    <td>
+                      <span class="status-pill status-{{ appoinment.estado | lowercase }}">
+                        {{ getDisplayStatus( appoinment.estado )}}
+                      </span>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <p class="no-data-message">No tienes incidencias compartidas.</p>
+        }
+      </div>
+
+    </div>
+
 
     <hr>
   }

@@ -3,6 +3,13 @@
   color: #f0f0f0;
 }
 
+.appointments-container {
+  display: grid;
+  grid-template-columns: 0.9fr 0.9fr;
+  grid-column-gap: 30px;
+  justify-content: center;
+}
+
 .section-title { /* Consolidated h1/h2 styling */
   color: #a7ffeb; /* Accent color for section titles */
   margin-bottom: 20px;

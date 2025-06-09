@@ -10,6 +10,7 @@ import { Client } from '../../../interfaces/client.interface';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { ShareAppointmentService } from '../../../services/share-appointment.service';
 
 @Component({
   selector: 'app-staff-appointments',
@@ -32,20 +33,22 @@ export class StaffAppointmentsComponent implements OnInit, OnDestroy {
   private subscriptions = new Subscription();
 
   public user?: Staff | null = null;
-  // This 'owner' property is primarily used by assignAppoinment,
-  // reassignAppoinment uses a local 'ownerResponse' in its chain.
-  private owner?: Client | null = null;
 
   private appoinmentService = inject(AppoinmentService);
   private userInfoService = inject( UserInfoService)
   private authService = inject( AuthService )
   private petService = inject( PetService )
+  private shareAppointmentService = inject( ShareAppointmentService )
+
+  public colaboratorAppointments: Appoinment[] = [];
 
   public isAdmin: boolean = localStorage.getItem('isAdmin') === 'true' ? true : false;
 
   private userEmail: string | null = null;
 
   ngOnInit(): void {
+
+    const staff = this.userInfoService.getFullStaffToken()
 
     if (this.isAdmin) {
       this.subscriptions.add(
@@ -91,6 +94,7 @@ export class StaffAppointmentsComponent implements OnInit, OnDestroy {
       this.subscriptions.add(allSub);
     }
 
+
     this.userEmail = this.userInfoService.getToken();
       if ( this.userEmail ) {
         const staffSub = this.authService.getStaffPerEmail(this.userEmail!)
@@ -134,6 +138,27 @@ export class StaffAppointmentsComponent implements OnInit, OnDestroy {
           }
         )
         this.subscriptions.add(getAppoinments);
+    }
+
+    if( staff ) {
+      this.shareAppointmentService.getSharedAppointmentsByCollaborator( staff.pk! ).subscribe( response => {
+        if( response.length > 0 ) {
+          const ids = response.map( share => share.appointment );
+          // console.log('Colaborator appointments fetched:', this.colaboratorAppointments);
+          ids.forEach( id => {
+            this.appoinmentService.getAppoinmentById( id ).subscribe( appoinment => {
+              if ( appoinment ) {
+                this.colaboratorAppointments.push( appoinment );
+              } else {
+                console.warn('Appointment not found for shared ID:', id);
+              }
+            }, error => {
+              console.error('Error fetching appointment by ID:', id, error);
+            });
+          })
+        }
+      })
+
     }
   }
 

@@ -25,6 +25,15 @@ export class ShareAppointmentService {
   }
 
   /**
+   * Fetches all shared instances for a specific collaborator (staff member).
+   * @param { number } collaboratorId The ID of the collaborator (the 'shared_with' user).
+   * @returns { Observable<ShareAppointment[]> } An Observable emitting an array of ShareAppointment objects.
+   */
+  public getSharedAppointmentsByCollaborator( collaboratorId: number ): Observable<ShareAppointment[]> {
+    return this.http.get<ShareAppointment[]>( `${ this.shareAppointmentUrl }?shared_with=${ collaboratorId }` );
+  }
+
+  /**
    * Creates a new shared appointment record.
    * @param { Partial<ShareAppointment> } sharedAppointment A partial object containing the details of the share.
    * @returns { Observable<ShareAppointment> } An Observable that emits the newly created ShareAppointment object.
