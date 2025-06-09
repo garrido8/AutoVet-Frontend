@@ -19,7 +19,6 @@ import { Reassignment } from '../../../interfaces/reassignment.interface';
 import { Staff } from '../../../interfaces/staff.interface';
 import { AppointmentMessage } from '../../../interfaces/appointment-message.interface';
 import { ShareAppointment } from '../../../interfaces/share-appointment.interface';
-import { Client } from '../../../interfaces/client.interface';
 
 // Locale configuration
 import localeEs from '@angular/common/locales/es';
@@ -242,15 +241,26 @@ export class AppointmentInfoComponent implements OnInit, OnDestroy {
   }
 
   public getDate( date: Date ): string { return formatDate( date, 'dd/MM/yyyy', 'es-ES' ); }
+
   private _formatDateForInput( dateInput: string | Date ): string { const date = new Date( dateInput ); if ( isNaN( date.getTime() ) ) return ''; const year = date.getFullYear(); const month = ( date.getMonth() + 1 ).toString().padStart( 2, '0' ); const day = date.getDate().toString().padStart( 2, '0' ); const hours = date.getHours().toString().padStart( 2, '0' ); const minutes = date.getMinutes().toString().padStart( 2, '0' ); return `${ year }-${ month }-${ day }T${ hours }:${ minutes }`; }
+
   public updateFechaResolucion( event: Event ): void { const inputElement = event.target as HTMLInputElement; const dateString = inputElement.value; const dateObject = dateString ? new Date( dateString ) : null; this.form.controls.fecha_resolucion.setValue( dateObject && !isNaN( dateObject.getTime() ) ? dateObject : null ); }
+
   private getStatus( estado: string ): string { const statusMap: { [ key: string ]: string } = { 'Pendiente': 'pendiente', 'En proceso': 'en_proceso', 'Resuelta': 'resuelta' }; return statusMap[ estado ] || 'pendiente'; }
+
   public getDisplayStatus( estado: string ): string { const displayMap: { [ key: string ]: string } = { 'pendiente': 'Pendiente', 'en_proceso': 'En proceso', 'resuelta': 'Resuelta' }; return displayMap[ estado ] || 'Desconocido'; }
+
   public onSubmit(): void { if ( this.form.valid && this.appointment ) { const appointmentToUpdate: Appoinment = { ...this.appointment, estado: this.getStatus( this.form.value.estado! ), urgencia: this.form.value.urgencia!, fecha_resolucion: this.form.value.fecha_resolucion!, }; const editSub = this.appointmentService.editAppoinment( this.appointment.pk!, appointmentToUpdate ).subscribe( { next: () => { this.modalMessage = 'Cita modificada correctamente.'; this.showModal = true; }, error: () => { this.modalMessage = 'Error al modificar la cita.'; this.showModal = true; } } ); this.subscriptions.add( editSub ); } }
+
   public onReassignmentSubmit(): void { if ( this.reassignmentForm.valid && this.appointment && this.staff ) { const reassignment: Reassignment = { appointment: this.appointment.pk!, appointment_title: this.appointment.titulo!, requesting_worker: this.staff.pk!, requesting_worker_name: this.staff.name!, reason: this.reassignmentForm.value.reason!, status: 'pending', requested_at: new Date() }; const reassignmentSub = this.reassignmentService.addReassignment( reassignment ).subscribe( { next: () => { this.modalMessage = 'Solicitud de reasignación enviada.'; this.showReassignmentModal = false; this.showModal = true; }, error: () => { this.modalMessage = 'Error al enviar la solicitud.'; this.showModal = true; } } ); this.subscriptions.add( reassignmentSub ); } }
+
   public openReassignmentModal(): void { this.showReassignmentModal = true; this.reassignmentForm.reset(); }
+
   public closeReassignmentModal(): void { this.showReassignmentModal = false; }
+
   public closeShareModal(): void { this.showShareModal = false; }
+
   public toggleCollaboratorSelection( collaborator: Staff ): void { if ( this.selectedCollaborators.has( collaborator ) ) { this.selectedCollaborators.delete( collaborator ); } else { this.selectedCollaborators.add( collaborator ); } }
+
   public isSelected( collaborator: Staff ): boolean { return this.selectedCollaborators.has( collaborator ); }
 }
