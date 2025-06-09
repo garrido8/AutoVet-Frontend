@@ -17,7 +17,7 @@
         </thead>
         <tbody>
           @for (appoinment of appoinments; track $index) {
-            <tr>
+            <tr [routerLink]="'/staff/appointment-info/' + appoinment.pk">
               <td>{{ appoinment.petName }}</td>
               <td>{{ appoinment.titulo }}</td>
               <td>{{ appoinment.descripcion }}</td>

@@ -5,12 +5,18 @@ import { PetService } from '../../../services/pet.service';
 import { AppoinmentService } from '../../../services/appoinment.service';
 import { Appoinment } from '../../../interfaces/appoinment.interface';
 import { Client } from '../../../interfaces/client.interface';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-appoinments',
-  standalone: false,
+  standalone: true,
   templateUrl: './appoinments.component.html',
-  styleUrl: './appoinments.component.css'
+  styleUrl: './appoinments.component.css',
+  imports: [
+    CommonModule,
+    RouterModule
+  ]
 })
 export class AppoinmentsComponent implements OnInit {
 

@@ -30,7 +30,7 @@ const routes: Routes = [
   {
     path:'appointment-info/:id',
     component: AppointmentInfoComponent,
-    canActivate: [LoginGuard, WorkerGuard]
+    canActivate: [LoginGuard]
   },
   {
     path: 'add-pet',
