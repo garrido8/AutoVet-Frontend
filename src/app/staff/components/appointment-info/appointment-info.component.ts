@@ -17,6 +17,7 @@ import { AuthService } from '../../../services/auth.service';
 import { Appoinment } from '../../../interfaces/appoinment.interface';
 import { Reassignment } from '../../../interfaces/reassignment.interface';
 import { Staff } from '../../../interfaces/staff.interface';
+import { Client } from '../../../interfaces/client.interface';
 import { AppointmentMessage } from '../../../interfaces/appointment-message.interface';
 import { ShareAppointment } from '../../../interfaces/share-appointment.interface';
 
@@ -65,6 +66,7 @@ export class AppointmentInfoComponent implements OnInit, OnDestroy {
   public modalMessage = '';
   public showReassignmentModal = false;
   public showShareModal = false;
+  public isClient: boolean = localStorage.getItem( 'isClient' ) === 'true';
 
   public estados: string[] = [ 'Pendiente', 'En proceso', 'Resuelta', 'Esperando cliente' ];
   public permissionLevels = [
@@ -98,11 +100,15 @@ export class AppointmentInfoComponent implements OnInit, OnDestroy {
   // ----------------------------------------------------------------
   private subscriptions = new Subscription();
   private staff: Staff | null = null;
+  private user: Staff | Client | null = null; // Holds either Staff or Client info
   // #endregion
 
   // #region Lifecycle Hooks
   ngOnInit(): void {
+    // Get both staff and generic user info
     this.staff = this.userInfoService.getFullStaffToken();
+    this.user = this.userInfoService.getFullStaffToken() || this.userInfoService.getFullClientToken();
+
     const appointmentId = parseInt( this.route.snapshot.paramMap.get( 'id' )! );
 
     const appointment$ = this.appointmentService.getAppoinmentById( appointmentId );
@@ -205,24 +211,52 @@ export class AppointmentInfoComponent implements OnInit, OnDestroy {
     }
   }
 
-  public onSendMessage(): void {
-    if ( this.messageForm.valid && this.appointment?.pk ) {
-      const newMessage: Partial<AppointmentMessage> = {
-        user: this.messageUser(),
-        appointment: this.appointment.pk,
-        content: this.messageForm.value.content!,
+public onSendMessage(): void {
+    if ( !this.messageForm.valid || !this.appointment?.pk ) {
+      return;
+    }
+
+    const newMessage: Partial<AppointmentMessage> = {
+      user: this.messageUser(),
+      appointment: this.appointment.pk,
+      content: this.messageForm.value.content!,
+    };
+
+    // 1. Send the message
+    const messageSub = this.appointmentMessageService.addMessage( newMessage ).subscribe( {
+      next: ( savedMessage ) => {
+        this.appointment?.messages?.push( savedMessage );
+        this.messageForm.reset();
+      },
+      error: ( err ) => console.error( 'Error sending message:', err )
+    } );
+    this.subscriptions.add( messageSub );
+
+    // 2. Check if a non-editing user sent the message and update status if needed
+    if ( !this.canEditAppointment && this.appointment && this.appointment.estado !== 'en_proceso' ) {
+      const appointmentToUpdate: Appoinment = {
+        ...this.appointment,
+        estado: 'en_proceso', // We are setting the status to this value
       };
-      const messageSub = this.appointmentMessageService.addMessage( newMessage ).subscribe( {
-        next: ( savedMessage ) => {
-          this.appointment?.messages?.push( savedMessage );
-          this.messageForm.reset();
-        },
-        error: ( err ) => console.error( 'Error sending message:', err )
-      } );
-      this.subscriptions.add( messageSub );
+
+      const statusUpdateSub = this.appointmentService.editAppoinment( this.appointment.pk, appointmentToUpdate )
+        .subscribe( {
+          next: () => { // We don't need the response object (updatedAppointment)
+            console.log( 'Appointment status updated to "en_proceso"' );
+
+            // --- THIS IS THE FIX ---
+            // Instead of reading from the (potentially null) response,
+            // we use the value we know is correct.
+            if ( this.appointment ) {
+              this.appointment.estado = 'en_proceso';
+            }
+          },
+          error: ( err ) => console.error( 'Error updating appointment status:', err )
+        } );
+
+      this.subscriptions.add( statusUpdateSub );
     }
   }
-  // #endregion
 
   // #region Modal and Share/Reassign Methods
   public onReassignmentSubmit(): void {
@@ -335,10 +369,11 @@ export class AppointmentInfoComponent implements OnInit, OnDestroy {
 
   // #region Helper & Utility Methods
   private messageUser(): string {
-    if ( !this.staff ) {
-      return 'Cliente';
+    if ( !this.user ) {
+      return 'Usuario desconocido';
     }
-    return `${ this.staff.name } (Trabajador)`;
+    const role = this.isClient ? '(Cliente)' : '(Trabajador)';
+    return `${ this.user.name } ${ role }`;
   }
 
   public getDate( date: Date ): string {
