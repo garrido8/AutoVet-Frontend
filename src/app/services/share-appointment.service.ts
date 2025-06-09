@@ -26,11 +26,10 @@ export class ShareAppointmentService {
 
   /**
    * Creates a new shared appointment record.
-   * @param { Partial<ShareAppointment> } sharedAppointment A partial object containing the details of the share.
-   * The backend will typically handle setting fields like 'id', 'shared_at', and 'shared_by'.
+   * @param { ShareAppointment } sharedAppointment A partial object containing the details of the share.
    * @returns { Observable<ShareAppointment> } An Observable that emits the newly created ShareAppointment object.
    */
-  public shareAppointment( sharedAppointment: Partial<ShareAppointment> ): Observable<ShareAppointment> {
+  public shareAppointment( sharedAppointment: ShareAppointment ): Observable<ShareAppointment> {
     return this.http.post<ShareAppointment>( this.shareAppointmentUrl, sharedAppointment );
   }
 
