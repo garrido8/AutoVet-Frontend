@@ -233,7 +233,7 @@ public onSendMessage(): void {
     this.subscriptions.add( messageSub );
 
     // 2. Check if a non-editing user sent the message and update status if needed
-    if ( !this.canEditAppointment && this.appointment && this.appointment.estado !== 'en_proceso' ) {
+    if ( !this.canEditAppointment && this.appointment && this.appointment.estado !== 'en_proceso' && newMessage.user?.includes( 'Cliente' ) ) {
       const appointmentToUpdate: Appoinment = {
         ...this.appointment,
         estado: 'en_proceso', // We are setting the status to this value
