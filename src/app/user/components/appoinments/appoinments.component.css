@@ -97,13 +97,18 @@ table td {
   color: #333;
 }
 
-.status-resuelto {
+.status-resuelta {
   background-color: #4caf50; /* Green for resolved */
   color: #fff;
 }
 
-.status-en_progreso {
+.status-en_proceso {
   background-color: #2196f3; /* Blue for in progress */
+  color: #fff;
+}
+
+.status-esperando {
+  background-color: #727272; /* Yellow for pending */
   color: #fff;
 }
 

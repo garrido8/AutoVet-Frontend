@@ -174,6 +174,8 @@ export class StaffAppointmentsComponent implements OnInit, OnDestroy {
         return 'En proceso';
       case 'resuelta':
         return 'Resuelta';
+      case 'esperando':
+        return 'Esperando cliente';
       default:
         return 'Desconocido';
     }

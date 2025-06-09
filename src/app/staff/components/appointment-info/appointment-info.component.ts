@@ -37,22 +37,10 @@ registerLocaleData( localeEs, 'es-ES' );
   ]
 } )
 export class AppointmentInfoComponent implements OnInit, OnDestroy {
-
-  public estados: string[] = [ 'Pendiente', 'En proceso', 'Resuelta' ];
-  public permissionLevels = [
-    { value: 'readonly', display: 'Solo Ver' },
-    { value: 'editing', display: 'Ver y Editar' }
-  ];
-
-  public showModal = false;
-  public modalMessage = '';
-  public showReassignmentModal = false;
-  public showShareModal = false;
-  public canEditAppointment: boolean = false; // Property to control edit access
-
-  public possibleColaborators: Staff[] = [];
-  public selectedCollaborators = new Set<Staff>();
-
+  // #region Properties
+  // ----------------------------------------------------------------
+  // Service Injections
+  // ----------------------------------------------------------------
   private fb = inject( FormBuilder );
   private appointmentService = inject( AppoinmentService );
   private userInfoService = inject( UserInfoService );
@@ -64,12 +52,29 @@ export class AppointmentInfoComponent implements OnInit, OnDestroy {
   private authService = inject( AuthService );
   private shareAppointmentService = inject( ShareAppointmentService );
 
-  private subscriptions = new Subscription();
-  public petName: string = '';
+  // ----------------------------------------------------------------
+  // Public Component State
+  // ----------------------------------------------------------------
   public appointment?: Appoinment;
-  private staff: Staff | null = null;
+  public petName: string = '';
   public fechaResolucionInput: string | null = null;
+  public canEditAppointment: boolean = false;
+  public possibleColaborators: Staff[] = [];
+  public selectedCollaborators = new Set<Staff>();
+  public showModal = false;
+  public modalMessage = '';
+  public showReassignmentModal = false;
+  public showShareModal = false;
 
+  public estados: string[] = [ 'Pendiente', 'En proceso', 'Resuelta', 'Esperando cliente' ];
+  public permissionLevels = [
+    { value: 'readonly', display: 'Solo Ver' },
+    { value: 'editing', display: 'Ver y Editar' }
+  ];
+
+  // ----------------------------------------------------------------
+  // Forms
+  // ----------------------------------------------------------------
   public form = this.fb.group( {
     fecha_resolucion: [ null as Date | null ],
     estado: [ 'pendiente', Validators.required ],
@@ -88,6 +93,14 @@ export class AppointmentInfoComponent implements OnInit, OnDestroy {
     permission: [ 'readonly', Validators.required ]
   } );
 
+  // ----------------------------------------------------------------
+  // Private Component State
+  // ----------------------------------------------------------------
+  private subscriptions = new Subscription();
+  private staff: Staff | null = null;
+  // #endregion
+
+  // #region Lifecycle Hooks
   ngOnInit(): void {
     this.staff = this.userInfoService.getFullStaffToken();
     const appointmentId = parseInt( this.route.snapshot.paramMap.get( 'id' )! );
@@ -95,10 +108,10 @@ export class AppointmentInfoComponent implements OnInit, OnDestroy {
     const appointment$ = this.appointmentService.getAppoinmentById( appointmentId );
     const shares$ = this.shareAppointmentService.getSharedAppointmentsByAppointment( appointmentId );
 
-    // Use forkJoin to wait for both API calls to complete
     const dataSub = forkJoin( { appointment: appointment$, shares: shares$ } ).subscribe( ( { appointment, shares } ) => {
-      if ( !appointment ) return;
-
+      if ( !appointment ) {
+        return;
+      }
       this.appointment = appointment;
       this.determineUserPermissions( appointment, shares );
       this.loadRelatedData( appointment );
@@ -116,40 +129,43 @@ export class AppointmentInfoComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
   }
+  // #endregion
 
+  // #region Data Handling & Permissions
   private determineUserPermissions( appointment: Appoinment, shares: ShareAppointment[] ): void {
     if ( !this.staff ) {
       this.canEditAppointment = false;
       return;
     }
 
-    // Condition 1: User is the original assigned worker
     if ( appointment.trabajador_asignado === this.staff.pk ) {
       this.canEditAppointment = true;
       return;
     }
 
-    // Condition 2: User has been given 'editing' permission via a share
     const userShare = shares.find( share => share.shared_with === this.staff!.pk );
     if ( userShare && userShare.permission === 'editing' ) {
       this.canEditAppointment = true;
       return;
     }
 
-    // Otherwise, user cannot edit
     this.canEditAppointment = false;
   }
 
   private loadRelatedData( appointment: Appoinment ): void {
     const petNameSub = this.petService.getPetById( appointment.mascota )
       .subscribe( petResponse => {
-        if ( petResponse ) this.petName = petResponse.nombre;
+        if ( petResponse ) {
+          this.petName = petResponse.nombre;
+        }
       } );
     this.subscriptions.add( petNameSub );
 
     const messagesSub = this.appointmentMessageService.getMessagesByAppointment( appointment.pk! )
       .subscribe( messages => {
-        if ( this.appointment ) this.appointment.messages = messages;
+        if ( this.appointment ) {
+          this.appointment.messages = messages;
+        }
       } );
     this.subscriptions.add( messagesSub );
 
@@ -163,11 +179,76 @@ export class AppointmentInfoComponent implements OnInit, OnDestroy {
       this.form.controls.fecha_resolucion.setValue( new Date( appointment.fecha_resolucion ) );
     }
   }
+  // #endregion
 
-  public openShareModal(): void {
-    this.selectedCollaborators.clear();
-    this.shareForm.reset( { permission: 'readonly' } );
-    this.showShareModal = true;
+  // #region Main Form and Message Methods
+  public onSubmit(): void {
+    if ( this.form.valid && this.appointment ) {
+      const appointmentToUpdate: Appoinment = {
+        ...this.appointment,
+        estado: this.getStatus( this.form.value.estado! ),
+        urgencia: this.form.value.urgencia!,
+        fecha_resolucion: this.form.value.fecha_resolucion!,
+      };
+
+      const editSub = this.appointmentService.editAppoinment( this.appointment.pk!, appointmentToUpdate ).subscribe( {
+        next: () => {
+          this.modalMessage = 'Cita modificada correctamente.';
+          this.showModal = true;
+        },
+        error: () => {
+          this.modalMessage = 'Error al modificar la cita.';
+          this.showModal = true;
+        }
+      } );
+      this.subscriptions.add( editSub );
+    }
+  }
+
+  public onSendMessage(): void {
+    if ( this.messageForm.valid && this.appointment?.pk ) {
+      const newMessage: Partial<AppointmentMessage> = {
+        user: this.messageUser(),
+        appointment: this.appointment.pk,
+        content: this.messageForm.value.content!,
+      };
+      const messageSub = this.appointmentMessageService.addMessage( newMessage ).subscribe( {
+        next: ( savedMessage ) => {
+          this.appointment?.messages?.push( savedMessage );
+          this.messageForm.reset();
+        },
+        error: ( err ) => console.error( 'Error sending message:', err )
+      } );
+      this.subscriptions.add( messageSub );
+    }
+  }
+  // #endregion
+
+  // #region Modal and Share/Reassign Methods
+  public onReassignmentSubmit(): void {
+    if ( this.reassignmentForm.valid && this.appointment && this.staff ) {
+      const reassignment: Reassignment = {
+        appointment: this.appointment.pk!,
+        appointment_title: this.appointment.titulo!,
+        requesting_worker: this.staff.pk!,
+        requesting_worker_name: this.staff.name!,
+        reason: this.reassignmentForm.value.reason!,
+        status: 'pending',
+        requested_at: new Date()
+      };
+      const reassignmentSub = this.reassignmentService.addReassignment( reassignment ).subscribe( {
+        next: () => {
+          this.modalMessage = 'Solicitud de reasignación enviada.';
+          this.showReassignmentModal = false;
+          this.showModal = true;
+        },
+        error: () => {
+          this.modalMessage = 'Error al enviar la solicitud.';
+          this.showModal = true;
+        }
+      } );
+      this.subscriptions.add( reassignmentSub );
+    }
   }
 
   public confirmShare(): void {
@@ -210,6 +291,17 @@ export class AppointmentInfoComponent implements OnInit, OnDestroy {
     this.subscriptions.add( shareSub );
   }
 
+  public openShareModal(): void {
+    this.selectedCollaborators.clear();
+    this.shareForm.reset( { permission: 'readonly' } );
+    this.showShareModal = true;
+  }
+
+  public openReassignmentModal(): void {
+    this.showReassignmentModal = true;
+    this.reassignmentForm.reset();
+  }
+
   public closeModal(): void {
     const shouldNavigate = this.modalMessage.includes( 'modificada correctamente' ) || this.modalMessage.includes( 'reasignación enviada' ) || this.modalMessage.includes( 'compartida' );
     this.showModal = false;
@@ -220,47 +312,77 @@ export class AppointmentInfoComponent implements OnInit, OnDestroy {
     }
   }
 
-  private messageUser(): string {
-    if ( !this.staff ) return 'Cliente';
-    return `${ this.staff.name } (Trabajador)`;
+  public closeReassignmentModal(): void {
+    this.showReassignmentModal = false;
   }
 
-  public onSendMessage(): void {
-    if ( this.messageForm.valid && this.appointment?.pk ) {
-      const newMessage: Partial<AppointmentMessage> = {
-        user: this.messageUser(),
-        appointment: this.appointment.pk,
-        content: this.messageForm.value.content!,
-      };
-      const messageSub = this.appointmentMessageService.addMessage( newMessage ).subscribe( {
-        next: ( savedMessage ) => { this.appointment?.messages?.push( savedMessage ); this.messageForm.reset(); },
-        error: ( err ) => console.error( 'Error sending message:', err )
-      } );
-      this.subscriptions.add( messageSub );
+  public closeShareModal(): void {
+    this.showShareModal = false;
+  }
+
+  public toggleCollaboratorSelection( collaborator: Staff ): void {
+    if ( this.selectedCollaborators.has( collaborator ) ) {
+      this.selectedCollaborators.delete( collaborator );
+    } else {
+      this.selectedCollaborators.add( collaborator );
     }
   }
 
-  public getDate( date: Date ): string { return formatDate( date, 'dd/MM/yyyy', 'es-ES' ); }
+  public isSelected( collaborator: Staff ): boolean {
+    return this.selectedCollaborators.has( collaborator );
+  }
+  // #endregion
 
-  private _formatDateForInput( dateInput: string | Date ): string { const date = new Date( dateInput ); if ( isNaN( date.getTime() ) ) return ''; const year = date.getFullYear(); const month = ( date.getMonth() + 1 ).toString().padStart( 2, '0' ); const day = date.getDate().toString().padStart( 2, '0' ); const hours = date.getHours().toString().padStart( 2, '0' ); const minutes = date.getMinutes().toString().padStart( 2, '0' ); return `${ year }-${ month }-${ day }T${ hours }:${ minutes }`; }
+  // #region Helper & Utility Methods
+  private messageUser(): string {
+    if ( !this.staff ) {
+      return 'Cliente';
+    }
+    return `${ this.staff.name } (Trabajador)`;
+  }
 
-  public updateFechaResolucion( event: Event ): void { const inputElement = event.target as HTMLInputElement; const dateString = inputElement.value; const dateObject = dateString ? new Date( dateString ) : null; this.form.controls.fecha_resolucion.setValue( dateObject && !isNaN( dateObject.getTime() ) ? dateObject : null ); }
+  public getDate( date: Date ): string {
+    return formatDate( date, 'dd/MM/yyyy', 'es-ES' );
+  }
 
-  private getStatus( estado: string ): string { const statusMap: { [ key: string ]: string } = { 'Pendiente': 'pendiente', 'En proceso': 'en_proceso', 'Resuelta': 'resuelta' }; return statusMap[ estado ] || 'pendiente'; }
+  private _formatDateForInput( dateInput: string | Date ): string {
+    const date = new Date( dateInput );
+    if ( isNaN( date.getTime() ) ) {
+      return '';
+    }
+    const year = date.getFullYear();
+    const month = ( date.getMonth() + 1 ).toString().padStart( 2, '0' );
+    const day = date.getDate().toString().padStart( 2, '0' );
+    const hours = date.getHours().toString().padStart( 2, '0' );
+    const minutes = date.getMinutes().toString().padStart( 2, '0' );
+    return `${ year }-${ month }-${ day }T${ hours }:${ minutes }`;
+  }
 
-  public getDisplayStatus( estado: string ): string { const displayMap: { [ key: string ]: string } = { 'pendiente': 'Pendiente', 'en_proceso': 'En proceso', 'resuelta': 'Resuelta' }; return displayMap[ estado ] || 'Desconocido'; }
+  public updateFechaResolucion( event: Event ): void {
+    const inputElement = event.target as HTMLInputElement;
+    const dateString = inputElement.value;
+    const dateObject = dateString ? new Date( dateString ) : null;
+    this.form.controls.fecha_resolucion.setValue( dateObject && !isNaN( dateObject.getTime() ) ? dateObject : null );
+  }
 
-  public onSubmit(): void { if ( this.form.valid && this.appointment ) { const appointmentToUpdate: Appoinment = { ...this.appointment, estado: this.getStatus( this.form.value.estado! ), urgencia: this.form.value.urgencia!, fecha_resolucion: this.form.value.fecha_resolucion!, }; const editSub = this.appointmentService.editAppoinment( this.appointment.pk!, appointmentToUpdate ).subscribe( { next: () => { this.modalMessage = 'Cita modificada correctamente.'; this.showModal = true; }, error: () => { this.modalMessage = 'Error al modificar la cita.'; this.showModal = true; } } ); this.subscriptions.add( editSub ); } }
+  private getStatus( estado: string ): string {
+    const statusMap: { [ key: string ]: string; } = {
+      'Pendiente': 'pendiente',
+      'En proceso': 'en_proceso',
+      'Resuelta': 'resuelta',
+      'Esperando cliente': 'esperando'
+    };
+    return statusMap[ estado ] || 'pendiente';
+  }
 
-  public onReassignmentSubmit(): void { if ( this.reassignmentForm.valid && this.appointment && this.staff ) { const reassignment: Reassignment = { appointment: this.appointment.pk!, appointment_title: this.appointment.titulo!, requesting_worker: this.staff.pk!, requesting_worker_name: this.staff.name!, reason: this.reassignmentForm.value.reason!, status: 'pending', requested_at: new Date() }; const reassignmentSub = this.reassignmentService.addReassignment( reassignment ).subscribe( { next: () => { this.modalMessage = 'Solicitud de reasignación enviada.'; this.showReassignmentModal = false; this.showModal = true; }, error: () => { this.modalMessage = 'Error al enviar la solicitud.'; this.showModal = true; } } ); this.subscriptions.add( reassignmentSub ); } }
-
-  public openReassignmentModal(): void { this.showReassignmentModal = true; this.reassignmentForm.reset(); }
-
-  public closeReassignmentModal(): void { this.showReassignmentModal = false; }
-
-  public closeShareModal(): void { this.showShareModal = false; }
-
-  public toggleCollaboratorSelection( collaborator: Staff ): void { if ( this.selectedCollaborators.has( collaborator ) ) { this.selectedCollaborators.delete( collaborator ); } else { this.selectedCollaborators.add( collaborator ); } }
-
-  public isSelected( collaborator: Staff ): boolean { return this.selectedCollaborators.has( collaborator ); }
+  public getDisplayStatus( estado: string ): string {
+    const displayMap: { [ key: string ]: string; } = {
+      'pendiente': 'Pendiente',
+      'en_proceso': 'En proceso',
+      'resuelta': 'Resuelta',
+      'esperando': 'Esperando cliente'
+    };
+    return displayMap[ estado ] || 'Desconocido';
+  }
+  // #endregion
 }

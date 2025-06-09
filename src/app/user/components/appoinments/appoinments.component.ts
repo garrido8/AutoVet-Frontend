@@ -65,6 +65,8 @@ export class AppoinmentsComponent implements OnInit {
         return 'En proceso';
       case 'resuelta':
         return 'Resuelta';
+      case 'esperando':
+        return 'Esperando cliente';
       default:
         return 'Desconocido';
     }
