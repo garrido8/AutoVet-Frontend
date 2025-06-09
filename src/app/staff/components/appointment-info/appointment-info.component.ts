@@ -40,7 +40,6 @@ registerLocaleData( localeEs, 'es-ES' );
 export class AppointmentInfoComponent implements OnInit, OnDestroy {
 
   public estados: string[] = [ 'Pendiente', 'En proceso', 'Resuelta' ];
-  // FIX 1: Use this object to manage permissions for the view and backend
   public permissionLevels = [
     { value: 'readonly', display: 'Solo Ver' },
     { value: 'editing', display: 'Ver y Editar' }
@@ -50,7 +49,7 @@ export class AppointmentInfoComponent implements OnInit, OnDestroy {
   public modalMessage = '';
   public showReassignmentModal = false;
   public showShareModal = false;
-  public isClient = localStorage.getItem( 'isClient' ) === 'true';
+  public canEditAppointment: boolean = false; // Property to control edit access
 
   public possibleColaborators: Staff[] = [];
   public selectedCollaborators = new Set<Staff>();
@@ -69,8 +68,7 @@ export class AppointmentInfoComponent implements OnInit, OnDestroy {
   private subscriptions = new Subscription();
   public petName: string = '';
   public appointment?: Appoinment;
-  private user: Client | Staff | null = null;
-  private staff: Staff | null = null; // This is the logged-in staff member
+  private staff: Staff | null = null;
   public fechaResolucionInput: string | null = null;
 
   public form = this.fb.group( {
@@ -87,30 +85,60 @@ export class AppointmentInfoComponent implements OnInit, OnDestroy {
     content: [ '', Validators.required ]
   } );
 
-  // FIX 2: Use the correct backend value for the default
   public shareForm = this.fb.group( {
     permission: [ 'readonly', Validators.required ]
   } );
 
   ngOnInit(): void {
-    this.user = this.userInfoService.getFullStaffToken() || this.userInfoService.getFullClientToken();
     this.staff = this.userInfoService.getFullStaffToken();
-    const id = parseInt( this.route.snapshot.paramMap.get( 'id' )! );
+    const appointmentId = parseInt( this.route.snapshot.paramMap.get( 'id' )! );
+
+    const appointment$ = this.appointmentService.getAppoinmentById( appointmentId );
+    const shares$ = this.shareAppointmentService.getSharedAppointmentsByAppointment( appointmentId );
+
+    // Use forkJoin to wait for both API calls to complete
+    const dataSub = forkJoin( { appointment: appointment$, shares: shares$ } ).subscribe( ( { appointment, shares } ) => {
+      if ( !appointment ) return;
+
+      this.appointment = appointment;
+      this.determineUserPermissions( appointment, shares );
+      this.loadRelatedData( appointment );
+    } );
+
+    this.subscriptions.add( dataSub );
 
     this.authService.getStaffMembers().subscribe( response => {
       if ( response && this.staff ) {
         this.possibleColaborators = response.filter( staff => staff.pk !== this.staff!.pk && !staff.email.includes( 'admin' ) );
       }
-    } )
+    } );
+  }
 
-    const appointmentSub = this.appointmentService.getAppoinmentById( id )
-      .subscribe( response => {
-        if ( response ) {
-          this.appointment = response;
-          this.loadRelatedData( response );
-        }
-      } );
-    this.subscriptions.add( appointmentSub );
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+  }
+
+  private determineUserPermissions( appointment: Appoinment, shares: ShareAppointment[] ): void {
+    if ( !this.staff ) {
+      this.canEditAppointment = false;
+      return;
+    }
+
+    // Condition 1: User is the original assigned worker
+    if ( appointment.trabajador_asignado === this.staff.pk ) {
+      this.canEditAppointment = true;
+      return;
+    }
+
+    // Condition 2: User has been given 'editing' permission via a share
+    const userShare = shares.find( share => share.shared_with === this.staff!.pk );
+    if ( userShare && userShare.permission === 'editing' ) {
+      this.canEditAppointment = true;
+      return;
+    }
+
+    // Otherwise, user cannot edit
+    this.canEditAppointment = false;
   }
 
   private loadRelatedData( appointment: Appoinment ): void {
@@ -137,21 +165,14 @@ export class AppointmentInfoComponent implements OnInit, OnDestroy {
     }
   }
 
-
-  ngOnDestroy(): void {
-    this.subscriptions.unsubscribe();
-  }
-
   public openShareModal(): void {
     this.selectedCollaborators.clear();
-    // FIX 3: Ensure the form resets to the correct default value
     this.shareForm.reset( { permission: 'readonly' } );
     this.showShareModal = true;
   }
 
-  // FIX 4: Complete rewrite of this method
   public confirmShare(): void {
-    if ( this.shareForm.invalid || this.selectedCollaborators.size === 0 || !this.appointment ) {
+    if ( this.shareForm.invalid || this.selectedCollaborators.size === 0 || !this.appointment || !this.staff ) {
       return;
     }
 
@@ -159,41 +180,37 @@ export class AppointmentInfoComponent implements OnInit, OnDestroy {
     const collaboratorsArray = Array.from( this.selectedCollaborators );
 
     const shareRequests = collaboratorsArray.map( collaborator => {
-      // This is the corrected data payload
       const shareData: Partial<ShareAppointment> = {
         appointment: this.appointment!.pk,
-        shared_with: collaborator.pk, // Send only the ID
+        shared_with: collaborator.pk,
         permission: permission,
-        shared_by: this.staff!.pk!
+        shared_by: this.staff!.pk
       };
       return this.shareAppointmentService.shareAppointment( shareData );
     } );
 
     const shareSub = forkJoin( shareRequests ).subscribe( {
       next: () => {
-        // Wrap UI updates in setTimeout to prevent ExpressionChanged error
-        setTimeout(() => {
+        setTimeout( () => {
           const names = collaboratorsArray.map( c => c.name ).join( ', ' );
           this.modalMessage = `Cita compartida correctamente con: ${ names }.`;
           this.closeShareModal();
           this.showModal = true;
-        }, 0);
+        }, 0 );
       },
       error: ( err ) => {
-        // Wrap UI updates in setTimeout to prevent ExpressionChanged error
-        setTimeout(() => {
+        setTimeout( () => {
           console.error( 'Error sharing appointment:', err );
           this.modalMessage = 'Error al compartir la cita. Por favor, inténtelo de nuevo.';
           this.closeShareModal();
           this.showModal = true;
-        }, 0);
+        }, 0 );
       }
     } );
 
     this.subscriptions.add( shareSub );
   }
 
-  // No changes needed for the methods below
   public closeModal(): void {
     const shouldNavigate = this.modalMessage.includes( 'modificada correctamente' ) || this.modalMessage.includes( 'reasignación enviada' ) || this.modalMessage.includes( 'compartida' );
     this.showModal = false;
@@ -205,8 +222,8 @@ export class AppointmentInfoComponent implements OnInit, OnDestroy {
   }
 
   private messageUser(): string {
-    if ( !this.user ) return 'Usuario Desconocido';
-    return this.user.email.includes( 'autovet' ) ? `${ this.user.name } (Trabajador)` : `${ this.user.name } (Cliente)`;
+    if ( !this.staff ) return 'Cliente';
+    return `${ this.staff.name } (Trabajador)`;
   }
 
   public onSendMessage(): void {
@@ -228,7 +245,7 @@ export class AppointmentInfoComponent implements OnInit, OnDestroy {
   private _formatDateForInput( dateInput: string | Date ): string { const date = new Date( dateInput ); if ( isNaN( date.getTime() ) ) return ''; const year = date.getFullYear(); const month = ( date.getMonth() + 1 ).toString().padStart( 2, '0' ); const day = date.getDate().toString().padStart( 2, '0' ); const hours = date.getHours().toString().padStart( 2, '0' ); const minutes = date.getMinutes().toString().padStart( 2, '0' ); return `${ year }-${ month }-${ day }T${ hours }:${ minutes }`; }
   public updateFechaResolucion( event: Event ): void { const inputElement = event.target as HTMLInputElement; const dateString = inputElement.value; const dateObject = dateString ? new Date( dateString ) : null; this.form.controls.fecha_resolucion.setValue( dateObject && !isNaN( dateObject.getTime() ) ? dateObject : null ); }
   private getStatus( estado: string ): string { const statusMap: { [ key: string ]: string } = { 'Pendiente': 'pendiente', 'En proceso': 'en_proceso', 'Resuelta': 'resuelta' }; return statusMap[ estado ] || 'pendiente'; }
-  private getDisplayStatus( estado: string ): string { const displayMap: { [ key: string ]: string } = { 'pendiente': 'Pendiente', 'en_proceso': 'En proceso', 'resuelta': 'Resuelta' }; return displayMap[ estado ] || 'Desconocido'; }
+  public getDisplayStatus( estado: string ): string { const displayMap: { [ key: string ]: string } = { 'pendiente': 'Pendiente', 'en_proceso': 'En proceso', 'resuelta': 'Resuelta' }; return displayMap[ estado ] || 'Desconocido'; }
   public onSubmit(): void { if ( this.form.valid && this.appointment ) { const appointmentToUpdate: Appoinment = { ...this.appointment, estado: this.getStatus( this.form.value.estado! ), urgencia: this.form.value.urgencia!, fecha_resolucion: this.form.value.fecha_resolucion!, }; const editSub = this.appointmentService.editAppoinment( this.appointment.pk!, appointmentToUpdate ).subscribe( { next: () => { this.modalMessage = 'Cita modificada correctamente.'; this.showModal = true; }, error: () => { this.modalMessage = 'Error al modificar la cita.'; this.showModal = true; } } ); this.subscriptions.add( editSub ); } }
   public onReassignmentSubmit(): void { if ( this.reassignmentForm.valid && this.appointment && this.staff ) { const reassignment: Reassignment = { appointment: this.appointment.pk!, appointment_title: this.appointment.titulo!, requesting_worker: this.staff.pk!, requesting_worker_name: this.staff.name!, reason: this.reassignmentForm.value.reason!, status: 'pending', requested_at: new Date() }; const reassignmentSub = this.reassignmentService.addReassignment( reassignment ).subscribe( { next: () => { this.modalMessage = 'Solicitud de reasignación enviada.'; this.showReassignmentModal = false; this.showModal = true; }, error: () => { this.modalMessage = 'Error al enviar la solicitud.'; this.showModal = true; } } ); this.subscriptions.add( reassignmentSub ); } }
   public openReassignmentModal(): void { this.showReassignmentModal = true; this.reassignmentForm.reset(); }
