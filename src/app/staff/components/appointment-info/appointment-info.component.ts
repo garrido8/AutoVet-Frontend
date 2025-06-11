@@ -365,9 +365,7 @@ public onSendMessage(): void {
   public isSelected( collaborator: Staff ): boolean {
     return this.selectedCollaborators.has( collaborator );
   }
-  // #endregion
 
-  // #region Helper & Utility Methods
   private messageUser(): string {
     if ( !this.user ) {
       return 'Usuario desconocido';
@@ -419,5 +417,4 @@ public onSendMessage(): void {
     };
     return displayMap[ estado ] || 'Desconocido';
   }
-  // #endregion
 }
