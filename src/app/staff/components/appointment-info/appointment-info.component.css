@@ -454,3 +454,8 @@ p.error {
   cursor: not-allowed;
   color: #ccc;
 }
+
+
+.advise {
+  z-index: 8484848484;
+}
