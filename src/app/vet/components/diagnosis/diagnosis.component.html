@@ -1,1 +1,99 @@
-<p>diagnosis works!</p>
+
+<div class="title">
+  <h2>Haz tu pregunta aquí</h2>
+  <p>
+    Pregunta cualquier problema que tenga tu mascota, te daremos un diagnostico y recomendaciones para ayudarla.
+    <br />
+    <strong>En cualquier caso, te recomendamos crear una incidencia para una valoración más exhaustiva.</strong>
+  </p>
+
+  @if( isUser && userPets.length > 0 ) {
+    <p>¿Quieres preguntar acerca de una de tus mascotas?</p>
+    <div class="pets-div">
+      @for (pet of userPets; track $index) {
+        <div class="card">
+          <button
+            class="card-button"
+            (click)="selectPet(pet)"
+            [ngClass]="{ 'selected': selectedPet === pet }"
+          >
+            {{ pet.nombre }}
+          </button>
+        </div>
+      }
+    </div>
+  }
+
+</div>
+
+<div class="main-content" id="main-content">
+
+
+  <div class="question" id="question">
+
+
+    <textarea
+      type="text"
+      name="prompt"
+      id="prompt"
+      class="no-resize"
+      #promptValue
+      [(ngModel)]="promptValueText"
+      placeholder="Escribe aquí tu pregunta. Por ejemplo: ¿Qué le pasa a mi perro? ¿Qué puedo hacer para ayudarlo?"
+    ></textarea>
+
+    <button
+      class="send-btn pointer"
+      id="send-btn"
+      (click)="sendPrompt()"
+      [disabled]="!promptValueText.trim()"
+      [ngClass]="{ 'disabled': !promptValueText.trim() }"
+    >
+      Preguntar
+    </button>
+
+    @if( responseText.length > 0 ) {
+      <div class="buttons">
+        <button
+          class="send-btn pointer"
+          id="more-btn"
+          (click)="goToForum()"
+        >
+          Ver más preguntas
+        </button>
+
+        <button
+          class="send-btn pointer"
+          id="chat-btn"
+          (click)="goToChatBot()"
+        >
+          Seguir conversación
+        </button>
+
+        <button
+          class="send-btn pointer"
+          id="chat-btn"
+          (click)="addAnswer()"
+        >
+          Publicar en el foro
+        </button>
+      </div>
+    }
+  </div>
+
+  @if ( responseText.length > 0 ) {
+    <div class="response-container" #responseContainer>
+      <div class="response" id="response" [innerHTML]="formattedResponse"></div>
+    </div>
+  }
+
+</div>
+
+@if ( isLoading ) {
+  <div class="modal">
+    <div class="modal-content">
+      <span class="loader"></span>
+      <p class="modal-text">Cargando respuesta...</p>
+    </div>
+  </div>
+}

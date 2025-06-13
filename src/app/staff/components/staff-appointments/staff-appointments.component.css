@@ -1,0 +1,185 @@
+.main-content {
+  padding: 30px 20px; /* Increased padding slightly for better spacing */
+  color: #f0f0f0;
+}
+
+.appointments-container {
+  display: grid;
+  grid-template-columns: 0.9fr 0.9fr;
+  grid-column-gap: 30px;
+  justify-content: center;
+}
+
+.section-title { /* Consolidated h1/h2 styling */
+  color: #a7ffeb; /* Accent color for section titles */
+  margin-bottom: 20px;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(-10px);
+  animation: fade-in-up 0.5s ease-out forwards;
+}
+
+@keyframes fade-in-up {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+hr {
+  border-color: #444;
+  margin: 40px 0; /* More vertical space around the separator */
+}
+
+.table-container {
+  overflow-x: auto; /* Ensures table is scrollable on smaller screens */
+  background-color: #2c2c2c;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  padding: 20px; /* Padding around the table */
+  margin-top: 20px; /* Space from the title */
+  opacity: 0; /* Start invisible for animation */
+  transform: translateY(-10px); /* Start slightly above for animation */
+  animation: fade-in-up 0.5s ease-out forwards;
+  animation-delay: 0.2s; /* Delay for table to appear after title */
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table th,
+table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #444;
+  vertical-align: middle; /* Align content vertically in the middle */
+}
+
+table th {
+  background-color: #3a3a3a;
+  color: #a7ffeb;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 0.9em;
+  letter-spacing: 0.05em;
+}
+
+table tbody tr {
+  cursor: pointer; /* Indicate rows are clickable (if routerLink is present) */
+  transition: background-color 0.2s ease-in-out;
+}
+
+table tbody tr:hover {
+  background-color: #383838; /* Slightly darker on hover for better feedback */
+}
+
+table tbody tr:last-child td {
+  border-bottom: none; /* No border for the last row */
+}
+
+table td {
+  color: #ddd;
+  font-size: 0.95em;
+}
+
+.status-pill {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.85em;
+  font-weight: bold;
+  text-align: center;
+  white-space: nowrap;
+  min-width: 80px; /* Ensure consistent pill width */
+}
+
+/* Specific status colors (from previous design) */
+.status-pendiente {
+  background-color: #ffc107; /* Yellow for pending */
+  color: #333;
+}
+
+.status-resuelta {
+  background-color: #4caf50; /* Green for resolved */
+  color: #fff;
+}
+
+.status-en_proceso {
+  background-color: #2196f3; /* Blue for in progress */
+  color: #fff;
+}
+
+.status-esperando {
+  background-color: #727272; /* Yellow for pending */
+  color: #fff;
+}
+
+/* New: No data message styling */
+.no-data-message {
+  color: #ccc;
+  font-size: 1.1em;
+  text-align: center;
+  padding: 30px 20px; /* Add some padding */
+  background-color: #2c2c2c; /* Match table container background */
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  margin-top: 20px;
+  opacity: 0; /* For animation */
+  transform: translateY(-10px); /* For animation */
+  animation: fade-in-up 0.5s ease-out forwards;
+  animation-delay: 0.2s;
+}
+
+.assign-btn {
+  background-color: #007bff; /* Primary button color */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 12px; /* Slightly smaller for table cell */
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
+  font-size: 0.9em;
+  white-space: nowrap; /* Prevent text wrapping */
+}
+
+.assign-btn:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
+}
+
+/* New: Styling for the worker selector dropdown */
+.worker-select {
+  background-color: #3a3a3a; /* Dark background */
+  color: #a7ffeb; /* Accent text color */
+  border: 1px solid #555;
+  border-radius: 5px;
+  padding: 6px 10px;
+  font-size: 0.9em;
+  cursor: pointer;
+  appearance: none; /* Remove default browser styling for select */
+  -webkit-appearance: none; /* For Safari */
+  -moz-appearance: none; /* For Firefox */
+  background-image: url('data:image/svg+xml;utf8,<svg fill="%23a7ffeb" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); /* Custom dropdown arrow */
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 16px;
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  min-width: 150px; /* Ensure sufficient width */
+}
+
+.worker-select:hover {
+  border-color: #a7ffeb;
+}
+
+.worker-select:focus {
+  outline: none;
+  border-color: #a7ffeb;
+  box-shadow: 0 0 0 2px rgba(167, 255, 235, 0.4); /* Focus halo */
+}
+
+.worker-select option {
+  background-color: #3a3a3a; /* Background for options */
+  color: #f0f0f0; /* Text color for options */
+}

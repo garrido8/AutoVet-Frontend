@@ -1,0 +1,87 @@
+<div class="main-content">
+  <h1>Información del cliente</h1>
+
+  <div class="buttons">
+    <button
+      class="btn btn-primary"
+      (click)="goToAddPet()"
+    >
+      Añadir mascota
+    </button>
+  </div>
+
+  <div class="client-details-container">
+    <div class="client-card">
+      <h2>Detalles del Cliente</h2>
+      <div class="client-data">
+        @if (client) {
+          <div class="profile-header">
+            @if (client.photo) {
+              <img [src]="client.photo" alt="Foto de perfil de {{ client.name }}" class="profile-picture">
+            } @else {
+              <div class="profile-picture-placeholder">
+                <i class="material-icons">person</i> </div>
+            }
+          </div>
+          <div class="client-info-details">
+            <p class="client-name-header"><strong>{{ client.name }}</strong></p>
+            <p><strong>DNI:</strong> {{ client.dni }}</p>
+            <p><strong>Email:</strong> {{ client.email }}</p>
+            <p><strong>Teléfono:</strong> {{ client.phone }}</p>
+          </div>
+        } @else {
+          <p class="no-data">Cargando información del cliente...</p>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="pets-section">
+    <h2>Mascotas ({{ pets.length }})</h2>
+    @if (pets.length > 0) {
+      <div class="pets-grid">
+        @for( pet of pets; track pet.pk ) {
+          <div class="pet-card">
+            <div class="pet-summary">
+              <h3>{{ pet.nombre }}</h3>
+              <p>{{ pet.especie }} - {{ pet.raza }}</p>
+              <p>Edad: {{ pet.edad }} {{ getText(pet.edad) }}</p>
+              <div class="appointment-summary">
+                <span>Pendientes: {{ getAppointmentsByStatus(pet.appoinments!, 'pendiente').length }}</span>
+                <span>En Proceso: {{ getAppointmentsByStatus(pet.appoinments!, 'en_proceso').length }}</span>
+                <span>Resueltas: {{ getAppointmentsByStatus(pet.appoinments!, 'resuelta').length }}</span>
+              </div>
+              <button class="toggle-btn" (click)="toggleAppointmentsVisibility(pet.pk!)">
+                {{ appointmentsVisibility[pet.pk!] ? 'Ocultar Incidencias' : 'Ver Incidencias' }}
+                <i class="icon material-icons">
+                  {{ appointmentsVisibility[pet.pk!] ? 'keyboard_arrow_up' : 'keyboard_arrow_down' }}
+                </i>
+              </button>
+            </div>
+
+            @if (appointmentsVisibility[pet.pk!]) {
+              <div class="pet-appointments-detail">
+                <h4>Todas las Incidencias de {{ pet.nombre }}</h4>
+
+                @if (pet.appoinments && pet.appoinments.length > 0) {
+                  <div class="appointments-list">
+                    @for (appointment of pet.appoinments; track appointment.pk) {
+                      <div class="appointment-item">
+                        <p><strong>Título:</strong> {{ appointment.titulo }}</p>
+                        <p class="capitalized"><strong>Estado:</strong> {{ appointment.estado }}</p>
+                      </div>
+                    }
+                  </div>
+                } @else {
+                  <p class="no-appointments">No hay incidencias registradas para {{ pet.nombre }}.</p>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    } @else {
+      <p class="no-data">No se han encontrado mascotas para este cliente.</p>
+    }
+  </div>
+</div>

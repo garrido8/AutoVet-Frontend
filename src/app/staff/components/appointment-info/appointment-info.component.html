@@ -1,0 +1,193 @@
+<div class="page-layout">
+
+  <div class="appointment-container">
+    <div class="main-content">
+      <div class="container">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <div>
+            <h3>{{ appointment?.titulo }}</h3>
+          </div>
+          <div>
+            <p><b>{{petName}}</b></p>
+          </div>
+          <div>
+            <p>{{ appointment?.descripcion }}</p>
+          </div>
+          <div>
+            <p>{{ getDate( appointment?.fecha_creacion! ) }}</p>
+          </div>
+
+          @if (canEditAppointment) {
+            <div>
+              <label for="fecha_resolucion">Fecha de Resolución:</label>
+              <input
+                type="datetime-local"
+                id="fecha_resolucion"
+                [(ngModel)]="fechaResolucionInput"
+                (input)="updateFechaResolucion($event)"
+                [ngModelOptions]="{ standalone: true }"
+              />
+            </div>
+            <div>
+              <label for="estado">Estado:</label>
+              <select id="estado" formControlName="estado">
+                @for (estado of estados; track estado) {
+                  <option [value]="estado">{{ estado }}</option>
+                }
+              </select>
+              @if (form.get('estado')?.invalid && (form.get('estado')?.dirty || form.get('estado')?.touched)) {
+                <p class="error">Estado es requerido</p>
+              }
+            </div>
+            <div class="emergency">
+              <label for="urgencia">Urgencia:</label>
+              <input type="checkbox" id="urgencia" formControlName="urgencia" />
+            </div>
+            <div class="buttons">
+              <input type="submit" value="Guardar" [disabled]="form.invalid" />
+              <button class="reassign-button" type="button" (click)="openReassignmentModal()">
+                Solicitar reasignación
+              </button>
+              @if( !isSharedStaff ) {
+                <button class="share-button" type="button" (click)="openShareModal()">
+                  Compartir
+                </button>
+              }
+            </div>
+          } @else {
+            <div>
+              <p><strong>Estado:</strong> {{ getDisplayStatus(appointment?.estado || '') }}</p>
+              @if (appointment?.fecha_resolucion) {
+                <p><strong>Fecha de Resolución:</strong> {{ getDate(appointment?.fecha_resolucion!) }}</p>
+              }
+            </div>
+          }
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="chat-container">
+    <h3 class="chat-title">Conversación</h3>
+    <div class="messages-display">
+      @if (appointment?.messages && appointment!.messages!.length > 0) {
+        @for (message of appointment!.messages; track message.timestamp) {
+          <div class="message-card">
+            <div class="message-header">
+              <strong>{{ message.user }}</strong>
+              <span class="message-timestamp">{{ message.timestamp | date:'dd/MM HH:mm' }}</span>
+            </div>
+            <p class="message-content">{{ message.content }}</p>
+          </div>
+        }
+      } @else {
+        <p class="no-messages-text">No hay mensajes. ¡Sé el primero en escribir!</p>
+      }
+    </div>
+    <form class="message-input-area" [formGroup]="messageForm" (ngSubmit)="onSendMessage()">
+      <textarea formControlName="content" placeholder="Escribe tu mensaje..."></textarea>
+      <button type="submit" [disabled]="messageForm.invalid">Enviar</button>
+    </form>
+  </div>
+
+</div>
+
+@if (showModal) {
+  <div class="modal advise">
+    <div class="modal-content">
+        <p class="modal-text">{{ modalMessage }}</p>
+        <div class="button-div">
+            <button class="go-back" (click)="closeModal()">Cerrar</button>
+        </div>
+    </div>
+  </div>
+}
+
+@if (showReassignmentModal) {
+  <div class="modal">
+    <div class="modal-content">
+      <h4 class="modal-title">Solicitar Reasignación</h4>
+      <form class="reassign-form" [formGroup]="reassignmentForm" (ngSubmit)="onReassignmentSubmit()">
+          <div class="form-group">
+            <label for="reassignmentReason">Motivo de la reasignación:</label>
+            <textarea id="reassignmentReason" formControlName="reason" rows="4" placeholder="Describe el motivo..."></textarea>
+            @if (reassignmentForm.get('reason')?.invalid && reassignmentForm.get('reason')?.touched) {
+              <p class="error">El motivo es requerido.</p>
+            }
+          </div>
+          <div class="modal-buttons">
+            <button type="submit" [disabled]="reassignmentForm.invalid">Enviar Solicitud</button>
+            <button type="button" (click)="closeReassignmentModal()" class="cancel-button">Cancelar</button>
+          </div>
+      </form>
+    </div>
+  </div>
+}
+
+@if (showShareModal) {
+  <div class="modal">
+    <div class="modal-content">
+      <div class="share-modal-header">
+        <h3>Compartir con compañeros</h3>
+        <button class="share-close-button" (click)="closeShareModal()">&times;</button>
+      </div>
+      <form [formGroup]="shareForm">
+        <div class="share-modal-body">
+          <p>Colaboradores actuales:</p>
+          @if (existingColaborators.length > 0) {
+            <ul class="collaborators-list existing">
+              @for (existing of existingColaborators; track existing.pk) {
+                <li class="existing-collaborator-item">
+                  <span class="collaborator-info">{{ existing.name }} ({{ existing.email }})</span>
+                  <div class="collaborator-actions">
+                    <select [ngModel]="permissionMap.get(existing.pk!)"
+                            (ngModelChange)="onPermissionChange(existing, $event)"
+                            [ngModelOptions]="{ standalone: true }">
+                        @for (level of permissionLevels; track level.value) {
+                          <option [value]="level.value">{{ level.display }}</option>
+                        }
+                    </select>
+                    <button class="remove-btn" (click)="removeCollaborator(existing)">&times;</button>
+                  </div>
+                </li>
+              }
+            </ul>
+          } @else {
+            <p>Aún no se ha compartido con nadie.</p>
+          }
+
+          <hr>
+
+          <p>Selecciona uno o más compañeros para compartir esta cita:</p>
+          <ul class="collaborators-list">
+            @for (collaborator of possibleColaborators; track collaborator.pk) {
+              <li (click)="toggleCollaboratorSelection(collaborator)" [class.selected]="isSelected(collaborator)">
+                {{ collaborator.name }} ({{ collaborator.email }})
+              </li>
+            }
+            @if (possibleColaborators.length === 0 && existingColaborators.length > 0) {
+              <p>Todos los compañeros disponibles ya han sido añadidos.</p>
+            }
+            @if (possibleColaborators.length === 0 && existingColaborators.length === 0) {
+              <p>No hay otros compañeros disponibles para compartir.</p>
+            }
+          </ul>
+          <div class="form-group" style="margin-top: 20px;">
+            <label for="permission">Asignar Permiso:</label>
+            <select id="permission" formControlName="permission">
+              @for (level of permissionLevels; track level.value) {
+                <option [value]="level.value">
+                  {{ level.display }}
+                </option>
+              }
+            </select>
+          </div>
+        </div>
+      </form>
+      <div class="share-modal-footer">
+          <button class="cancel-btn" (click)="closeShareModal()">Cancelar</button>
+          <button class="confirm-btn" [disabled]="selectedCollaborators.size === 0" (click)="confirmShare()">Compartir</button>
+      </div>
+    </div>
+  </div>
+}

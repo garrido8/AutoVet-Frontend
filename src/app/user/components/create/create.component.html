@@ -1,0 +1,86 @@
+<div class="main-content">
+  <div class="title">
+    <h2>Crea una incidencia para cualquiera de tus mascotas</h2>
+    <p>Si tienes alguna duda o problema con tu mascota, no dudes en crear una incidencia. Te ayudaremos a resolverlo.</p>
+  </div>
+
+  <div class="process">
+
+    @if( pets.length > 0 ) {
+      <div class="first-step">
+        <h3>Elige tu mascota</h3>
+
+        <div class="pets-div">
+          @for (pet of pets; track $index) {
+            <div class="card">
+              <button
+               class="card-button"
+               (click)="selectedPet = pet"
+              >
+                {{ pet.nombre }}
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+
+      @if (selectedPet?.nombre!.length > 0) {
+        <div class="second-step">
+          <h3>Cuéntanos qué le pasa a {{ selectedPet?.nombre }}</h3>
+
+          <div class="problem-container">
+            <textarea
+              type="text"
+              name="problem"
+              id="problem"
+              class="no-resize"
+              #problemTxt
+              [(ngModel)]="problemTxtValue"
+              placeholder='Escríbenos aquí lo que se le sucede a {{selectedPet?.nombre}}'
+            ></textarea>
+
+            <button
+              class="send-btn pointer"
+              id="send-btn"
+              (click)="createAppoinment()"
+              [disabled]="!problemTxtValue.trim()"
+              [ngClass]="{ 'disabled': !problemTxtValue.trim() }"
+            >
+              Mandar información
+            </button>
+          </div>
+
+        </div>
+      }
+    } @else {
+      <p class="no-pets">Aún no tienes mascotas asignadas</p>
+    }
+
+  </div>
+
+</div>
+
+@if ( isLoading ) {
+  <div class="modal">
+    <div class="modal-content">
+      <span class="loader"></span>
+      <p class="modal-text">Procesando información...</p>
+    </div>
+  </div>
+}
+
+@if ( exit ) {
+  <div class="modal">
+    <div class="modal-content">
+      <i class="icon material-icons">check</i>
+      <p class="modal-text">Su incidencia se ha añadido de forma exitosa</p>
+      <button
+        class="close-btn pointer"
+        id="close-btn"
+        (click)="exit = false"
+      >
+        Cerrar
+      </button>
+    </div>
+  </div>
+}

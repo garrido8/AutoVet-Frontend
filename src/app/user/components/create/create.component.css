@@ -1,0 +1,212 @@
+.main-content {
+  padding: 30px 20px;
+  color: #f0f0f0;
+}
+
+.title {
+  padding-bottom: 30px;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(-10px);
+  animation: fade-in-up 0.5s ease-out forwards;
+}
+
+.title h2 {
+  color: #a7ffeb;
+  margin-bottom: 15px;
+}
+
+.title p {
+  line-height: 1.6;
+  font-size: 1.1em;
+}
+
+@keyframes fade-in-up {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.process {
+  display: flex;
+  justify-content: center;
+  gap: 120px;
+  padding: 20px 0;
+}
+
+.first-step,
+.second-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.first-step,
+.no-pets {
+  animation: fade-in-up 0.5s ease-out 0.2s forwards;
+}
+
+.second-step {
+  animation: fade-in-up 0.5s ease-out 0.4s forwards;
+}
+
+.pets-div {
+  padding-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+.card-button {
+  background-color: #333;
+  color: #fff;
+  padding: 12px 20px;
+  font-size: 1em;
+  border: none;
+  border-radius: 8px;
+  transition: background-color 0.3s ease, transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.card-button:hover,
+.selected {
+  background-color: #a7ffeb;
+  color: #222;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.problem-container {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  align-items: center;
+  padding-top: 30px;
+}
+
+#problem {
+  width: 400px; /* Slightly wider textarea */
+  height: 180px; /* Slightly taller textarea */
+  border: 2px solid #555;
+  border-radius: 12px;
+  background-color: #2c2c2c;
+  color: #f0f0f0;
+  padding: 15px;
+  font-size: 1em;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  resize: vertical;
+  transition: border-color 0.3s ease-in-out;
+}
+
+#problem::placeholder {
+  color: #777;
+}
+
+#problem:focus {
+  outline: none;
+  border-color: #a7ffeb;
+}
+
+.send-btn {
+  color: #fff;
+  background-color: #00c853; /* Green for positive action */
+  border: none;
+  padding: 12px 25px;
+  border-radius: 8px;
+  transition: background-color 0.3s ease, transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  cursor: pointer;
+  font-size: 1.1em;
+  width: fit-content;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.send-btn:hover:not(.disabled) {
+  background-color: #009640; /* Darker green on hover */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.send-btn.disabled {
+  background-color: #555;
+  color: #999;
+  border-color: #777;
+  cursor: not-allowed;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  transition: opacity 0.3s ease-out;
+}
+
+.modal-content {
+  background: #333;
+  color: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.modal-text {
+  font-size: 1.2em;
+  text-align: center;
+}
+
+.loader {
+  width: 60px;
+  height: 60px;
+  border: 6px solid #a7ffeb;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.icon {
+  color: #00c853; /* Green for success */
+  font-size: 60px;
+}
+
+.close-btn {
+  background-color: #007bff; /* Blue for action */
+  color: #fff;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 8px;
+  transition: background-color 0.3s ease, transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  cursor: pointer;
+  font-size: 1.1em;
+}
+
+.close-btn:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}

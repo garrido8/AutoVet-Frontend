@@ -1,0 +1,150 @@
+.main-content {
+  padding: 30px 20px;
+  color: #f0f0f0;
+}
+
+.title {
+  padding-bottom: 40px;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(-10px);
+  animation: fade-in-up 0.5s ease-out forwards;
+}
+
+.title h2 {
+  color: #a7ffeb; /* Teal color for titles */
+  margin-bottom: 10px;
+}
+
+.title p {
+  line-height: 1.6;
+  font-size: 1.1em;
+}
+
+@keyframes fade-in-up {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.incidents-table-container {
+  overflow-x: auto; /* Ensures table is scrollable on smaller screens */
+  background-color: #2c2c2c; /* Dark background */
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  padding: 20px;
+  opacity: 0;
+  transform: translateY(-10px);
+  animation: fade-in-up 0.5s ease-out forwards;
+  animation-delay: 0.2s;
+  margin-top: 20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table th,
+table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #444; /* Dark border for rows */
+}
+
+table th {
+  background-color: #3a3a3a; /* Slightly lighter dark for headers */
+  color: #a7ffeb; /* Teal color for header text */
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 0.9em;
+  letter-spacing: 0.05em;
+}
+
+table tbody tr {
+  transition: background-color 0.2s ease-in-out;
+}
+
+table tbody tr:hover {
+  background-color: #333; /* Darker on hover */
+}
+
+table tbody tr:last-child td {
+  border-bottom: none; /* No border for the last row */
+}
+
+table td {
+  color: #ddd; /* Light grey for table data */
+  font-size: 0.95em;
+}
+
+/* Styles for the new status selector dropdown */
+.status-selector {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.85em;
+  font-weight: bold;
+  text-align: center;
+  white-space: nowrap;
+  border: none; /* Remove default select border */
+  appearance: none; /* Remove default system styling for select */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+  outline: none; /* Remove outline on focus */
+  background-image: url('data:image/svg+xml;utf8,<svg fill="%23fff" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); /* Custom dropdown arrow */
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 14px;
+  padding-right: 25px; /* Make space for the custom arrow */
+}
+
+.status-value {
+  display: inline-flex; /* Changed to inline-flex for better vertical alignment control */
+  align-items: center; /* Vertically centers the text within the flex container */
+  justify-content: center; /* Horizontally centers the text (optional, but good for badges) */
+  padding: 5px 10px; /* Kept existing padding */
+  height: 28px; /* Set a fixed height to match other cells or form elements */
+  line-height: 1; /* Reset line-height to 1 to ensure height is respected */
+  border-radius: 20px;
+  font-size: 0.85em;
+  font-weight: bold;
+  text-align: center;
+  white-space: nowrap;
+  border: none;
+  cursor: default; /* Changed cursor to default as it's not interactive */
+  outline: none;
+  box-sizing: border-box; /* Ensures padding and border are included in the element's total width and height */
+}
+
+/* Specific status colors for Reassignments */
+.status-pending {
+  background-color: #ffc107; /* Yellow for pending */
+  color: #333; /* This color will now apply correctly to the span text */
+}
+
+.status-approved {
+  background-color: #4caf50; /* Green for approved */
+  color: #fff; /* This color will now apply correctly to the span text */
+}
+
+.status-rejected {
+  background-color: #dc3545; /* Red for rejected */
+  color: #fff; /* This color will now apply correctly to the span text */
+}
+
+/* Style for options within the select to ensure they inherit colors */
+.status-selector option {
+  background-color: #3a3a3a; /* Dark background for dropdown options */
+  color: #f0f0f0; /* Light text for options */
+}
+
+.no-reassignments {
+  display: flex;
+  justify-content: center;
+  padding-top: 30px;
+  color: #ccc;
+  font-size: 1.1em;
+}

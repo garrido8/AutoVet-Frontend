@@ -1,1 +1,108 @@
-<p>foods works!</p>
+
+<div class="main-container">
+  <div class="title">
+    <h2>Consulta los alimentos que con peligrosos para tus mascotas</h2>
+    <p>
+      Aquí puedes consultar los alimentos que son peligrosos para tus mascotas. Si tienes dudas sobre algún alimento
+      específico, no dudes en preguntar.
+    </p>
+  </div>
+
+  <div class="process">
+
+    @if( userPets.length > 0 ) {
+      <div class="steps">
+        <div class="step first">
+          <h3>Elige tu mascota</h3>
+
+          @if (isUser) {
+            <div class="pets-div">
+              @for (pet of userPets; track $index) {
+                <div class="card">
+                  <button
+                   class="card-button"
+                   (click)="metodoPrueba( pet )"
+                  >
+                    {{ pet.nombre }}
+                  </button>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="pets-div">
+              @for (pet of defaultPets; track $index) {
+                <div class="card">
+                  <button
+                   class="card-button"
+                   [ngClass]="{ 'selected': selectedPet === pet }"
+                   (click)="loadBreeds(pet)"
+                  >
+                    {{ pet }}
+                  </button>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        @if ( breeds.length > 0 ) {
+          <div class="step second">
+            <h3>Escoge la raza</h3>
+            <div class="breeds-div">
+              <select class="breed-selector" (change)="chooseBreed($event)">
+                <option value="" disabled selected>Selecciona una raza</option>
+                @for (breed of breeds; track $index) {
+                  <option [value]="breed">{{ breed }}</option>
+                }
+                <option value="Otro">Otro</option>
+              </select>
+
+              @if ( selectedBreed === 'Otro' || permanent ) {
+                <div class="other-breed">
+                  <label for="other">Especifica la raza</label>
+                  <input
+                    type="text"
+                    name="other"
+                    id="other"
+                    class="other-breed-input"
+                    (keydown.enter)="getDangerousFoods($event)"
+                  />
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    } @else {
+      <p class="no-pets">Aún no tienes mascotas asignadas</p>
+    }
+
+    @if( this.formattedResponse.length > 0 ) {
+      <div class="response-container">
+        <div class="response" id="response" [innerHTML]="formattedResponse"></div>
+      </div>
+    }
+
+  </div>
+
+</div>
+
+
+
+@if ( loadingBreeds ) {
+  <div class="modal">
+    <div class="modal-content">
+      <span class="loader"></span>
+      <p class="modal-text">Cargando razas...</p>
+    </div>
+  </div>
+}
+
+@if ( isLoading ) {
+  <div class="modal">
+    <div class="modal-content">
+      <span class="loader"></span>
+      <p class="modal-text">Cargando respuesta...</p>
+    </div>
+  </div>
+}

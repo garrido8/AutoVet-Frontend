@@ -2,19 +2,22 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HeaderComponent } from './header/header.component';
 import { RouterModule } from '@angular/router';
+import { NoLoginHeaderComponent } from './no-login-header/no-login-header.component';
 
 
 
 @NgModule({
   declarations: [
-    HeaderComponent
+    HeaderComponent,
+    NoLoginHeaderComponent
   ],
   imports: [
     CommonModule,
     RouterModule
   ],
   exports: [
-    HeaderComponent
+    HeaderComponent,
+    NoLoginHeaderComponent
   ]
 })
 export class SharedModule { }

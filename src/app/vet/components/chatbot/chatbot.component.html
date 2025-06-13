@@ -1,1 +1,147 @@
-<p>chatbot works!</p>
+<div class="main-container" (click)="onClickOutsideMenu()">
+
+  <div class="left-aside">
+    <aside class="conversations">
+      <h2>Conversaciones</h2>
+
+      <button
+        (click)="createConversation()"
+        class="new-conversation-button" >
+        Nueva conversación
+      </button>
+
+      <div class="conversations-container">
+        @for( conversation of userConversations; track conversation.id) {
+          <div class="conversation-item"
+            (click)="selectConversation(conversation)"
+            [ngClass]="{
+              'active': this.selectedConversation?.id === conversation.id,
+              'active-menu': activeConversationIdForMenu === conversation.id
+            }"
+          >
+            <span class="conversation-name">{{ conversation.title }}</span>
+
+            <div class="button-menu-container">
+              <i class="icon material-icons"
+                (click)="toggleConversationMenu($event, conversation.id!)"
+              >
+                more_vert
+              </i>
+
+              @if (showConversationMenu && activeConversationIdForMenu === conversation.id) {
+                <div class="conversation-menu"
+                     (click)="$event.stopPropagation()"
+                >
+                  <div class="menu-item" (click)="editConversation(conversation.id!)">
+                    <span class="menu-text"><i class="icon material-icons">edit</i> Renombrar</span>
+                  </div>
+                  <div class="menu-item delete-item" (click)="deleteConversation(conversation.id!)">
+                    <span class="menu-text"><i class="icon material-icons">delete</i> Eliminar</span>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </aside>
+  </div>
+
+  <div class="conversation-chat">
+    <div class="messages-container" #messagesContainer>
+      @if( this.selectedConversation !== null ) {
+        @for( message of selectedConversation.messages ; track message.id) {
+          <div class="message-item">
+            @if( message.type === 'user' ) {
+              <div class="user-message">
+                <span class="message-text">{{ message.content }}</span>
+              </div>
+            } @else {
+              <div class="ia-message">
+                <span class="message-text" [innerHTML]="message.content"></span>
+              </div>
+            }
+          </div>
+        }
+
+        @if (isLoading) {
+          <div class="message-item">
+            <div class="ia-message">
+              <span class="message-text">Cargando respuesta...</span>
+            </div>
+          </div>
+        }
+      } @else {
+        <span class="conversation-title">Selecciona una conversación o envía un mensaje para comenzar una conversación nueva</span>
+      }
+    </div>
+
+    <div class="chat-input-area">
+      <textarea
+        class="chat-textarea"
+        id="prompt"
+        placeholder="Escribe tu mensaje..."
+        #promptValue
+        [(ngModel)]="promptValueText"
+      ></textarea>
+
+      <button
+        class="send-button"
+        (click)="sendMessage()"
+        [disabled]="!promptValueText.trim()"
+        [ngClass]="{ 'disabled': !promptValueText.trim() }"
+      >
+        Enviar
+      </button>
+    </div>
+
+  </div>
+
+  @if (showEditModal && conversationToEdit) {
+    <div class="modal-overlay" (click)="cancelEdit()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <h2>Editar Conversación</h2>
+        <div class="form-group">
+          <label for="conversationTitle">Título de la Conversación:</label>
+          <input
+            id="conversationTitle"
+            type="text"
+            [(ngModel)]="editedTitle"
+            required
+            placeholder="Introduce el nuevo título"
+            [disabled]="isEditingLoading"
+          >
+        </div>
+        <div class="modal-actions">
+          <button class="cancel-button" (click)="cancelEdit()" [disabled]="isEditingLoading">Cancelar</button>
+          <button class="save-button" (click)="saveEditedConversation()" [disabled]="!editedTitle.trim() || isEditingLoading">
+            @if (isEditingLoading) {
+              Guardando...
+            } @else {
+              Guardar
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (showDeleteConfirmModal && conversationToDelete) {
+    <div class="modal-overlay" (click)="cancelDelete()">
+      <div class="modal-content delete-modal" (click)="$event.stopPropagation()">
+        <h2>Confirmar Eliminación</h2>
+        <p>¿Estás seguro de que quieres eliminar la conversación "<span class="conversation-title-bold">{{ conversationToDelete.title }}</span>"? Esta acción no se puede deshacer.</p>
+        <div class="modal-actions">
+          <button class="cancel-button" (click)="cancelDelete()" [disabled]="isDeletingLoading">Cancelar</button>
+          <button class="delete-button-confirm" (click)="confirmDelete()" [disabled]="isDeletingLoading">
+            @if (isDeletingLoading) {
+              Eliminando...
+            } @else {
+              Eliminar
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

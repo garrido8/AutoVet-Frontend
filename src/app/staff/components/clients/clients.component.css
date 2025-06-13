@@ -1,0 +1,100 @@
+/* Reusing most of your existing CSS for consistency */
+
+.main-content {
+  padding: 30px 20px;
+  color: #f0f0f0;
+}
+
+.capitalize {
+  text-transform: capitalize; /* Keep if needed for any client data */
+}
+
+.upper-part {
+  padding-bottom: 40px;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(-10px);
+  animation: fade-in-up 0.5s ease-out forwards;
+}
+
+.upper-part h2 {
+  color: #a7ffeb;
+  margin-bottom: 10px;
+}
+
+.upper-part p {
+  line-height: 1.6;
+  font-size: 1.1em;
+}
+
+/* Re-using the existing fade-in-up keyframes */
+@keyframes fade-in-up {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Updated container and table styles for clients, mirroring pets */
+.clients-table-container { /* Renamed from pets-table-container for clarity */
+  overflow-x: auto;
+  background-color: #2c2c2c;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  padding: 20px;
+  margin-top: 20px;
+  opacity: 0;
+  transform: translateY(-10px);
+  animation: fade-in-up 0.5s ease-out forwards;
+  animation-delay: 0.2s;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table th,
+table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #444;
+}
+
+table th {
+  background-color: #3a3a3a;
+  color: #a7ffeb;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 0.9em;
+  letter-spacing: 0.05em;
+}
+
+table tbody tr {
+  transition: background-color 0.2s ease-in-out;
+  cursor: pointer; /* Indicate rows are clickable, if routerLink is used */
+}
+
+table tbody tr:hover {
+  background-color: #333;
+}
+
+table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+table td {
+  color: #ddd;
+  font-size: 0.95em;
+}
+
+/* Removed incidents-count-pill as it's not applicable to clients table directly */
+
+.no-clients { /* Renamed from no-pets for clarity */
+  display: flex;
+  justify-content: center;
+  padding-top: 30px;
+  color: #ccc;
+  font-size: 1.1em;
+  text-align: center;
+}

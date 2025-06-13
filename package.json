@@ -4,6 +4,8 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve -o --no-hmr",
+    "mac": "concurrently \"ng serve -o --no-hmr\" \"cd ../backend/database && source venv/bin/activate && python3 manage.py runserver\"",
+    "win": "concurrently \"ng serve -o --no-hmr\" \"cd ../database && .\\windows-venv\\Scripts\\activate && python manage.py runserver\"",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
@@ -18,6 +20,11 @@
     "@angular/platform-browser": "^19.0.0",
     "@angular/platform-browser-dynamic": "^19.0.0",
     "@angular/router": "^19.0.0",
+    "@google/genai": "^0.7.0",
+    "concurrently": "^9.1.2",
+    "crypto-js": "^4.2.0",
+    "crypto.js": "^3.3.4",
+    "marked": "^15.0.7",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"
@@ -26,6 +33,7 @@
     "@angular-devkit/build-angular": "^19.0.6",
     "@angular/cli": "^19.0.6",
     "@angular/compiler-cli": "^19.0.0",
+    "@types/crypto-js": "^4.2.2",
     "@types/jasmine": "~5.1.0",
     "jasmine-core": "~5.4.0",
     "karma": "~6.4.0",

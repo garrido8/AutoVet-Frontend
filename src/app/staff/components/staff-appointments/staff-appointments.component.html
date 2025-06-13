@@ -1,0 +1,139 @@
+<div class="main-content">
+
+  @if ( !isAdmin ) {
+    <h1 class="section-title">Mis incidencias</h1>
+
+    <div class="appointments-container">
+
+      <div class="assigneds">
+        <h2 class="section-title">Asignadas</h2>
+
+        @if( workerAppoinments.length > 0 ) {
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Título</th>
+                  <th>Descripción</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (appoinment of workerAppoinments; track $index) {
+                  <tr routerLink="/staff/appointment-info/{{ appoinment.pk }}">
+                    <td>{{ appoinment.titulo }}</td>
+                    <td>{{ appoinment.descripcion }}</td>
+                    <td>
+                      <span class="status-pill status-{{ appoinment.estado | lowercase }}">
+                        {{ getDisplayStatus( appoinment.estado )}}
+                      </span>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <p class="no-data-message">No tienes incidencias asignadas.</p>
+        }
+      </div>
+
+
+      <div class="collaborator-on">
+        <h2 class="section-title">Compartidas conmigo</h2>
+        @if( colaboratorAppointments.length > 0 ) {
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Título</th>
+                  <th>Descripción</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (appoinment of colaboratorAppointments; track $index) {
+                  <tr routerLink="/staff/appointment-info/{{ appoinment.pk }}">
+                    <td>{{ appoinment.titulo }}</td>
+                    <td>{{ appoinment.descripcion }}</td>
+                    <td>
+                      <span class="status-pill status-{{ appoinment.estado | lowercase }}">
+                        {{ getDisplayStatus( appoinment.estado )}}
+                      </span>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <p class="no-data-message">No tienes incidencias compartidas.</p>
+        }
+      </div>
+
+    </div>
+
+
+    <hr>
+  }
+
+
+  @if( isAdmin ) {
+    <h1 class="section-title">Incidencias</h1>
+  } @else {
+    <h2 class="section-title">Incidencias</h2>
+  }
+
+  @if( allAppoinments.length > 0 ) {
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Título</th>
+            <th>Descripción</th>
+            <th>Estado</th>
+            @if( isAdmin ) {
+              <th>Asignado a</th>
+            } @else {
+              <th>Acción</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (appoinment of allAppoinments; track $index) {
+            <tr [routerLink]="isAdmin && appoinment.pk ? '/staff/appointment-info/' + appoinment.pk : null">
+              <td>{{ appoinment.titulo }}</td>
+              <td>{{ appoinment.descripcion }}</td>
+              <td>
+                <span class="status-pill status-{{ appoinment.estado | lowercase }}">
+                  {{ getDisplayStatus( appoinment.estado )}}
+                </span>
+              </td>
+              @if( !isAdmin ) {
+                <td>
+                  <button (click)="assignAppoinment(appoinment)" class="assign-btn">
+                    Asignar
+                  </button>
+                </td>
+              } @else {
+                <td>
+                  <select
+                    [ngModel]="appoinment.trabajador_asignado"
+                    (ngModelChange)="reassignAppoinment(appoinment, $event)"
+                    (click)="$event.stopPropagation()" class="worker-select">
+                    <option [ngValue]="null">Sin Asignar</option>
+                    @for (staff of allStaffMembers; track staff.pk) {
+                      <option [ngValue]="staff.pk">{{ staff.name }}</option>
+                    }
+                  </select>
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else {
+    <p class="no-data-message">No hay incidencias disponibles para asignar.</p>
+  }
+</div>

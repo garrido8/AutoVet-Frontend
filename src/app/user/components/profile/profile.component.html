@@ -1,0 +1,34 @@
+<div class="main-content">
+  <div class="greeting">
+    <h2 class="greeting-text">Hola, {{ user?.name }}</h2>
+  </div>
+
+  <div class="profile-photo">
+    @if (profileImageUrl) {
+      <img [src]="profileImageUrl" alt="Foto de perfil" class="profile-image">
+    } @else {
+      <div class="profile-placeholder">
+        <span>No Photo</span>
+      </div>
+    }
+  </div>
+
+  <div class="file-upload-section">
+    <input type="file" (change)="onFileSelected($event)" accept="image/*" class="file-input" #fileInput>
+    <button (click)="fileInput.click()" class="select-file-button">
+      Seleccionar archivo
+    </button>
+    <button (click)="uploadProfilePicture()" class="upload-button" [disabled]="!selectedFile">
+      Subir Foto
+    </button>
+    <p *ngIf="uploadMessage" class="upload-message">{{ uploadMessage }}</p>
+  </div>
+
+  <div class="profile-info">
+    <h3 class="profile-info-header">Información de perfil</h3>
+    <p><strong class="info-label">Nombre:</strong> <span class="info-value">{{ user?.name }}</span></p>
+    <p><strong class="info-label">DNI:</strong> <span class="info-value">{{user?.dni}}</span></p>
+    <p><strong class="info-label">Email:</strong> <span class="info-value">{{ user?.email }}</span></p>
+    <p><strong class="info-label">Teléfono:</strong> <span class="info-value">{{ user?.phone }}</span></p>
+  </div>
+</div>

@@ -1,0 +1,51 @@
+<div class="main-content">
+
+  <div class="upper-part">
+    <h2>Mis mascotas</h2>
+    <p>En esta sección podrás ver todas tus mascotas y sus incidencias pendientes.</p>
+  </div>
+
+  @if( pets.length > 0 ) {
+    <div class="pets-table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Especie</th>
+            <th>Raza</th>
+            <th>Peso</th>
+            <th>Sexo</th>
+            <th>Vacunado</th>
+            <th>Esterilizado</th>
+            <th>Incidencias Pendientes</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (pet of pets; track $index) {
+            <tr>
+              <td>{{ pet.nombre }}</td>
+              <td>{{ pet.especie }}</td>
+              <td>{{ pet.raza }}</td>
+              <td>{{ formatWeight(pet.peso) }}</td>
+              <td class="capitalize">{{ pet.sexo }}</td>
+              <td>{{ pet.vacunado ? 'Sí' : 'No' }}</td>
+              <td>{{ pet.esterilizado ? 'Sí' : 'No' }}</td>
+              <td>
+                @if ( pet.appoinments && pet.appoinments.length > 0 ) {
+                  <span class="incidents-count-pill">{{ pet.appoinments.length }}</span>
+                } @else {
+                  Sin incidencias
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else {
+    <div class="no-pets">
+      <p>¡Parece que aún no tienes mascotas registradas!</p>
+    </div>
+  }
+
+</div>

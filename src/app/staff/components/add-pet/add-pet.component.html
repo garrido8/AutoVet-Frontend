@@ -1,0 +1,107 @@
+<div class="main-content">
+  <h1>Añade una mascota</h1>
+
+  <div class="form-container">
+    <form class="form" [formGroup]="form" (ngSubmit)="addPet()">
+
+      <div class="form-group">
+        <label for="name">Nombre</label>
+        <input type="text" class="normal-input" id="name" formControlName="nombre" required />
+      </div>
+
+      <div class="form-group">
+        <label for="species">Especie</label>
+        <input type="text" class="normal-input" id="species" formControlName="especie" required />
+      </div>
+
+      <div class="form-group">
+        <label for="breed">Raza</label>
+        <input type="text" class="normal-input" id="breed" formControlName="raza" required />
+      </div>
+
+      <div class="form-group">
+        <label for="age">Edad (en años)</label>
+        <input type="number" class="normal-input" id="age" formControlName="edad" required />
+      </div>
+
+      <div class="form-group">
+        <label for="gender">Sexo</label>
+        <input type="text" class="normal-input" id="gender" formControlName="sexo" required />
+      </div>
+
+      <div class="form-group">
+        <label for="weight">Peso (en kilogramos)</label>
+        <input type="number" class="normal-input" id="weight" formControlName="peso" required />
+      </div>
+
+      <div class="form-group">
+
+        <div class="radio-container">
+          <div class="esterilizado">
+
+            <span>Esterilizado</span>
+
+            <div class="radio-buttons">
+              <div class="radio-yes">
+                <label for="sterelyzed-yes">Sí</label>
+                <input class="radio-input" type="radio" name="esterilizado" id="sterelyzed-yes" value="true" formControlName="esterilizado" required />
+              </div>
+
+              <div class="radio-no">
+                <label for="sterelyzed-no">No</label>
+                <input class="radio-input" type="radio" name="esterilizado" id="sterelyzed-no" value="false" formControlName="esterilizado" required />
+              </div>
+            </div>
+
+          </div>
+
+          <div class="vacunado">
+            <span>Vacunado</span>
+
+            <div class="radio-buttons">
+              <div class="radio-yes">
+                <label for="vaccinated-yes">Sí</label>
+                <input class="radio-input" type="radio" name="vacunado" id="vaccinated-yes" value="true" formControlName="vacunado" required />
+              </div>
+
+              <div class="radio-no">
+                <label for="vaccinated-no">No</label>
+                <input class="radio-input" type="radio" name="vacunado" id="vaccinated-no" value="false" formControlName="vacunado" required />
+              </div>
+            </div>
+
+          </div>
+
+
+        </div>
+      </div>
+
+      <div class="form-group">
+
+        <div class="radio-buttons">
+        </div>
+      </div>
+
+      <div class="submit-container">
+        <input class="submit-button" type="submit" value="Añadir" />
+      </div>
+
+    </form>
+  </div>
+</div>
+
+@if ( exit ) {
+  <div class="modal">
+    <div class="modal-content">
+      <i class="icon material-icons">check</i>
+      <p class="modal-text">Mascota añadida correctamente</p>
+      <button
+        class="close-btn pointer"
+        id="close-btn"
+        (click)="exit = false"
+      >
+        Cerrar
+      </button>
+    </div>
+  </div>
+}

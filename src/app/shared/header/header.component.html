@@ -1,47 +1,379 @@
 <header class="main" id="main">
-  <h1 class="title-text" id="title-text">
-    AutoVet
-  </h1>
-
-  <nav class="pages" id="pages" aria-label="Main Navigation">
-
+  <div class="header-left-section">
+    <h1 class="title-text" id="title-text" routerLink="/home">
+      AutoVet
+    </h1>
     <button
       class="btn home-btn"
-      id="home-btn"
-      routerLink="/home"
+      id="forum-btn"
+      routerLink="/forum"
       routerLinkActive="active"
       aria-current="page"
     >
-      Inicio
+      Foro social
+    </button>
+  </div>
+
+  <button class="menu-toggle" (click)="toggleFullscreenMenu()">
+    ☰
+  </button>
+
+  <nav class="pages" id="pages" aria-label="Main Navigation">
+    @if ( isClient ) {
+      <button
+        class="btn home-btn"
+        id="home-btn"
+        routerLink="/question"
+        routerLinkActive="active"
+        aria-current="page"
+      >
+        Pregunta
+      </button>
+
+      <button
+        class="btn foods-btn"
+        id="foods-btn"
+        routerLink="/foods"
+        routerLinkActive="active"
+        aria-current="page"
+      >
+        Comidas peligrosas
+      </button>
+
+      <button
+        class="btn create-btn"
+        id="create-btn"
+        routerLink="/user/create"
+        routerLinkActive="active"
+      >
+        Crear incidencia
+      </button>
+
+      <button
+        class="btn logout-btn"
+        id="logout-btn"
+        (click)="toggleProfileMenu()" >
+        Mi perfil
+      </button>
+
+    } @else {
+      @if( isAdmin ) {
+        <button
+          class="btn clients-btn"
+          id="clients-btn"
+          routerLink="/staff/add-client"
+          routerLinkActive="active"
+        >
+          Añadir Cliente
+        </button>
+
+        <button
+          class="btn clients-btn"
+          id="clients-btn"
+          routerLink="/staff/add-worker"
+          routerLinkActive="active"
+        >
+          Añadir Trabajador
+        </button>
+
+        <button
+          class="btn clients-btn"
+          id="clients-btn"
+          routerLink="/staff/clients"
+          routerLinkActive="active"
+        >
+          Clientes
+        </button>
+
+        <button
+          class="btn appointments-btn"
+          id="appointments-btn"
+          routerLink="/staff/appointments"
+          routerLinkActive="active"
+        >
+          Incidencias
+        </button>
+
+        <button
+          class="btn reassignments-btn"
+          id="reassignments-btn"
+          routerLink="/staff/reassignments"
+          routerLinkActive="active"
+        >
+          Solicitudes
+        </button>
+
+        <button
+          class="btn profile-btn"
+          id="profile-btn"
+          routerLink="/user/profile"
+          routerLinkActive="active"
+        >
+          Mis datos
+        </button>
+
+        <button
+          class="btn logout-btn"
+          id="logout-btn"
+          (click)="logOut()"
+        >
+          Cerrar sesión
+        </button>
+      } @else {
+        <button
+          class="btn clients-btn"
+          id="clients-btn"
+          routerLink="/staff/clients"
+          routerLinkActive="active"
+        >
+          Clientes
+        </button>
+
+        <button
+          class="btn appointments-btn"
+          id="appointments-btn"
+          routerLink="/staff/appointments"
+          routerLinkActive="active"
+        >
+          Incidencias
+        </button>
+
+        <button
+          class="btn reassignments-btn"
+          id="reassignments-btn"
+          routerLink="/staff/reassignments"
+          routerLinkActive="active"
+        >
+          Mis Solicitudes
+        </button>
+
+        <button
+          class="btn profile-btn"
+          id="profile-btn"
+          routerLink="/user/profile"
+          routerLinkActive="active"
+        >
+          Mis datos
+        </button>
+
+        <button
+          class="btn logout-btn"
+          id="logout-btn"
+          (click)="logOut()"
+        >
+          Cerrar sesión
+        </button>
+      }
+    }
+  </nav>
+</header>
+
+@if ( showingProfileMenu ) { <div class="profile-dropdown-menu" [ngClass]="{'show': showingProfileMenu}">
+    <button
+      class="menu-btn profile-btn"
+      id="profile-btn"
+      routerLink="/user/profile"
+      (click)="closeProfileMenu()"
+    >
+      Mis datos
     </button>
 
     <button
-      class="btn chatbot-btn"
+      class="menu-btn profile-btn"
+      id="user-pets-btn"
+      routerLink="/user/pets"
+      (click)="closeProfileMenu()"
+    >
+      Mis mascotas
+    </button>
+
+    <button
+      class="menu-btn profile-btn"
+      id="user-appoinments-btn"
+      routerLink="/user/appointments"
+      (click)="closeProfileMenu()"
+    >
+      Mis incidencias
+    </button>
+
+    <button
+      class="menu-btn profile-btn"
       id="chatbot-btn"
       routerLink="/chat"
-      routerLinkActive="active"
+      (click)="closeProfileMenu()"
     >
-      ChatBot
+      Mis conversaciones
     </button>
 
     <button
-      class="btn foods-btn"
-      id="foods-btn"
-      routerLink="/foods"
-      routerLinkActive="active"
+      class="menu-btn logout-btn"
+      id="logout-btn"
+      (click)="logOut(); closeProfileMenu()"
     >
-      Alimentos
+      Cerrar sesión
     </button>
+  </div>
+}
 
-    <button
-      class="btn contact-btn"
-      id="contact-btn"
-      routerLink="/contact"
-      routerLinkActive="active"
-    >
-      Contacto
-    </button>
+@if ( showingFullscreenMenu ) {
+  <div class="fullscreen-menu-overlay" [ngClass]="{'show': showingFullscreenMenu}">
+    <div class="fullscreen-menu-content">
+      <button class="close-btn" (click)="closeFullscreenMenu()">
+        &times;
+      </button>
 
-  </nav>
+      @if ( isClient ) {
+        <button
+          class="menu-item-btn"
+          routerLink="/question"
+          (click)="closeFullscreenMenu()"
+        >
+          Pregunta
+        </button>
 
-</header>
+        <button
+          class="menu-item-btn"
+          routerLink="/foods"
+          (click)="closeFullscreenMenu()"
+        >
+          Comidas peligrosas
+        </button>
+
+        <button
+          class="menu-item-btn"
+          routerLink="/user/create"
+          (click)="closeFullscreenMenu()"
+        >
+          Crear incidencia
+        </button>
+
+        <button
+          class="menu-item-btn"
+          routerLink="/user/profile"
+          (click)="closeFullscreenMenu()"
+        >
+          Mis datos
+        </button>
+
+        <button
+          class="menu-item-btn"
+          routerLink="/user/pets"
+          (click)="closeFullscreenMenu()"
+        >
+          Mis mascotas
+        </button>
+
+        <button
+          class="menu-item-btn"
+          routerLink="/user/appointments"
+          (click)="closeFullscreenMenu()"
+        >
+          Mis incidencias
+        </button>
+
+        <button
+          class="menu-btn profile-btn"
+          id="chatbot-btn"
+          routerLink="/chat"
+          (click)="closeProfileMenu()"
+        >
+          Mis conversaciones
+        </button>
+
+        <button
+          class="menu-item-btn logout-btn"
+          (click)="logOut(); closeFullscreenMenu()"
+        >
+          Cerrar sesión
+        </button>
+      } @else if ( isAdmin ) {
+        <button
+          class="menu-item-btn"
+          routerLink="/staff/add-client"
+          (click)="closeFullscreenMenu()"
+        >
+          Añadir Cliente
+        </button>
+
+        <button
+          class="menu-item-btn"
+          routerLink="/staff/add-worker"
+          (click)="closeFullscreenMenu()"
+        >
+          Añadir Trabajador
+        </button>
+
+        <button
+          class="menu-item-btn"
+          routerLink="/staff/clients"
+          (click)="closeFullscreenMenu()"
+        >
+          Clientes
+        </button>
+
+        <button
+          class="menu-item-btn"
+          routerLink="/staff/appointments"
+          (click)="closeFullscreenMenu()"
+        >
+          Incidencias
+        </button>
+
+        <button
+          class="menu-item-btn"
+          routerLink="/staff/reassignments"
+          (click)="closeFullscreenMenu()"
+        >
+          Solicitudes
+        </button>
+
+        <button
+          class="menu-item-btn"
+          routerLink="/user/profile"
+          (click)="closeFullscreenMenu()"
+        >
+          Mis datos
+        </button>
+
+        <button
+          class="menu-item-btn logout-btn"
+          (click)="logOut(); closeFullscreenMenu()"
+        >
+          Cerrar sesión
+        </button>
+
+      } @else {
+        <button
+          class="menu-item-btn"
+          routerLink="/staff/clients"
+          (click)="closeFullscreenMenu()"
+        >
+          Clientes
+        </button>
+
+        <button
+          class="menu-item-btn"
+          routerLink="/staff/appointments"
+          (click)="closeFullscreenMenu()"
+        >
+          Incidencias
+        </button>
+
+        <button
+          class="menu-item-btn"
+          routerLink="/user/profile"
+          (click)="closeFullscreenMenu()"
+        >
+          Mis datos
+        </button>
+
+        <button
+          class="menu-item-btn logout-btn"
+          (click)="logOut(); closeFullscreenMenu()"
+        >
+          Cerrar sesión
+        </button>
+      }
+    </div>
+  </div>
+}

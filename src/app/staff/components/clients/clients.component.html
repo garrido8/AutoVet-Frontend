@@ -1,0 +1,37 @@
+<div class="main-content">
+
+  <div class="upper-part">
+    <h2>Mis Clientes</h2>
+    <p>En esta sección podrás ver todos tus clientes registrados en el sistema.</p>
+  </div>
+
+  @if( clients.length > 0 ) {
+    <div class="clients-table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Teléfono</th>
+            <th>DNI</th>
+            </tr>
+        </thead>
+        <tbody>
+          @for (client of clients; track $index) {
+            <tr routerLink="/staff/client-info/{{ client.id }}">
+              <td>{{ client.name }}</td>
+              <td>{{ client.email }}</td>
+              <td>{{ client.phone }}</td>
+              <td>{{ client.dni }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else {
+    <div class="no-clients">
+      <p>¡Parece que aún no tienes clientes registrados!</p>
+    </div>
+  }
+
+</div>

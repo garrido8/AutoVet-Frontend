@@ -1,0 +1,101 @@
+<div class="main-container">
+
+  <div class="search">
+    <input
+      type="text"
+      placeholder="Buscar por palabras clave..."
+      [(ngModel)]="searchTerm"
+      (ngModelChange)="performSearch()"
+      class="search-input"
+    >
+  </div>
+
+  <h1 class="main-title">Foro de preguntas</h1>
+  <p class="description">Encuentra preguntas y ayuda para problemas de tus mascotas</p>
+
+  <div class="answers-container">
+    @for (answer of filteredAnswers; track $index) { <div class="answer-card">
+        <div class="answer-header">
+          <h2 class="answer-user">
+            <span class="user-label">Generada por:</span>
+            <span class="user-email">{{ answer.userEmail }}</span>
+          </h2>
+          <span class="answer-time">{{ formatAnswerTime(answer.time) }}</span>
+        </div>
+        <div (click)="openModal(answer)" class="answer-card-content-area">
+            <p class="answer-content-preview">{{ getTruncatedContent(answer.content) }}</p>
+            <div class="answer-details">
+                <div class="answer-keywords">
+                  @for (keyword of (answer.keywords ? answer.keywords.split(',') : []); track $index) {
+                      <span class="keyword">{{ keyword }}</span>
+                  }
+                </div>
+            </div>
+        </div>
+        <div class="answer-voting-controls">
+            <div class="vote-buttons-group">
+                <button
+                  class="vote-button upvote"
+                  [ngClass]="{'voted-up': getUserVoteType(answer) === 'up'}"
+                  (click)="$event.stopPropagation(); voteUp(answer)"
+                >
+                  <i class="icon material-icons">thumb_up</i>
+                </button>
+
+            </div>
+
+            @if( answer.topAnswer ) {
+              <div class="top-answer-container">
+                <span class="top-answer">Pregunta verificada</span>
+              </div>
+            }
+
+            <div class="votes-container">
+              <span class="votes-text">Votos: <span class="votes-count">{{ answer.votes }}</span></span>
+            </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  @if (showModal && selectedAnswer) {
+    <div class="modal-overlay" (click)="closeModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <button class="modal-close-button" (click)="closeModal()">X</button>
+
+        <h2 class="modal-answer-user">
+          <span class="user-label">Generada por:</span>
+          <span class="user-email">{{ selectedAnswer.userEmail }}</span>
+        </h2>
+        <span class="modal-answer-time">{{ formatAnswerTime(selectedAnswer.time) }}</span>
+
+        <div class="modal-answer-full-content response" [innerHTML]="answerContent"></div>
+
+        <div class="modal-answer-details">
+          <div class="modal-answer-keywords">
+            @for (keyword of modalKeywords; track $index) {
+              <span class="keyword">{{ keyword }}</span>
+            }
+          </div>
+          <div class="modal-answer-votes">
+            <span class="votes-label">Votos:</span>
+            <span class="votes-count">{{ selectedAnswer.votes }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (showLoginRequiredModal) {
+    <div class="modal-overlay" (click)="closeLoginRequiredModal()">
+      <div class="modal-content login-required-modal" (click)="$event.stopPropagation()">
+        <button class="modal-close-button" (click)="closeLoginRequiredModal()">X</button>
+        <h2 class="modal-title">¡Inicia Sesión para Votar!</h2>
+        <p class="modal-message">Necesitas iniciar sesión para poder votar en las respuestas. Por favor, regístrate o inicia sesión para continuar.</p>
+        <div class="modal-actions">
+            <button class="action-button close-button" routerLink="/auth/login">Iniciar sesión</button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

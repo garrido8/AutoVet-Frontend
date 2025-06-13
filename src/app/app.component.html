@@ -1,4 +1,10 @@
-<header-component></header-component>
+@if( !headerOff ) {
+  @if ( isLoggedIn ) {
+    <header-component></header-component>
+  } @else {
+    <no-login-header></no-login-header>
+  }
+}
 
 
 <router-outlet />

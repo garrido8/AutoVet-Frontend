@@ -1,0 +1,259 @@
+.title {
+  padding: 30px 20px 0px 20px;
+  text-align: center;
+}
+
+.title h2 {
+  color: #a7ffeb; /* Accent color for the title */
+  font-size: 2.2em;
+  margin-bottom: 15px;
+  animation: slide-down 0.5s ease-out;
+}
+
+.title p {
+  color: #ccc;
+  line-height: 1.6;
+  margin-bottom: 20px;
+  font-size: 1.1em;
+  animation: fade-in 0.5s ease-out 0.3s forwards;
+  opacity: 0;
+}
+
+@keyframes slide-down {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in {
+  to {
+    opacity: 1;
+  }
+}
+
+.main-content {
+  display: flex;
+  justify-content: center;
+  gap: 5%;
+  padding: 20px;
+}
+
+.question {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Stretch items to full width */
+  gap: 25px;
+  width: 400px; /* Adjust width as needed */
+  max-width: 90%;
+}
+
+#prompt {
+  width: 100%; /* Make textarea take full width of its container */
+  height: 180px;
+  border: 2px solid #555;
+  border-radius: 12px;
+  background-color: #2c2c2c;
+  color: #f0f0f0;
+  padding: 15px;
+  font-size: 1em;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  resize: none;
+  transition: border-color 0.3s ease-in-out;
+}
+
+#prompt::placeholder {
+  color: #777;
+}
+
+#prompt:focus {
+  outline: none;
+  border-color: #a7ffeb; /* Accent color on focus */
+}
+
+.send-btn {
+  color: #fff;
+  background-color: #007bff; /* Primary button color */
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1.1em;
+  transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.send-btn:hover:not(.disabled) {
+  background-color: #0056b3; /* Darker shade on hover */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.send-btn.disabled {
+  background-color: #555;
+  color: #999;
+  border-color: #777;
+  cursor: not-allowed;
+}
+
+.buttons {
+  display: flex; /* Arrange buttons in a row */
+  flex-wrap: wrap; /* Allow buttons to wrap to the next line on smaller screens */
+  justify-content: center; /* Center the buttons horizontally */
+  gap: 15px; /* Space between buttons */
+  margin-top: 25px; /* Add some space above the buttons */
+  width: 100%; /* Ensure container takes full width */
+}
+
+/* Styling for the individual buttons within the .buttons container */
+/* This targets the .send-btn class only when it's inside the .buttons container */
+.buttons .send-btn {
+  background-color: #007bff; /* A more vibrant blue */
+  color: white; /* White text for contrast */
+  border: none; /* Remove default border */
+  border-radius: 8px; /* Slightly rounded corners for a softer look */
+  padding: 14px 28px; /* Generous padding for a clickable area */
+  font-size: 1.1em; /* Slightly larger font size */
+  cursor: pointer; /* Indicate it's clickable */
+  transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transition for hover effects */
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3); /* Subtle shadow for depth */
+  text-align: center; /* Ensure text is centered */
+  width: 200px; /* Ensure a consistent minimum width for all buttons */
+  /* Override align-self from previous .send-btn rule if necessary for these buttons */
+  align-self: auto;
+}
+
+.buttons .send-btn:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+  transform: translateY(-2px); /* Slight lift effect on hover */
+  box-shadow: 0 6px 16px rgba(0, 123, 255, 0.4); /* Enhanced shadow on hover */
+}
+
+.buttons .send-btn:active {
+  background-color: #004085; /* Even darker blue when clicked */
+  transform: translateY(0); /* Press down effect */
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
+}
+
+.response-container {
+  width: 550px;
+  max-width: 95%;
+  max-height: 600px;
+  height: auto;
+  padding: 20px;
+  background-color: #2c2c2c;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  overflow-y: auto;
+  transform: translateY(10px); /* Start slightly below */
+  transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+}
+
+.response {
+  color: #ddd;
+  line-height: 1.7;
+}
+
+.response p {
+  margin-bottom: 0.5em; /* Reduced paragraph spacing */
+}
+
+/* Style the scrollbar for the response container */
+.response-container::-webkit-scrollbar {
+  width: 10px;
+}
+
+.response-container::-webkit-scrollbar-track {
+  background: #333;
+}
+
+.response-container::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 5px;
+}
+
+.response-container::-webkit-scrollbar-thumb:hover {
+  background: #777;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7); /* Darker modal background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Ensure it's on top */
+  pointer-events: none; /* Make it non-interactive when hidden */
+  transition: opacity 0.3s ease-out;
+}
+
+.modal-content {
+  background: #333; /* Dark modal content background */
+  color: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.modal-text {
+  font-size: 1.2em;
+}
+
+.loader {
+  width: 60px;
+  height: 60px;
+  border: 6px solid #a7ffeb; /* Accent color for loader */
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+
+.pets-div {
+  padding-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+.card-button {
+  background-color: #333;
+  color: #fff;
+  padding: 12px 20px;
+  font-size: 1em;
+  border: none;
+  border-radius: 8px;
+  transition: background-color 0.3s ease, transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.card-button:hover,
+.selected {
+  background-color: #a7ffeb;
+  color: #222;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

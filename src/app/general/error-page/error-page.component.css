@@ -1,0 +1,25 @@
+.main-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 90vh;
+}
+
+h1 {
+  color: #a7ffeb;
+}
+
+button {
+  background-color: #a7ffeb;
+  color: #222;
+  padding: 12px 20px;
+  font-size: 1em;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.button-container {
+  padding-top: 20px;
+}

@@ -1,0 +1,39 @@
+<div class="main-content">
+  <div class="title">
+    <h2>Mis Incidencias</h2>
+    <p>Consulta las incidencias de tus mascotas y su estado</p>
+  </div>
+
+  @if( appoinments.length > 0 ) {
+    <div class="incidents-table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Mascota</th>
+            <th>Título</th>
+            <th>Descripción</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (appoinment of appoinments; track $index) {
+            <tr [routerLink]="'/staff/appointment-info/' + appoinment.pk">
+              <td>{{ appoinment.petName }}</td>
+              <td>{{ appoinment.titulo }}</td>
+              <td>{{ appoinment.descripcion }}</td>
+              <td>
+                <span class="status-pill status-{{ appoinment.estado }}">
+                  {{ getDisplayStatus( appoinment.estado ) }}
+                </span>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else {
+    <div class="no-appoinments">
+      <p>¡Enhorabuena! Ninguna de tus mascotas tiene ninguna incidencia</p>
+    </div>
+  }
+</div>
