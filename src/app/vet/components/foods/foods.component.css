@@ -141,7 +141,6 @@
   line-height: 1.7;
 }
 
-/* Style the scrollbar for the response container */
 .response-container::-webkit-scrollbar {
   width: 10px;
 }

@@ -84,13 +84,12 @@
   cursor: pointer;
   transition: background-color 0.3s ease;
   flex-shrink: 0;
-  position: relative; /* Make it a positioning context for the menu */
-  z-index: 1; /* Default z-index for all conversation items */
+  position: relative;
+  z-index: 1;
 }
 
-/* NEW: When a conversation-item's menu is active, give it a higher z-index */
 .conversation-item.active-menu {
-  z-index: 100; /* Needs to be higher than sibling items */
+  z-index: 100;
 }
 
 .active {
@@ -107,27 +106,25 @@
 }
 
 .button-menu-container {
-  position: relative; /* Establishes positioning context for the menu icon and menu */
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 2; /* Keep button and its menu slightly above default item content */
+  z-index: 2;
 }
 
-/* REVISED: Styles for the dropdown menu */
 .conversation-menu {
-  position: absolute; /* Changed from fixed to absolute */
+  position: absolute;
   background-color: rgb(50, 50, 50);
   border: 1px solid rgb(80, 80, 80);
   border-radius: 5px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   width: fit-content;
-  z-index: 101; /* Higher than active-menu to ensure it's on top of its own parent item */
+  z-index: 101;
   padding: 5px 0;
-  top: 100%; /* Position below the button-menu-container */
-  right: -70px; /* Position to the right of the button-menu-container */
-  transform: translateY(5px); /* Add a small gap below the button */
-  /* Remove top/left dynamic styles from component, rely on CSS */
+  top: 100%;
+  right: -70px;
+  transform: translateY(5px);
 }
 
 .menu-item {
@@ -142,11 +139,11 @@
 }
 
 .menu-item.delete-item {
-  color: #ff6347; /* Tomato color for delete to indicate danger */
+  color: #ff6347;
 }
 
 .menu-item.delete-item:hover {
-  background-color: #a0402e; /* Darker red on hover */
+  background-color: #a0402e;
 }
 
 
@@ -315,7 +312,6 @@
   gap: 10px;
 }
 
-/* Modal Overlay */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -326,17 +322,16 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000; /* Ensure it's on top of other content */
+  z-index: 1000;
 }
 
-/* Modal Content Box */
 .modal-content {
   background-color: rgb(40, 40, 40);
   padding: 30px;
   border-radius: 10px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  width: 400px; /* Set a fixed width or max-width */
-  max-width: 90%; /* Ensure it's responsive on smaller screens */
+  width: 400px;
+  max-width: 90%;
   color: white;
 }
 
@@ -380,7 +375,7 @@
   background-color: rgb(60, 60, 60);
   color: white;
   font-size: 1em;
-  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+  box-sizing: border-box;
 }
 
 .form-group input[type="text"]:focus {
@@ -389,7 +384,6 @@
   box-shadow: 0 0 0 2px rgba(167, 255, 235, 0.3);
 }
 
-/* Button styles for modals */
 .cancel-button {
   background-color: rgb(70, 70, 70);
   color: white;
@@ -430,18 +424,17 @@
   cursor: not-allowed;
 }
 
-/* NEW: Styles for the delete confirmation modal and its buttons */
 .modal-content.delete-modal {
-  border: 1px solid #ff6347; /* Red border for a warning */
-  background-color: rgb(50, 30, 30); /* Slightly darker red background */
+  border: 1px solid #ff6347;
+  background-color: rgb(50, 30, 30);
 }
 
 .modal-content.delete-modal h2 {
-  color: #ff6347; /* Red title */
+  color: #ff6347;
 }
 
 .modal-content.delete-modal p {
-    color: #f8d7da; /* Lighter red text for readability */
+    color: #f8d7da;
 }
 
 .conversation-title-bold {
@@ -450,7 +443,7 @@
 }
 
 .delete-button-confirm {
-  background-color: #dc3545; /* Bootstrap-like red */
+  background-color: #dc3545;
   color: white;
   padding: 10px 20px;
   border: none;
@@ -461,7 +454,7 @@
 }
 
 .delete-button-confirm:hover:not(:disabled) {
-  background-color: #c82333; /* Darker red on hover */
+  background-color: #c82333;
 }
 
 .delete-button-confirm:disabled {

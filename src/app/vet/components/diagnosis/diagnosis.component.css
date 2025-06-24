@@ -4,7 +4,7 @@
 }
 
 .title h2 {
-  color: #a7ffeb; /* Accent color for the title */
+  color: #a7ffeb;
   font-size: 2.2em;
   margin-bottom: 15px;
   animation: slide-down 0.5s ease-out;
@@ -46,14 +46,14 @@
 .question {
   display: flex;
   flex-direction: column;
-  align-items: center; /* Stretch items to full width */
+  align-items: center;
   gap: 25px;
-  width: 400px; /* Adjust width as needed */
+  width: 400px;
   max-width: 90%;
 }
 
 #prompt {
-  width: 100%; /* Make textarea take full width of its container */
+  width: 100%;
   height: 180px;
   border: 2px solid #555;
   border-radius: 12px;
@@ -72,12 +72,12 @@
 
 #prompt:focus {
   outline: none;
-  border-color: #a7ffeb; /* Accent color on focus */
+  border-color: #a7ffeb;
 }
 
 .send-btn {
   color: #fff;
-  background-color: #007bff; /* Primary button color */
+  background-color: #007bff;
   border: none;
   padding: 12px 20px;
   border-radius: 8px;
@@ -87,7 +87,7 @@
 }
 
 .send-btn:hover:not(.disabled) {
-  background-color: #0056b3; /* Darker shade on hover */
+  background-color: #0056b3;
   transform: translateY(-2px);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
@@ -100,41 +100,38 @@
 }
 
 .buttons {
-  display: flex; /* Arrange buttons in a row */
-  flex-wrap: wrap; /* Allow buttons to wrap to the next line on smaller screens */
-  justify-content: center; /* Center the buttons horizontally */
-  gap: 15px; /* Space between buttons */
-  margin-top: 25px; /* Add some space above the buttons */
-  width: 100%; /* Ensure container takes full width */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 25px;
+  width: 100%;
 }
 
-/* Styling for the individual buttons within the .buttons container */
-/* This targets the .send-btn class only when it's inside the .buttons container */
 .buttons .send-btn {
-  background-color: #007bff; /* A more vibrant blue */
-  color: white; /* White text for contrast */
-  border: none; /* Remove default border */
-  border-radius: 8px; /* Slightly rounded corners for a softer look */
-  padding: 14px 28px; /* Generous padding for a clickable area */
-  font-size: 1.1em; /* Slightly larger font size */
-  cursor: pointer; /* Indicate it's clickable */
-  transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transition for hover effects */
-  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3); /* Subtle shadow for depth */
-  text-align: center; /* Ensure text is centered */
-  width: 200px; /* Ensure a consistent minimum width for all buttons */
-  /* Override align-self from previous .send-btn rule if necessary for these buttons */
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 14px 28px;
+  font-size: 1.1em;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+  text-align: center;
+  width: 200px;
   align-self: auto;
 }
 
 .buttons .send-btn:hover {
-  background-color: #0056b3; /* Darker blue on hover */
-  transform: translateY(-2px); /* Slight lift effect on hover */
-  box-shadow: 0 6px 16px rgba(0, 123, 255, 0.4); /* Enhanced shadow on hover */
+  background-color: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 123, 255, 0.4);
 }
 
 .buttons .send-btn:active {
-  background-color: #004085; /* Even darker blue when clicked */
-  transform: translateY(0); /* Press down effect */
+  background-color: #004085;
+  transform: translateY(0);
   box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
 }
 
@@ -148,7 +145,7 @@
   border-radius: 12px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   overflow-y: auto;
-  transform: translateY(10px); /* Start slightly below */
+  transform: translateY(10px);
   transition: opacity 0.3s ease-out, transform 0.3s ease-out;
 }
 
@@ -158,10 +155,9 @@
 }
 
 .response p {
-  margin-bottom: 0.5em; /* Reduced paragraph spacing */
+  margin-bottom: 0.5em;
 }
 
-/* Style the scrollbar for the response container */
 .response-container::-webkit-scrollbar {
   width: 10px;
 }
@@ -185,17 +181,17 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.7); /* Darker modal background */
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000; /* Ensure it's on top */
-  pointer-events: none; /* Make it non-interactive when hidden */
+  z-index: 1000;
+  pointer-events: none;
   transition: opacity 0.3s ease-out;
 }
 
 .modal-content {
-  background: #333; /* Dark modal content background */
+  background: #333;
   color: #fff;
   padding: 30px;
   border-radius: 12px;
@@ -213,7 +209,7 @@
 .loader {
   width: 60px;
   height: 60px;
-  border: 6px solid #a7ffeb; /* Accent color for loader */
+  border: 6px solid #a7ffeb;
   border-bottom-color: transparent;
   border-radius: 50%;
   display: inline-block;

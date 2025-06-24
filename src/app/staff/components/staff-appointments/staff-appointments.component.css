@@ -1,5 +1,5 @@
 .main-content {
-  padding: 30px 20px; /* Increased padding slightly for better spacing */
+  padding: 30px 20px;
   color: #f0f0f0;
 }
 
@@ -10,8 +10,8 @@
   justify-content: center;
 }
 
-.section-title { /* Consolidated h1/h2 styling */
-  color: #a7ffeb; /* Accent color for section titles */
+.section-title {
+  color: #a7ffeb;
   margin-bottom: 20px;
   text-align: center;
   opacity: 0;
@@ -28,20 +28,20 @@
 
 hr {
   border-color: #444;
-  margin: 40px 0; /* More vertical space around the separator */
+  margin: 40px 0;
 }
 
 .table-container {
-  overflow-x: auto; /* Ensures table is scrollable on smaller screens */
+  overflow-x: auto;
   background-color: #2c2c2c;
   border-radius: 12px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  padding: 20px; /* Padding around the table */
-  margin-top: 20px; /* Space from the title */
-  opacity: 0; /* Start invisible for animation */
-  transform: translateY(-10px); /* Start slightly above for animation */
+  padding: 20px;
+  margin-top: 20px;
+  opacity: 0;
+  transform: translateY(-10px);
   animation: fade-in-up 0.5s ease-out forwards;
-  animation-delay: 0.2s; /* Delay for table to appear after title */
+  animation-delay: 0.2s;
 }
 
 table {
@@ -54,7 +54,7 @@ table td {
   padding: 12px 15px;
   text-align: left;
   border-bottom: 1px solid #444;
-  vertical-align: middle; /* Align content vertically in the middle */
+  vertical-align: middle;
 }
 
 table th {
@@ -67,16 +67,16 @@ table th {
 }
 
 table tbody tr {
-  cursor: pointer; /* Indicate rows are clickable (if routerLink is present) */
+  cursor: pointer;
   transition: background-color 0.2s ease-in-out;
 }
 
 table tbody tr:hover {
-  background-color: #383838; /* Slightly darker on hover for better feedback */
+  background-color: #383838;
 }
 
 table tbody tr:last-child td {
-  border-bottom: none; /* No border for the last row */
+  border-bottom: none;
 }
 
 table td {
@@ -92,56 +92,54 @@ table td {
   font-weight: bold;
   text-align: center;
   white-space: nowrap;
-  min-width: 80px; /* Ensure consistent pill width */
+  min-width: 80px;
 }
 
-/* Specific status colors (from previous design) */
 .status-pendiente {
-  background-color: #ffc107; /* Yellow for pending */
+  background-color: #ffc107;
   color: #333;
 }
 
 .status-resuelta {
-  background-color: #4caf50; /* Green for resolved */
+  background-color: #4caf50;
   color: #fff;
 }
 
 .status-en_proceso {
-  background-color: #2196f3; /* Blue for in progress */
+  background-color: #2196f3;
   color: #fff;
 }
 
 .status-esperando {
-  background-color: #727272; /* Yellow for pending */
+  background-color: #727272;
   color: #fff;
 }
 
-/* New: No data message styling */
 .no-data-message {
   color: #ccc;
   font-size: 1.1em;
   text-align: center;
-  padding: 30px 20px; /* Add some padding */
-  background-color: #2c2c2c; /* Match table container background */
+  padding: 30px 20px;
+  background-color: #2c2c2c;
   border-radius: 12px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   margin-top: 20px;
-  opacity: 0; /* For animation */
-  transform: translateY(-10px); /* For animation */
+  opacity: 0;
+  transform: translateY(-10px);
   animation: fade-in-up 0.5s ease-out forwards;
   animation-delay: 0.2s;
 }
 
 .assign-btn {
-  background-color: #007bff; /* Primary button color */
+  background-color: #007bff;
   color: white;
   border: none;
   border-radius: 5px;
-  padding: 8px 12px; /* Slightly smaller for table cell */
+  padding: 8px 12px;
   cursor: pointer;
   transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
   font-size: 0.9em;
-  white-space: nowrap; /* Prevent text wrapping */
+  white-space: nowrap;
 }
 
 .assign-btn:hover {
@@ -149,24 +147,23 @@ table td {
   transform: scale(1.05);
 }
 
-/* New: Styling for the worker selector dropdown */
 .worker-select {
-  background-color: #3a3a3a; /* Dark background */
-  color: #a7ffeb; /* Accent text color */
+  background-color: #3a3a3a;
+  color: #a7ffeb;
   border: 1px solid #555;
   border-radius: 5px;
   padding: 6px 10px;
   font-size: 0.9em;
   cursor: pointer;
-  appearance: none; /* Remove default browser styling for select */
-  -webkit-appearance: none; /* For Safari */
-  -moz-appearance: none; /* For Firefox */
-  background-image: url('data:image/svg+xml;utf8,<svg fill="%23a7ffeb" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); /* Custom dropdown arrow */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url('data:image/svg+xml;utf8,<svg fill="%23a7ffeb" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
   background-repeat: no-repeat;
   background-position: right 8px center;
   background-size: 16px;
   transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-  min-width: 150px; /* Ensure sufficient width */
+  min-width: 150px;
 }
 
 .worker-select:hover {
@@ -176,10 +173,10 @@ table td {
 .worker-select:focus {
   outline: none;
   border-color: #a7ffeb;
-  box-shadow: 0 0 0 2px rgba(167, 255, 235, 0.4); /* Focus halo */
+  box-shadow: 0 0 0 2px rgba(167, 255, 235, 0.4);
 }
 
 .worker-select option {
-  background-color: #3a3a3a; /* Background for options */
-  color: #f0f0f0; /* Text color for options */
+  background-color: #3a3a3a;
+  color: #f0f0f0;
 }

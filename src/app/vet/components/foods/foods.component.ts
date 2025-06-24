@@ -156,7 +156,7 @@ export class FoodsComponent implements OnInit {
    * @param {Pet} pet - La mascota registrada del usuario.
    * @returns {void}
    */
-  public getFoodsForUserPet(pet: Pet): void { // Nombre de método más descriptivo
+  public getFoodsForUserPet(pet: Pet): void {
     this.resetProcess();
     this.isLoading = true;
     this.selectedBreed = pet.raza;

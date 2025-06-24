@@ -142,14 +142,7 @@ export class LoginComponent implements OnInit, OnDestroy {
           response => {
             if ( response.length > 0 ) {
               const user = response[ 0 ];
-              // Para usuarios admin, se compara la contraseña en texto plano.
-              if ( email.includes( 'admin' ) ) {
-                if ( password === user.password ) {
-                  this.handleSuccessfulLogin( user.email, true, false, null );
-                } else {
-                  this.setErrorMessage( 'El correo o la contraseña son incorrectos' );
-                }
-              } else {
+
                 // Para clientes normales, se compara el hash de la contraseña.
                 const hashedPassword = CryptoJS.SHA256( password ).toString();
                 if ( hashedPassword === user.password ) {
@@ -157,7 +150,7 @@ export class LoginComponent implements OnInit, OnDestroy {
                 } else {
                   this.setErrorMessage( 'El correo o la contraseña son incorrectos' );
                 }
-              }
+
             } else {
               this.setErrorMessage( 'No existe ningún usuario con este correo' );
             }
@@ -169,14 +162,22 @@ export class LoginComponent implements OnInit, OnDestroy {
           response => {
             if ( response.length > 0 ) {
               const staffMember = response[ 0 ];
-              const hashedPassword = CryptoJS.SHA256( password ).toString();
-
-              // Se compara el hash de la contraseña para todo el personal.
-              if ( hashedPassword === staffMember.password ) {
-                const isAdmin = staffMember.role === 'admin';
-                this.handleSuccessfulLogin( staffMember.email, false, isAdmin, staffMember );
+              // Para usuarios admin, se compara la contraseña en texto plano.
+              if ( email.includes( 'admin' ) ) {
+                if ( password === staffMember.password ) {
+                  this.handleSuccessfulLogin( staffMember.email, false, true, staffMember );
+                } else {
+                  this.setErrorMessage( 'El correo o la contraseña son incorrectos' );
+                }
               } else {
-                this.setErrorMessage( 'El correo o la contraseña son incorrectos' );
+                const hashedPassword = CryptoJS.SHA256( password ).toString();
+
+                // Se compara el hash de la contraseña para todo el personal.
+                if ( hashedPassword === staffMember.password ) {
+                  this.handleSuccessfulLogin( staffMember.email, false, false, staffMember );
+                } else {
+                  this.setErrorMessage( 'El correo o la contraseña son incorrectos' );
+                }
               }
             } else {
               this.setErrorMessage( 'No existe ningún usuario con este correo' );

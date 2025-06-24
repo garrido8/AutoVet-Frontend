@@ -90,8 +90,8 @@
 }
 
 #problem {
-  width: 400px; /* Slightly wider textarea */
-  height: 180px; /* Slightly taller textarea */
+  width: 400px;
+  height: 180px;
   border: 2px solid #555;
   border-radius: 12px;
   background-color: #2c2c2c;
@@ -114,7 +114,7 @@
 
 .send-btn {
   color: #fff;
-  background-color: #00c853; /* Green for positive action */
+  background-color: #00c853;
   border: none;
   padding: 12px 25px;
   border-radius: 8px;
@@ -126,7 +126,7 @@
 }
 
 .send-btn:hover:not(.disabled) {
-  background-color: #009640; /* Darker green on hover */
+  background-color: #009640;
   transform: translateY(-2px);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
@@ -190,12 +190,12 @@
 }
 
 .icon {
-  color: #00c853; /* Green for success */
+  color: #00c853;
   font-size: 60px;
 }
 
 .close-btn {
-  background-color: #007bff; /* Blue for action */
+  background-color: #007bff;
   color: #fff;
   border: none;
   padding: 12px 25px;
