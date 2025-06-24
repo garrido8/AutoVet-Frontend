@@ -148,7 +148,6 @@ export class ClientsComponent implements OnInit, OnDestroy {
   //  * @public
   //  * @method goToClient
   //  * @description Método de navegación para ir a la página de información de un cliente específico.
-  //  * (Actualmente comentado en el código original, pero puede ser útil si se implementa).
   //  * @param {Client} client - El objeto cliente al que se desea navegar.
   //  */
   // public goToClient(client: Client): void {

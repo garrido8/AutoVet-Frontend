@@ -13,6 +13,14 @@ import { GeminiService } from '../../../services/gemini.service';
 import { marked } from 'marked';
 import { Router } from '@angular/router';
 
+/**
+ * @class ChatbotComponent
+ * @description
+ * Componente principal para la funcionalidad de chatbot. Gestiona la visualización de conversaciones
+ * y mensajes, el envío de nuevos mensajes, la creación de nuevas conversaciones, y la interacción
+ * con un servicio de IA (Gemini) para generar respuestas. También incluye funcionalidades para
+ * editar y eliminar conversaciones a través de menús contextuales y modales.
+ */
 @Component({
   selector: 'app-chatbot',
   standalone: true,
@@ -25,6 +33,7 @@ import { Router } from '@angular/router';
 })
 export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
 
+  // --- Inyección de Dependencias ---
   private messageService = inject( MessageService );
   private userInfoService = inject( UserInfoService );
   private authService = inject( AuthService );
@@ -33,511 +42,463 @@ export class ChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
   private gemini = inject( GeminiService );
   private router = inject( Router );
 
+  // --- Propiedades Públicas de Estado ---
   public promptValueText: string = '';
   public isLoading: boolean = false;
-
-  @ViewChild('promptValue') promptValue?: ElementRef;
-  @ViewChild('messagesContainer') messagesContainer?: ElementRef;
-
-  private subscriptions = new Subscription();
-
   public selectedConversation: Conversation | null = null;
   public currentConversation: Conversation | null = null;
   public userConversations: Conversation[] = [];
-
-  private userId: number | null = null;
-
   public showConversationMenu: boolean = false;
   public menuPosition: { top: string, left: string } = { top: '0px', left: '0px' };
   public activeConversationIdForMenu: number | null = null;
 
-  // Properties for in-component modal control
+  // --- Propiedades para el Modal de Edición ---
   public showEditModal: boolean = false;
   public conversationToEdit: Conversation | null = null;
-  public editedTitle: string = ''; // Holds the title currently being edited in the modal input
-  public isEditingLoading: boolean = false; // Loading state for the edit operation
+  public editedTitle: string = '';
+  public isEditingLoading: boolean = false;
 
-  // NEW: Properties for in-component DELETE confirmation modal control
+  // --- Propiedades para el Modal de Confirmación de Borrado ---
   public showDeleteConfirmModal: boolean = false;
   public conversationToDelete: Conversation | null = null;
-  public isDeletingLoading: boolean = false; // Loading state for the delete operation
+  public isDeletingLoading: boolean = false;
 
+  // --- Referencias a Elementos del DOM ---
+  @ViewChild('promptValue') promptValue?: ElementRef;
+  @ViewChild('messagesContainer') messagesContainer?: ElementRef;
 
+  // --- Propiedades Privadas ---
+  private subscriptions = new Subscription();
+  private userId: number | null = null;
+
+  /**
+   * @method ngOnInit
+   * @description
+   * Ciclo de vida de Angular. Carga las conversaciones del usuario al iniciar.
+   * También recupera la conversación activa desde el `ChatStateService` (sessionStorage)
+   * para mantener el estado entre navegaciones.
+   * @returns {void}
+   */
   ngOnInit(): void {
     this.fetchUserConversations();
     const storedConversation = this.chatStateService.getConversationItem();
     if ( storedConversation ) {
       this.selectedConversation = storedConversation;
       this.currentConversation = storedConversation;
-      this.messageService.getMessagesByConversationId( this.selectedConversation.id! )
+      const sub = this.messageService.getMessagesByConversationId( this.selectedConversation.id! )
         .subscribe( messages => {
           this.selectedConversation!.messages = messages;
-          console.log('ChatbotComponent: Selected conversation from chat state service:', this.selectedConversation);
           this.scrollToBottom();
         });
+      this.subscriptions.add(sub);
     } else {
         this.selectedConversation = null;
         this.currentConversation = null;
         this.chatStateService.clearConversationItem();
-        console.log('ChatbotComponent: No active conversation set. Clearing sessionStorage if any.');
     }
   }
 
+  /**
+   * @method ngAfterViewChecked
+   * @description
+   * Ciclo de vida de Angular. Se ejecuta después de cada comprobación de la vista.
+   * Se utiliza para asegurar que la vista de mensajes siempre se desplace hacia abajo.
+   * @returns {void}
+   */
+  ngAfterViewChecked(): void {
+    this.scrollToBottom();
+  }
+
+  /**
+   * @method ngOnDestroy
+   * @description
+   * Ciclo de vida de Angular. Limpia el estado de la conversación en sessionStorage y
+   * anula todas las suscripciones para evitar fugas de memoria.
+   * @returns {void}
+   */
+  ngOnDestroy(): void {
+    this.chatStateService.clearConversationItem();
+    this.subscriptions.unsubscribe();
+  }
+
+  /**
+   * @private
+   * @method fetchUserConversations
+   * @description
+   * Obtiene el ID del usuario actual y luego solicita todas sus conversaciones
+   * y los mensajes asociados a cada una.
+   * @returns {void}
+   */
   private fetchUserConversations(): void {
     this.subscriptions.add(
       this.authService.getUserPerEmail(this.userInfoService.getToken()!).pipe(
         tap(user => {
           if (!user || user.length === 0 || !user[0].id) {
-            console.warn('ChatbotComponent: User not found or user ID is missing. Cannot fetch user conversations.');
             throw new Error('User data missing for fetching conversations.');
           }
           this.userId = user[0].id!;
-          console.log('ChatbotComponent: Fetching conversations for client ID:', this.userId);
         }),
         switchMap(() => this.conversationService.getConversationsByClientId(this.userId!)),
         tap(conversations => {
           this.userConversations = conversations;
           this.userConversations.forEach( conversation => {
-            if (!conversation.messages) {
-                conversation.messages = [];
-            }
-            this.messageService.getMessagesByConversationId( conversation.id! )
-              .subscribe( messages => {
-                conversation.messages = messages;
-              });
+            if (!conversation.messages) conversation.messages = [];
+            const msgSub = this.messageService.getMessagesByConversationId( conversation.id! )
+              .subscribe( messages => conversation.messages = messages );
+            this.subscriptions.add(msgSub);
           });
-          console.log('ChatbotComponent: User conversations loaded:', this.userConversations);
-          // If the selected conversation was updated, ensure its title is fresh
-          if (this.selectedConversation && this.selectedConversation.id) {
+          if (this.selectedConversation?.id) {
             const updatedConv = this.userConversations.find(c => c.id === this.selectedConversation!.id);
             if (updatedConv) {
               this.selectedConversation.title = updatedConv.title;
-              this.chatStateService.setConversationItem(updatedConv); // Update session storage
+              this.chatStateService.setConversationItem(updatedConv);
             }
           }
         }),
         catchError(error => {
           console.error('ChatbotComponent: Error fetching user conversations:', error);
-          this.userConversations = [];
           return of([]);
         })
       ).subscribe()
     );
   }
 
-  ngAfterViewChecked(): void {
-    this.scrollToBottom();
-  }
-
-  ngOnDestroy(): void {
-    this.chatStateService.clearConversationItem();
-    this.subscriptions.unsubscribe();
-  }
-
+  /**
+   * @private
+   * @method scrollToBottom
+   * @description Desplaza el contenedor de mensajes hasta el final para mostrar el último mensaje.
+   * @returns {void}
+   */
   private scrollToBottom(): void {
     if (this.messagesContainer) {
       try {
         this.messagesContainer.nativeElement.scrollTop = this.messagesContainer.nativeElement.scrollHeight;
-      } catch (err) {
-        console.error('Error scrolling to bottom:', err);
-      }
+      } catch (err) { }
     }
   }
 
+  /**
+   * @method selectConversation
+   * @description
+   * Establece una conversación existente como la activa, la guarda en el estado
+   * y carga sus mensajes si es necesario.
+   * @param {Conversation} conversation - La conversación a seleccionar.
+   * @returns {void}
+   */
   public selectConversation(conversation: Conversation): void {
     this.selectedConversation = conversation;
     this.chatStateService.setConversationItem( conversation );
-    console.log('ChatbotComponent: Navigating to conversation:', conversation);
-
-    if (!this.selectedConversation.messages) {
-      this.selectedConversation.messages = [];
-    }
-
+    if (!this.selectedConversation.messages) this.selectedConversation.messages = [];
     if (this.selectedConversation.messages.length === 0 && this.selectedConversation.id) {
-        this.messageService.getMessagesByConversationId(this.selectedConversation.id).subscribe(messages => {
-            this.selectedConversation!.messages = messages;
-            setTimeout(() => this.scrollToBottom(), 0);
-        });
+      const msgSub = this.messageService.getMessagesByConversationId(this.selectedConversation.id).subscribe(messages => {
+          this.selectedConversation!.messages = messages;
+          setTimeout(() => this.scrollToBottom(), 0);
+      });
+      this.subscriptions.add(msgSub);
     } else {
         setTimeout(() => this.scrollToBottom(), 0);
     }
     this.showConversationMenu = false;
-    this.activeConversationIdForMenu = null;
   }
 
+  /**
+   * @method sendMessage
+   * @description
+   * Orquesta el proceso de envío de un mensaje. Si no hay una conversación seleccionada,
+   * inicia el flujo para crear una nueva. Si ya existe, añade el mensaje y obtiene
+   * una respuesta de la IA. Gestiona el estado de carga y la actualización optimista de la UI.
+   * @returns {void}
+   */
   public sendMessage(): void {
     const messageContent = this.promptValue?.nativeElement.value?.trim();
-
+    if (!messageContent) return;
     this.promptValue!.nativeElement.value = '';
-
-    if (!messageContent || messageContent.length === 0) {
-      console.warn('ChatbotComponent: Message content is empty.');
-      return;
-    }
-
     this.isLoading = true;
 
-    const newUserMessage: Message = {
-      content: messageContent,
-      conversation: 0,
-      type: 'user',
-      timestamp: new Date()
-    };
+    const newUserMessage: Message = { content: messageContent, conversation: 0, type: 'user', timestamp: new Date() };
 
-    if ( !this.selectedConversation ) {
-      console.log('ChatbotComponent: No conversation selected. Initiating new conversation creation flow.');
-
-      this.subscriptions.add(
-        this.authService.getUserPerEmail(this.userInfoService.getToken()!).pipe(
-          tap(user => {
-            if (!user || user.length === 0 || !user[0].id) {
-              console.error('User Fetch Error: User not found or user ID is missing.');
-              throw new Error('User not found or ID missing.');
-            }
-            this.userId = user[0].id!;
-          }),
-          switchMap(user => {
-            return this.gemini.getConvsersationTitle(messageContent).pipe(
-              catchError(error => {
-                console.error('Gemini Title Error: Could not get conversation title. Using default.', error);
-                return of('Conversación con el veterinario (Título por defecto)');
-              }),
-              switchMap(title => {
-                const newConversation: Conversation = {
-                  client: user[0].id!,
-                  client_name: user[0].name,
-                  title: title,
-                  created_at: new Date(),
-                  messages: []
-                };
-                console.log('Attempting to add new conversation:', newConversation);
-                return this.conversationService.addConversation(newConversation);
-              })
-            );
-          }),
-          tap(conversationResponse => {
-            if (!conversationResponse || !conversationResponse.id) {
-              console.error('Conversation Creation Error: Backend did not return a valid Conversation object with an ID.');
-              throw new Error('Conversation ID missing from backend response.');
-            }
-            console.log('New conversation created successfully with ID:', conversationResponse.id);
-            this.selectedConversation = conversationResponse;
-            this.currentConversation = conversationResponse;
-            this.chatStateService.setConversationItem(conversationResponse);
-            newUserMessage.conversation = conversationResponse.id!;
-
-            if (!this.selectedConversation.messages) {
-              this.selectedConversation.messages = [];
-            }
-            this.selectedConversation.messages.push(newUserMessage);
-            this.scrollToBottom();
-          }),
-          switchMap(() => {
-            console.log('Attempting to add initial user message:', newUserMessage);
-            return this.messageService.addMessage(newUserMessage).pipe(
-              tap(newMessage => {
-                Object.assign(newUserMessage, newMessage);
-                console.log('Initial user message added correctly');
-              }),
-              catchError(error => {
-                console.error('Initial User Message Error: Error adding initial user message', error);
-                throw error;
-              })
-            );
-          }),
-          switchMap(() => {
-              const fullPrompt = messageContent;
-              return this.gemini.progressConversation(fullPrompt).pipe(
-                catchError(geminiError => {
-                  console.error('ChatbotComponent: Error from Gemini service (new conv flow):', geminiError);
-                  return of('Error: No se pudo obtener una respuesta del bot para la nueva conversación.');
-                }),
-                switchMap(geminiResponse => {
-                  if (geminiResponse.startsWith('Error:')) {
-                    const errorMachineMessage: Message = {
-                        content: geminiResponse,
-                        conversation: this.selectedConversation!.id!,
-                        type: 'machine',
-                        timestamp: new Date()
-                    };
-                    return of(errorMachineMessage);
-                  }
-
-                  const machineContentHtml = marked(geminiResponse).toString();
-                  const newMachineMessage: Message = {
-                    content: machineContentHtml,
-                    conversation: this.selectedConversation!.id!,
-                    type: 'machine',
-                    timestamp: new Date()
-                  };
-                  return this.messageService.addMessage(newMachineMessage).pipe(
-                    tap(savedMachineMessage => {
-                      if (savedMachineMessage) {
-                        this.selectedConversation!.messages!.push(savedMachineMessage);
-                        this.userConversations.unshift(this.selectedConversation!); // Add to top of list
-                        this.scrollToBottom();
-                      }
-                    }),
-                    catchError(addMachineMessageError => {
-                      console.error('ChatbotComponent: Error saving machine message (new conv flow):', addMachineMessageError);
-                      return of(null);
-                    })
-                  );
-                })
-              );
-          }),
-          tap(() => {
-            console.log('New conversation flow completed.');
-          }),
-          catchError(overallError => {
-            console.error('ChatbotComponent: Overall error during new conversation creation flow.', overallError);
-            if (this.selectedConversation!.messages!.length > 0 && this.selectedConversation!.messages![this.selectedConversation!.messages!.length - 1]?.type === 'user') {
-               this.selectedConversation!.messages!.pop();
-            }
-            return of(null);
-          }),
-          finalize(() => {
-            this.isLoading = false;
-            console.log('New conversation creation flow finalized. isLoading set to false.');
-          })
-        ).subscribe());
-      return;
+    if (!this.selectedConversation) {
+      this.handleNewConversation(newUserMessage);
+    } else {
+      this.handleExistingConversation(newUserMessage);
     }
+  }
 
-    newUserMessage.conversation = this.selectedConversation.id!;
+  /**
+   * @private
+   * @method handleNewConversation
+   * @description
+   * Lógica para cuando se envía un mensaje sin una conversación activa.
+   * 1. Pide un título a la IA.
+   * 2. Crea la conversación en la BBDD.
+   * 3. Guarda el primer mensaje del usuario.
+   * 4. Pide la primera respuesta a la IA.
+   * 5. Guarda la respuesta de la IA.
+   * @param {Message} userMessage - El primer mensaje del usuario.
+   * @returns {void}
+   */
+  private handleNewConversation(userMessage: Message): void {
+    const sub = this.authService.getUserPerEmail(this.userInfoService.getToken()!).pipe(
+      switchMap(user => {
+        if (!user || !user[0]?.id) throw new Error('User not found.');
+        this.userId = user[0].id;
+        return this.gemini.getConvsersationTitle(userMessage.content).pipe(
+          catchError(() => of('Nueva conversación')),
+          switchMap(title => this.conversationService.addConversation({
+            client: user[0].id!, client_name: user[0].name, title: title, created_at: new Date(), messages: []
+          }))
+        );
+      }),
+      tap(newConv => {
+        this.selectedConversation = newConv;
+        this.chatStateService.setConversationItem(newConv);
+        userMessage.conversation = newConv.id!;
+        this.selectedConversation.messages = [userMessage];
+        this.userConversations.unshift(newConv);
+      }),
+      switchMap(() => this.messageService.addMessage(userMessage)),
+      tap(savedUserMsg => Object.assign(userMessage, savedUserMsg)),
+      switchMap(() => this.gemini.progressConversation(userMessage.content)),
+      switchMap(geminiResponse => {
+        const machineContentHtml = marked(geminiResponse).toString();
+        const newMachineMessage: Message = {
+          content: machineContentHtml, conversation: this.selectedConversation!.id!, type: 'machine', timestamp: new Date()
+        };
+        return this.messageService.addMessage(newMachineMessage);
+      }),
+      tap(savedMachineMessage => {
+        if(savedMachineMessage) this.selectedConversation!.messages!.push(savedMachineMessage);
+      }),
+      catchError(err => {
+        console.error('Error en el flujo de nueva conversación:', err);
+        return of(null);
+      }),
+      finalize(() => this.isLoading = false)
+    ).subscribe();
+    this.subscriptions.add(sub);
+  }
 
-    if (!this.selectedConversation.messages) {
-      this.selectedConversation.messages = [];
-    }
-    this.selectedConversation.messages.push(newUserMessage);
-    this.scrollToBottom();
+  /**
+   * @private
+   * @method handleExistingConversation
+   * @description
+   * Lógica para cuando se envía un mensaje en una conversación ya existente.
+   * 1. Añade el mensaje a la UI de forma optimista.
+   * 2. Guarda el mensaje del usuario en la BBDD.
+   * 3. Pide una respuesta a la IA, enviando el historial.
+   * 4. Guarda la respuesta de la IA y la añade a la UI.
+   * @param {Message} userMessage - El mensaje del usuario.
+   * @returns {void}
+   */
+  private handleExistingConversation(userMessage: Message): void {
+      userMessage.conversation = this.selectedConversation!.id!;
+      this.selectedConversation!.messages!.push(userMessage);
+      this.scrollToBottom();
 
-    const existingMessagesForPrompt: string = (this.selectedConversation.messages!
-      .slice(0, -1)
-      .map(m => this.cleanHtmlText(m.content))
-      .join('\n')
-    ) || '';
+      const history = this.selectedConversation!.messages!.slice(0, -1).map(m => `${m.type}: ${this.cleanHtmlText(m.content)}`).join('\n');
+      const fullPrompt = `${history}\nuser: ${userMessage.content}`;
 
-    const fullPrompt = existingMessagesForPrompt + '\n' + messageContent;
-
-    console.log('Full prompt for Gemini:', fullPrompt);
-    console.log('User message sent (optimistically):', newUserMessage);
-
-    this.subscriptions.add(
-      this.messageService.addMessage(newUserMessage).pipe(
-        tap(savedUserMessage => {
-            Object.assign(newUserMessage, savedUserMessage);
-            console.log('ChatbotComponent: User message saved successfully:', savedUserMessage);
-        }),
-        switchMap(() => this.gemini.progressConversation(fullPrompt).pipe(
-          catchError(geminiError => {
-            console.error('ChatbotComponent: Error from Gemini service:', geminiError);
-            return of('Error: No se pudo obtener una respuesta del bot. Por favor, inténtalo de nuevo.');
-          })
-        )),
-        switchMap(geminiResponse => {
-          if (geminiResponse.startsWith('Error:')) {
-            const errorMachineMessage: Message = {
-                content: geminiResponse,
-                conversation: this.selectedConversation!.id!,
-                type: 'machine',
-                timestamp: new Date()
-            };
-            return of(errorMachineMessage);
-          }
-
-          const machineContentHtml = marked(geminiResponse).toString();
-
-          const newMachineMessage: Message = {
-            content: machineContentHtml,
-            conversation: this.selectedConversation!.id!,
-            type: 'machine',
-            timestamp: new Date()
-          };
-          return this.messageService.addMessage(newMachineMessage).pipe(
-            tap(savedMachineMessage => {
-              if (savedMachineMessage) {
-                this.selectedConversation!.messages!.push(savedMachineMessage);
-                this.scrollToBottom();
-              }
-            }),
-            catchError(addMachineMessageError => {
-              console.error('ChatbotComponent: Error saving machine message:', addMachineMessageError);
+      const sub = this.messageService.addMessage(userMessage).pipe(
+          tap(savedUserMsg => Object.assign(userMessage, savedUserMsg)),
+          switchMap(() => this.gemini.progressConversation(fullPrompt)),
+          switchMap(geminiResponse => {
+              const machineContentHtml = marked(geminiResponse).toString();
+              const newMachineMessage: Message = {
+                  content: machineContentHtml, conversation: this.selectedConversation!.id!, type: 'machine', timestamp: new Date()
+              };
+              return this.messageService.addMessage(newMachineMessage);
+          }),
+          tap(savedMachineMessage => {
+            if(savedMachineMessage) this.selectedConversation!.messages!.push(savedMachineMessage);
+          }),
+          catchError(err => {
+              console.error('Error en el flujo de conversación existente:', err);
+              this.selectedConversation!.messages!.pop();
               return of(null);
-            })
-          );
-        }),
-        tap(() => {
-        }),
-        catchError(overallError => {
-          console.error('ChatbotComponent: Overall error in sendMessage flow:', overallError);
-          if (this.selectedConversation!.messages!.length > 0 && this.selectedConversation!.messages![this.selectedConversation!.messages!.length - 1]?.type === 'user') {
-            this.selectedConversation!.messages!.pop();
-          }
-          return of(null);
-        }),
-        finalize(() => {
-          this.isLoading = false;
-          console.log('Existing conversation flow finalized. isLoading set to false.');
-        })
-      ).subscribe()
-    );
+          }),
+          finalize(() => this.isLoading = false)
+      ).subscribe();
+      this.subscriptions.add(sub);
   }
 
+  /**
+   * @method cleanHtmlText
+   * @description Convierte una cadena HTML a texto plano para ser usada en los prompts de la IA.
+   * @param {string} htmlString - La cadena de texto con formato HTML.
+   * @returns {string} La cadena de texto limpia.
+   */
   public cleanHtmlText(htmlString: string): string {
-    const stringWithoutTags = htmlString.replace( /<[^>]*>/g, '' );
-    const normalizedWhitespaceString = stringWithoutTags.replace( /\s+/g, ' ' );
-    return normalizedWhitespaceString.trim();
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = htmlString;
+    return tempDiv.textContent || tempDiv.innerText || "";
   }
 
+  /**
+   * @method createConversation
+   * @description Resetea el estado para iniciar una nueva conversación vacía.
+   * @returns {void}
+   */
   public createConversation(): void {
     this.chatStateService.clearConversationItem();
     this.selectedConversation = null;
     this.showConversationMenu = false;
-    this.activeConversationIdForMenu = null;
   }
 
+  /**
+   * @method toggleConversationMenu
+   * @description Muestra u oculta el menú contextual (editar/borrar) para una conversación.
+   * @param {MouseEvent} event - El evento del clic para posicionar el menú.
+   * @param {number} conversationId - El ID de la conversación.
+   * @returns {void}
+   */
   public toggleConversationMenu(event: MouseEvent, conversationId: number): void {
     event.stopPropagation();
-
-    if (this.showConversationMenu && this.activeConversationIdForMenu === conversationId) {
+    if (this.activeConversationIdForMenu === conversationId) {
       this.showConversationMenu = false;
       this.activeConversationIdForMenu = null;
     } else {
-      this.showConversationMenu = false;
-      this.activeConversationIdForMenu = null;
-
       this.activeConversationIdForMenu = conversationId;
       this.showConversationMenu = true;
     }
   }
 
+  /**
+   * @method onClickOutsideMenu
+   * @description Cierra cualquier menú o modal abierto si se hace clic fuera de ellos.
+   * @returns {void}
+   */
   public onClickOutsideMenu(): void {
-    // This will close both the conversation menu and any active modal
     if (this.showConversationMenu) {
       this.showConversationMenu = false;
       this.activeConversationIdForMenu = null;
     }
-    if (this.showEditModal) {
-      this.cancelEdit(); // Call cancelEdit to reset modal state
-    }
-    // NEW: Close delete confirmation modal
-    if (this.showDeleteConfirmModal) {
-        this.cancelDelete();
-    }
+    if (this.showEditModal) this.cancelEdit();
+    if (this.showDeleteConfirmModal) this.cancelDelete();
   }
 
-  // UPDATED: deleteConversation now prepares and shows the confirmation modal
+  /**
+   * @method deleteConversation
+   * @description Prepara y muestra el modal de confirmación para eliminar una conversación.
+   * @param {number} conversationId - El ID de la conversación a eliminar.
+   * @returns {void}
+   */
   public deleteConversation(conversationId: number): void {
     const conversation = this.userConversations.find(c => c.id === conversationId);
     if (conversation) {
       this.conversationToDelete = conversation;
-      this.showDeleteConfirmModal = true; // Show the new confirmation modal
-      this.showConversationMenu = false; // Close the context menu
-      this.activeConversationIdForMenu = null;
-    } else {
-      console.warn('Conversation not found for deletion:', conversationId);
+      this.showDeleteConfirmModal = true;
+      this.showConversationMenu = false;
     }
   }
 
-  // NEW: Method to confirm and proceed with deletion
+  /**
+   * @method confirmDelete
+   * @description Ejecuta la eliminación de la conversación tras la confirmación del usuario.
+   * @returns {void}
+   */
   public confirmDelete(): void {
-    if (this.conversationToDelete && this.conversationToDelete.id) {
+    if (this.conversationToDelete?.id) {
       this.isDeletingLoading = true;
-      console.log('Confirming delete of conversation with ID:', this.conversationToDelete.id);
-      this.conversationService.deleteConversation(this.conversationToDelete.id).pipe(
+      const sub = this.conversationService.deleteConversation(this.conversationToDelete.id).pipe(
         finalize(() => this.isDeletingLoading = false)
       ).subscribe({
         next: () => {
-          console.log(`Conversation ${this.conversationToDelete!.id} deleted successfully.`);
-          this.userConversations = this.userConversations.filter(conv => conv.id !== this.conversationToDelete!.id);
+          this.userConversations = this.userConversations.filter(c => c.id !== this.conversationToDelete!.id);
           if (this.selectedConversation?.id === this.conversationToDelete!.id) {
-            this.createConversation(); // Clear selected conversation if it was the one deleted
+            this.createConversation();
           }
           this.closeDeleteConfirmModal();
         },
-        error: (err) => {
-          console.error(`Error deleting conversation ${this.conversationToDelete!.id}:`, err);
-          // Optionally display an error message to the user
-        }
+        error: (err) => console.error(`Error deleting conversation`, err)
       });
+      this.subscriptions.add(sub);
     }
   }
 
-  // NEW: Method to cancel deletion
+  /**
+   * @method cancelDelete
+   * @description Cancela el proceso de borrado y cierra el modal de confirmación.
+   * @returns {void}
+   */
   public cancelDelete(): void {
     this.closeDeleteConfirmModal();
   }
 
-  // NEW: Method to close the delete confirmation modal and reset its state
+  /**
+   * @private
+   * @method closeDeleteConfirmModal
+   * @description Cierra el modal de confirmación de borrado y resetea su estado.
+   * @returns {void}
+   */
   private closeDeleteConfirmModal(): void {
     this.showDeleteConfirmModal = false;
     this.conversationToDelete = null;
     this.isDeletingLoading = false;
   }
 
+  /**
+   * @method editConversation
+   * @description Prepara y muestra el modal para editar el título de una conversación.
+   * @param {number} conversationId - El ID de la conversación a editar.
+   * @returns {void}
+   */
   public editConversation(conversationId: number): void {
     const conversation = this.userConversations.find(c => c.id === conversationId);
     if (conversation) {
-      this.conversationToEdit = { ...conversation }; // Create a copy to prevent direct modification
-      this.editedTitle = conversation.title; // Initialize input with current title
-      this.showEditModal = true;              // Show the modal
-      this.showConversationMenu = false;      // Close the context menu
-      this.activeConversationIdForMenu = null;
-    } else {
-      console.warn('Conversation not found for editing:', conversationId);
+      this.conversationToEdit = { ...conversation };
+      this.editedTitle = conversation.title;
+      this.showEditModal = true;
+      this.showConversationMenu = false;
     }
   }
 
-  // Methods for managing the in-component edit modal
+  /**
+   * @method saveEditedConversation
+   * @description Guarda los cambios del título de una conversación y actualiza la UI.
+   * @returns {void}
+   */
   public saveEditedConversation(): void {
     if (this.conversationToEdit && this.editedTitle.trim()) {
       this.isEditingLoading = true;
-      const updatedConversation: Conversation = {
-        ...this.conversationToEdit,
-        title: this.editedTitle.trim()
-      };
+      const updatedConversation = { ...this.conversationToEdit, title: this.editedTitle.trim() };
 
-      this.conversationService.editConversation(updatedConversation.id!, updatedConversation).pipe(
-        finalize(() => this.isEditingLoading = false) // Ensure loading state is reset
+      const sub = this.conversationService.editConversation(updatedConversation.id!, updatedConversation).pipe(
+        finalize(() => this.isEditingLoading = false)
       ).subscribe({
-        next: ( response ) => {
-          console.log('Conversation updated successfully:', response);
-          // Update the conversation in the local array
+        next: (response) => {
           const index = this.userConversations.findIndex(c => c.id === response.id);
-          if (index !== -1) {
-            this.userConversations[index] = response;
-          }
-          // If the currently selected conversation was the one edited, update it
+          if (index !== -1) this.userConversations[index] = response;
           if (this.selectedConversation?.id === response.id) {
-              this.selectedConversation = response;
-              this.currentConversation = response;
-              this.messageService.getMessagesByConversationId( this.selectedConversation!.id! )
-              .subscribe( messages => {
-          this.selectedConversation!.messages = messages;
-          console.log('ChatbotComponent: Selected conversation from chat state service:', this.selectedConversation);
-          this.scrollToBottom();
-        });
+            this.selectedConversation = response;
             this.chatStateService.setConversationItem(response);
           }
           this.closeEditModal();
         },
-        error: ( err ) => {
-          console.error('Error updating conversation:', err);
-          // Optionally display an error message to the user
-        }
+        error: (err) => console.error('Error updating conversation:', err)
       });
+      this.subscriptions.add(sub);
     }
   }
 
+  /**
+   * @method cancelEdit
+   * @description Cancela el proceso de edición y cierra el modal.
+   * @returns {void}
+   */
   public cancelEdit(): void {
     this.closeEditModal();
   }
 
+  /**
+   * @private
+   * @method closeEditModal
+   * @description Cierra el modal de edición y resetea su estado.
+   * @returns {void}
+   */
   private closeEditModal(): void {
     this.showEditModal = false;
-    this.conversationToEdit = null; // Clear the conversation data
-    this.editedTitle = ''; // Clear the input field
-    this.isEditingLoading = false; // Reset loading state just in case
+    this.conversationToEdit = null;
+    this.editedTitle = '';
+    this.isEditingLoading = false;
   }
 }

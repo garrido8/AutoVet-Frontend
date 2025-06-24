@@ -1,15 +1,23 @@
 import { CommonModule, formatDate, registerLocaleData } from '@angular/common';
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { ReassignmentService } from '../../../../services/reassignment.service';
-import { Reassignment } from '../../../../interfaces/reassignment.interface'; // Ensure this path is correct
+import { Reassignment } from '../../../../interfaces/reassignment.interface';
 import { Subscription } from 'rxjs';
 import localeEs from '@angular/common/locales/es';
-import { FormsModule } from '@angular/forms'; // Import FormsModule for ngModel
+import { FormsModule } from '@angular/forms';
 import { UserInfoService } from '../../../../services/user-info.service';
 import { Staff } from '../../../../interfaces/staff.interface';
 
-registerLocaleData(localeEs, 'es-ES'); // Register locale for date formatting
+// Registra el locale español para poder formatear fechas correctamente.
+registerLocaleData(localeEs, 'es-ES');
 
+/**
+ * @class ReassignmentsComponent
+ * @description
+ * Componente para visualizar y gestionar las solicitudes de reasignación.
+ * Los administradores pueden ver todas las solicitudes y cambiar su estado.
+ * El personal no administrador solo puede ver las solicitudes que ha realizado.
+ */
 @Component({
   selector: 'app-reassignments',
   standalone: true,
@@ -17,146 +25,178 @@ registerLocaleData(localeEs, 'es-ES'); // Register locale for date formatting
   styleUrl: './reassignments.component.css',
   imports: [
     CommonModule,
-    FormsModule // Add FormsModule here
+    FormsModule
   ]
 })
 export class ReassignmentsComponent implements OnInit, OnDestroy {
 
-  private subscriptions = new Subscription()
+  // --- Propiedades Privadas ---
+  /**
+   * @private
+   * @property {Subscription} subscriptions
+   * @description Contenedor para todas las suscripciones de RxJS.
+   */
+  private subscriptions = new Subscription();
 
+  // --- Inyección de Dependencias ---
+  /**
+   * @private
+   * @property {ReassignmentService} reassignmentService
+   * @description Servicio para gestionar las operaciones CRUD de las reasignaciones.
+   */
   private reassignmentService = inject(ReassignmentService);
 
-  private userInfoService = inject( UserInfoService )
+  /**
+   * @private
+   * @property {UserInfoService} userInfoService
+   * @description Servicio para obtener datos del usuario/personal logueado.
+   */
+  private userInfoService = inject( UserInfoService );
 
+  // --- Propiedades Públicas ---
+  /**
+   * @property {Reassignment[]} reassignments
+   * @description Array para almacenar todas las reasignaciones (vista de admin).
+   */
   public reassignments: Reassignment[] = [];
 
-  public workerReassignments: Reassignment[] = []
+  /**
+   * @property {Reassignment[]} workerReassignments
+   * @description Array para almacenar las reasignaciones de un trabajador específico.
+   */
+  public workerReassignments: Reassignment[] = [];
 
-  // Define the available statuses for the dropdown
+  /**
+   * @property {string[]} availableStatuses
+   * @description Lista de estados disponibles para el dropdown de cambio de estado.
+   */
   public availableStatuses: string[] = [
     'pending',
     'approved',
     'rejected'
   ];
 
+  /**
+   * @property {boolean} isAdmin
+   * @description Flag que indica si el usuario actual es un administrador.
+   */
   public isAdmin: boolean = localStorage.getItem('isAdmin') === 'true' ? true : false;
 
+  /**
+   * @method ngOnInit
+   * @description
+   * Ciclo de vida de Angular. Carga las reasignaciones según el rol del usuario.
+   * Si es admin, carga todas. Si no, carga solo las del usuario logueado.
+   * @returns {void}
+   */
   ngOnInit(): void {
-    // Fetch reassignments when the component initializes
-    const staff: Staff = this.userInfoService.getFullStaffToken()!
+    const staff: Staff = this.userInfoService.getFullStaffToken()!;
 
     if( this.isAdmin ) {
       this.subscriptions.add(
         this.reassignmentService.getReassignments()
-          .subscribe( response => {
-            this.reassignments = response;
-            console.log('Fetched Reassignments:', this.reassignments); // For debugging
-          },
-          error => {
-            console.error('Error fetching reassignments:', error);
-            // Handle error, e.g., show a user-friendly message
+          .subscribe({
+            next: response => this.reassignments = response,
+            error: err => console.error('Error fetching reassignments:', err)
           })
-
-
-        );
+      );
     } else {
-      this.reassignmentService.getReassignmentByUser( staff.pk! ).subscribe( response => {
-        this.workerReassignments = response
-      } )
+      if (staff && staff.pk) {
+        this.subscriptions.add(
+          this.reassignmentService.getReassignmentByUser( staff.pk ).subscribe( response => {
+            this.workerReassignments = response;
+          })
+        );
+      }
     }
   }
 
+  /**
+   * @method ngOnDestroy
+   * @description
+   * Ciclo de vida de Angular. Anula todas las suscripciones para evitar fugas de memoria.
+   * @returns {void}
+   */
   ngOnDestroy(): void {
-    // Unsubscribe from all subscriptions to prevent memory leaks
     this.subscriptions.unsubscribe();
   }
 
   /**
-   * Formats a Date object or string into a localized date string.
-   * @param date The date to format. Can be a Date object or a date string.
-   * @returns The formatted date string, or an empty string if the date is invalid.
+   * @method getDate
+   * @description
+   * Formatea una fecha a un string localizado en español ('dd/MM/yyyy HH:mm').
+   * @param {Date | string | undefined} date - La fecha a formatear.
+   * @returns {string} La fecha formateada o un string vacío si la fecha es inválida.
    */
   public getDate(date: Date | string | undefined): string {
-    if (!date) return ''; // Handle undefined or null dates
+    if (!date) return '';
     try {
       const d = typeof date === 'string' ? new Date(date) : date;
-      const dateFormat = 'dd/MM/yyyy HH:mm'; // Format including time
-      const locale = 'es-ES';
-      return formatDate(d, dateFormat, locale);
+      return formatDate(d, 'dd/MM/yyyy HH:mm', 'es-ES');
     } catch (e) {
       console.error('Error formatting date:', e);
-      return ''; // Return empty string on error
+      return '';
     }
   }
 
   /**
-   * Converts a backend reassignment status string to a user-friendly display string.
-   * @param status The status string from the backend (e.g., 'pending', 'approved').
-   * @returns The displayable status string (e.g., 'Pendiente', 'Aprobada').
+   * @method getDisplayStatus
+   * @description
+   * Convierte un estado de reasignación del backend a un texto legible para el usuario.
+   * @param {string} status - El estado del backend (ej. 'pending').
+   * @returns {string} El texto a mostrar (ej. 'Pendiente').
    */
   public getDisplayStatus(status: string): string {
     switch (status) {
-      case 'pending':
-        return 'Pendiente';
-      case 'approved':
-        return 'Aprobada';
-      case 'rejected':
-        return 'Rechazada';
-      default:
-        return 'Desconocido'; // Fallback for unknown statuses
+      case 'pending': return 'Pendiente';
+      case 'approved': return 'Aprobada';
+      case 'rejected': return 'Rechazada';
+      default: return 'Desconocido';
     }
   }
 
   /**
-   * Generates the CSS class for the status pill based on the status string.
-   * @param status The status string from the backend.
-   * @returns The corresponding CSS class (e.g., 'status-pending').
+   * @method getStatusClass
+   * @description
+   * Genera una clase CSS dinámica basada en el estado para estilizarlo visualmente.
+   * @param {string} status - El estado del backend.
+   * @returns {string} La clase CSS correspondiente (ej. 'status-pending').
    */
   public getStatusClass(status: string): string {
-    return `status-${status}`; // Assumes CSS classes like status-pending, status-approved, status-rejected
+    return `status-${status}`;
   }
 
   /**
-   * Handles the change event for the status dropdown.
-   * Updates the reassignment status in the backend.
-   * @param reassignment The Reassignment object that was changed.
-   * @param newStatus The new status string (backend value).
+   * @method onStatusChange
+   * @description
+   * Maneja el cambio de estado de una reasignación desde el dropdown (solo para admins).
+   * Llama al servicio para actualizar el estado en el backend.
+   * @param {Reassignment} reassignment - El objeto de reasignación modificado.
+   * @param {string} newStatus - El nuevo estado seleccionado.
+   * @returns {void}
    */
   public onStatusChange(reassignment: Reassignment, newStatus: string): void {
-    if (reassignment.id === undefined) {
-      console.error('Cannot update reassignment: ID is undefined.', reassignment);
-      return;
-    }
+    if (reassignment.id === undefined) return;
 
-    // Create a partial object with only the fields that need to be updated
-    // In a real scenario, you might send the full updated object or just the changed field.
     const updatedReassignment: Partial<Reassignment> = {
       status: newStatus,
-      updated_at: new Date() // Optionally update the 'updated_at' timestamp
+      updated_at: new Date()
     };
 
     this.subscriptions.add(
       this.reassignmentService.editReassignment(reassignment.id, { ...reassignment, ...updatedReassignment } as Reassignment)
-        .subscribe(
-          response => {
-            console.log('Reassignment status updated successfully:', response);
-            // Optionally, update the local 'reassignments' array if the backend doesn't return the full updated object
-            // or if you want to ensure UI reflects the change immediately.
-            // In this case, since ngModel updates the local object, it might not be strictly necessary
-            // unless the backend applies further changes.
-          },
-          error => {
-            console.error('Error updating reassignment status:', error);
-            // Revert the status in the UI if the update fails
-            // This is important for good UX
+        .subscribe({
+          next: response => console.log('Reassignment status updated successfully:', response),
+          error: err => {
+            console.error('Error updating reassignment status:', err);
+            // Revierte el cambio en la UI para una mejor experiencia de usuario en caso de error.
             const originalReassignment = this.reassignments.find(r => r.id === reassignment.id);
             if (originalReassignment) {
-              reassignment.status = originalReassignment.status; // Revert to original status
+              reassignment.status = originalReassignment.status;
             }
-            // Show an error message to the user
-            alert('Error al actualizar el estado. Por favor, inténtelo de nuevo.'); // Using alert for simplicity, consider a custom modal
+            alert('Error al actualizar el estado. Por favor, inténtelo de nuevo.');
           }
-        )
+        })
     );
   }
 }
