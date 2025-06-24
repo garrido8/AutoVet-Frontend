@@ -10,24 +10,39 @@
 
   <div class="process">
 
-    @if( userPets.length > 0 ) {
       <div class="steps">
         <div class="step first">
           <h3>Elige tu mascota</h3>
 
           @if (isUser) {
-            <div class="pets-div">
-              @for (pet of userPets; track $index) {
-                <div class="card">
-                  <button
-                   class="card-button"
-                   (click)="getFoodsForUserPet( pet )"
-                  >
-                    {{ pet.nombre }}
-                  </button>
+            @if( userPets.length > 0 ) {
+              <div class="pets-div">
+                @for (pet of userPets; track $index) {
+                  <div class="card">
+                    <button
+                     class="card-button"
+                     (click)="getFoodsForUserPet( pet )"
+                    >
+                      {{ pet.nombre }}
+                    </button>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="pets-div">
+                @for (pet of defaultPets; track $index) {
+                  <div class="card">
+                    <button
+                      class="card-button"
+                      [ngClass]="{ 'selected': selectedPet === pet }"
+                      (click)="loadBreeds(pet)"
+                    >
+                      {{ pet }}
+                    </button>
                 </div>
-              }
+                }
             </div>
+            }
           } @else {
             <div class="pets-div">
               @for (pet of defaultPets; track $index) {
@@ -73,9 +88,6 @@
           </div>
         }
       </div>
-    } @else {
-      <p class="no-pets">Aún no tienes mascotas asignadas</p>
-    }
 
     @if( this.formattedResponse.length > 0 ) {
       <div class="response-container">
