@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve -o --no-hmr",
-    "mac": "concurrently \"ng serve -o --no-hmr\" \"cd ../backend/database && source venv/bin/activate && python3 manage.py runserver\"",
+    "mac": "concurrently \"ng serve -o --no-hmr\" \"cd ../autoVet-Backend/database && source venv/bin/activate && python3 manage.py runserver\"",
     "win": "concurrently \"ng serve -o --no-hmr\" \"cd ../database && .\\windows-venv\\Scripts\\activate && python manage.py runserver\"",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
