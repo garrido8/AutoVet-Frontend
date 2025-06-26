@@ -1,4 +1,4 @@
-# AutoVet - Sistema de Gestión Veterinaria con IA (Frontend)
+# AutoVet (Frontend)
 
 Repositorio del frontend para el Trabajo Final de Grado
 
