@@ -6,8 +6,6 @@ Repositorio del frontend para el Trabajo Final de Grado
 
 ## Guía de Instalación y Puesta en Marcha
 
-### Prerrequisitos
-
 ### Configuración
 
 1.  **Clonar el repositorio:**
