@@ -2,67 +2,72 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Conversation } from '../interfaces/conversation.interface';
+import { backendURL } from '../../environments/urls';
 
-@Injectable({
+/**
+ * @class ConversationService
+ * @description Servicio para gestionar las operaciones CRUD de las conversaciones.
+ * Se comunica con la API del backend para obtener, crear, editar y eliminar conversaciones.
+ */
+@Injectable( {
   providedIn: 'root'
-})
+} )
 export class ConversationService {
 
   private http: HttpClient = inject( HttpClient );
-
-  // Adjust this URL to where your Conversation API endpoint is located
-  private conversationUrl: string = 'http://127.0.0.1:8000/conversations/';
+  private conversationUrl: string = backendURL + 'conversations/';
 
   /**
-   * Fetches all conversations from the API.
-   * @returns An Observable that emits an array of Conversation objects.
+   * @method getConversations
+   * @description Obtiene todas las conversaciones desde la API.
+   * @returns { Observable<Conversation[]> } Un Observable que emite un array de objetos Conversation.
    */
   public getConversations(): Observable<Conversation[]> {
-    return this.http.get<Conversation[]>(this.conversationUrl);
+    return this.http.get<Conversation[]>( this.conversationUrl );
   }
 
   /**
-   * Adds a new conversation to the API.
-   * @param conversation The Conversation object to be added.
-   * @returns An Observable that emits the newly created Conversation object.
+   * @method addConversation
+   * @description Añade una nueva conversación a la API.
+   * @param { Conversation } conversation El objeto Conversation que se va a añadir.
+   * @returns { Observable<Conversation> } Un Observable que emite el objeto Conversation recién creado.
    */
   public addConversation( conversation: Conversation ): Observable<Conversation> {
-    return this.http.post<Conversation>(this.conversationUrl, conversation);
+    return this.http.post<Conversation>( this.conversationUrl, conversation );
   }
 
   /**
-   * Edits an existing conversation by its ID.
-   * @param id The ID of the conversation to edit.
-   * @param conversation The updated Conversation object.
-   * @returns An Observable that emits the updated Conversation object.
+   * @method editConversation
+   * @description Edita una conversación existente por su ID.
+   * @param { number } id El ID de la conversación a editar.
+   * @param { Conversation } conversation El objeto Conversation actualizado.
+   * @returns { Observable<Conversation> } Un Observable que emite el objeto Conversation actualizado.
    */
-  public editConversation(id: number, conversation: Conversation): Observable<Conversation> {
-    // Construct the URL for the specific conversation using its ID
-    const url = `${this.conversationUrl}${id}/`;
-    // Use the HTTP PUT method to send the updated conversation object to the URL
-    return this.http.put<Conversation>(url, conversation);
+  public editConversation( id: number, conversation: Conversation ): Observable<Conversation> {
+    const url = `${ this.conversationUrl }${ id }/`;
+    return this.http.put<Conversation>( url, conversation );
   }
 
   /**
-   * Deletes a conversation by its ID.
-   * @param id The ID of the conversation to delete.
-   * @returns An Observable that emits nothing on successful deletion.
+   * @method deleteConversation
+   * @description Elimina una conversación por su ID.
+   * @param { number } id El ID de la conversación a eliminar.
+   * @returns { Observable<void> } Un Observable que se completa sin emitir valor tras la eliminación exitosa.
    */
-  public deleteConversation(id: number): Observable<void> {
-    const url = `${this.conversationUrl}${id}/`;
-    return this.http.delete<void>(url);
+  public deleteConversation( id: number ): Observable<void> {
+    const url = `${ this.conversationUrl }${ id }/`;
+    return this.http.delete<void>( url );
   }
 
-    /**
-   * Fetches an array of conversations filtered by a client ID.
-   * Assumes the backend API supports filtering by 'client_id' query parameter.
-   * Example: http://127.0.0.1:8000/conversations/?client_id=123
-   * @param clientId The ID of the client to filter conversations by.
-   * @returns An Observable that emits an array of Conversation objects.
+  /**
+   * @method getConversationsByClientId
+   * @description Obtiene un array de conversaciones filtradas por el ID de un cliente.
+   * @param { number } clientId El ID del cliente por el cual se filtrarán las conversaciones.
+   * @returns { Observable<Conversation[]> } Un Observable que emite un array de objetos Conversation.
    */
-  public getConversationsByClientId(clientId: number): Observable<Conversation[]> {
-    const url = `${this.conversationUrl}?client_id=${clientId}`;
-    return this.http.get<Conversation[]>(url);
+  public getConversationsByClientId( clientId: number ): Observable<Conversation[]> {
+    const url = `${ this.conversationUrl }?client_id=${ clientId }`;
+    return this.http.get<Conversation[]>( url );
   }
 
 }

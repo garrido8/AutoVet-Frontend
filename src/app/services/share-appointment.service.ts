@@ -1,52 +1,58 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ShareAppointment } from '../interfaces/share-appointment.interface'; // Ensure this path is correct
+import { ShareAppointment } from '../interfaces/share-appointment.interface';
+import { backendURL } from '../../environments/urls';
 
+/**
+ * @class ShareAppointmentService
+ * @description Servicio para gestionar las operaciones CRUD de citas compartidas.
+ * Se comunica con el backend para obtener, crear, actualizar y eliminar registros de citas compartidas.
+ */
 @Injectable( {
   providedIn: 'root'
 } )
 export class ShareAppointmentService {
 
   private http: HttpClient = inject( HttpClient );
-
-  // The base URL for the share-appointment API endpoint.
-  // Adjust this URL to match your backend's API endpoint.
-  private shareAppointmentUrl: string = 'http://127.0.0.1:8000/shares/'; // Example URL
+  private shareAppointmentUrl: string = backendURL + 'shares/';
 
   /**
-   * Fetches all shared instances for a specific appointment.
-   * @param { number } appointmentId The ID of the appointment to fetch shared instances for.
-   * @returns { Observable<ShareAppointment[]> } An Observable that emits an array of ShareAppointment objects.
+   * @method getSharedAppointmentsByAppointment
+   * @description Obtiene todas las instancias compartidas para una cita específica.
+   * @param { number } appointmentId El ID de la cita para la cual se quieren obtener las instancias compartidas.
+   * @returns { Observable<ShareAppointment[]> } Un Observable que emite un array de objetos ShareAppointment.
    */
   public getSharedAppointmentsByAppointment( appointmentId: number ): Observable<ShareAppointment[]> {
-    // Uses query parameters to filter by the appointment ID.
     return this.http.get<ShareAppointment[]>( `${ this.shareAppointmentUrl }?appointment=${ appointmentId }` );
   }
 
   /**
-   * Fetches all shared instances for a specific collaborator (staff member).
-   * @param { number } collaboratorId The ID of the collaborator (the 'shared_with' user).
-   * @returns { Observable<ShareAppointment[]> } An Observable emitting an array of ShareAppointment objects.
+   * @method getSharedAppointmentsByCollaborator
+   * @description Obtiene todas las instancias compartidas para un colaborador (miembro del personal) específico.
+   * @param { number } collaboratorId El ID del colaborador (el usuario 'shared_with').
+   * @returns { Observable<ShareAppointment[]> } Un Observable que emite un array de objetos ShareAppointment.
    */
   public getSharedAppointmentsByCollaborator( collaboratorId: number ): Observable<ShareAppointment[]> {
     return this.http.get<ShareAppointment[]>( `${ this.shareAppointmentUrl }?shared_with=${ collaboratorId }` );
   }
 
   /**
-   * Creates a new shared appointment record.
-   * @param { Partial<ShareAppointment> } sharedAppointment A partial object containing the details of the share.
-   * @returns { Observable<ShareAppointment> } An Observable that emits the newly created ShareAppointment object.
+   * @method shareAppointment
+   * @description Crea un nuevo registro de cita compartida.
+   * @param { Partial<ShareAppointment> } sharedAppointment Un objeto parcial que contiene los detalles de la compartición.
+   * @returns { Observable<ShareAppointment> } Un Observable que emite el objeto ShareAppointment recién creado.
    */
   public shareAppointment( sharedAppointment: Partial<ShareAppointment> ): Observable<ShareAppointment> {
     return this.http.post<ShareAppointment>( this.shareAppointmentUrl, sharedAppointment );
   }
 
   /**
-   * Updates an existing shared appointment, for instance, to change permissions.
-   * @param { number } id The primary key ( pk ) of the shared appointment record to edit.
-   * @param { Partial<ShareAppointment> } sharedAppointment A partial object with the fields to update ( e.g., { permission: 'VIEW' } ).
-   * @returns { Observable<ShareAppointment> } An Observable that emits the updated ShareAppointment object.
+   * @method updateSharedAppointment
+   * @description Actualiza una cita compartida existente, por ejemplo, para cambiar los permisos.
+   * @param { number } id La clave primaria (pk) del registro de cita compartida a editar.
+   * @param { Partial<ShareAppointment> } sharedAppointment Un objeto parcial con los campos a actualizar (p. ej., { permission: 'VIEW' }).
+   * @returns { Observable<ShareAppointment> } Un Observable que emite el objeto ShareAppointment actualizado.
    */
   public updateSharedAppointment( id: number, sharedAppointment: Partial<ShareAppointment> ): Observable<ShareAppointment> {
     const url = `${ this.shareAppointmentUrl }${ id }/`;
@@ -54,9 +60,10 @@ export class ShareAppointmentService {
   }
 
   /**
-   * Deletes a shared appointment record by its ID, revoking access.
-   * @param { number } id The primary key ( pk ) of the shared appointment record to delete.
-   * @returns { Observable<any> } An Observable that completes upon successful deletion ( typically emitting no value ).
+   * @method deleteSharedAppointment
+   * @description Elimina un registro de cita compartida por su ID, revocando el acceso.
+   * @param { number } id La clave primaria (pk) del registro de cita compartida a eliminar.
+   * @returns { Observable<any> } Un Observable que se completa tras la eliminación exitosa (normalmente no emite ningún valor).
    */
   public deleteSharedAppointment( id: number ): Observable<any> {
     const url = `${ this.shareAppointmentUrl }${ id }/`;

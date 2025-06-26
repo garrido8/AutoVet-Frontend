@@ -2,44 +2,47 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AppointmentMessage } from '../interfaces/appointment-message.interface';
+import { backendURL } from '../../environments/urls';
 
+/**
+ * @class AppointmentMessageService
+ * @description Servicio para gestionar las operaciones CRUD de los mensajes de una cita.
+ * Se comunica con el backend para obtener, crear, editar y eliminar mensajes asociados a una cita específica.
+ */
 @Injectable( {
   providedIn: 'root'
 } )
 export class AppointmentMessageService {
 
   private http: HttpClient = inject( HttpClient );
-
-  // The base URL for the appointment messages API endpoint.
-  // Make sure this matches the URL defined in your Django urls.py
-  private messagesUrl: string = 'http://127.0.0.1:8000/appointment-messages/'; // Example URL
+  private messagesUrl: string = backendURL + 'appointment-messages/';
 
   /**
-   * Fetches all messages for a specific appointment.
-   * @param appointmentId The ID of the appointment to fetch messages for.
-   * @returns An Observable that emits an array of AppointmentMessage objects.
+   * @method getMessagesByAppointment
+   * @description Obtiene todos los mensajes de una cita específica.
+   * @param { number } appointmentId El ID de la cita para la cual se quieren obtener los mensajes.
+   * @returns { Observable<AppointmentMessage[]> } Un Observable que emite un array de objetos AppointmentMessage.
    */
   public getMessagesByAppointment( appointmentId: number ): Observable<AppointmentMessage[]> {
-    // Uses query parameters to filter messages by the appointment ID, as defined in the Django view
     return this.http.get<AppointmentMessage[]>( `${ this.messagesUrl }?appointment=${ appointmentId }` );
   }
 
   /**
-   * Adds a new message to an appointment.
-   * Note: The backend will set the 'user' and 'timestamp'.
-   * @param message A partial message object, typically containing 'appointment' and 'content'.
-   * @returns An Observable that emits the newly created AppointmentMessage object.
+   * @method addMessage
+   * @description Añade un nuevo mensaje a una cita.
+   * @param { Partial<AppointmentMessage> } message Un objeto parcial de mensaje, que típicamente contiene 'appointment' y 'content'.
+   * @returns { Observable<AppointmentMessage> } Un Observable que emite el objeto AppointmentMessage recién creado.
    */
   public addMessage( message: Partial<AppointmentMessage> ): Observable<AppointmentMessage> {
     return this.http.post<AppointmentMessage>( this.messagesUrl, message );
   }
 
   /**
-   * Edits an existing message by its ID.
-   * Note: Usually, you only want to allow editing the 'content' of a message.
-   * @param id The primary key (pk) of the message to edit.
-   * @param message A partial message object containing the fields to update ( e.g., { content: 'new text' } ).
-   * @returns An Observable that emits the updated AppointmentMessage object.
+   * @method editMessage
+   * @description Edita un mensaje existente por su ID.
+   * @param { number } id La clave primaria (pk) del mensaje a editar.
+   * @param { Partial<AppointmentMessage> } message Un objeto parcial de mensaje con los campos a actualizar ( p. ej., { content: 'nuevo texto' } ).
+   * @returns { Observable<AppointmentMessage> } Un Observable que emite el objeto AppointmentMessage actualizado.
    */
   public editMessage( id: number, message: Partial<AppointmentMessage> ): Observable<AppointmentMessage> {
     const url = `${ this.messagesUrl }${ id }/`;
@@ -47,9 +50,10 @@ export class AppointmentMessageService {
   }
 
   /**
-   * Deletes a message by its ID.
-   * @param id The primary key (pk) of the message to delete.
-   * @returns An Observable that emits a response upon successful deletion ( typically empty ).
+   * @method deleteMessage
+   * @description Elimina un mensaje por su ID.
+   * @param { number } id La clave primaria (pk) del mensaje a eliminar.
+   * @returns { Observable<any> } Un Observable que se completa tras la eliminación exitosa ( normalmente no emite ningún valor ).
    */
   public deleteMessage( id: number ): Observable<any> {
     const url = `${ this.messagesUrl }${ id }/`;
