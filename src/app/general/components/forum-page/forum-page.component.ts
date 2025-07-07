@@ -181,38 +181,38 @@ export class ForumPageComponent implements OnInit, OnDestroy {
    * y ordena las respuestas primero por el estado `topAnswer`, luego por fecha ascendente.
    */
   public performSearch(): void {
-    if (!this.searchTerm.trim()) {
-      this.filteredAnswers = [...this.allAnswers]; // Muestra todas las respuestas si el término de búsqueda está vacío
+    if ( !this.searchTerm.trim() ) {
+      this.filteredAnswers = [ ...this.allAnswers ]; // Muestra todas las respuestas si el término de búsqueda está vacío
     } else {
-      const searchTerms = this.searchTerm.toLowerCase().split(' ').filter(term => term.length > 0);
+      const searchTerms = this.searchTerm.toLowerCase().split(' ').filter( term => term.length > 0 );
 
-      this.filteredAnswers = this.allAnswers.filter(answer => {
-        const answerKeywords = (answer.keywords || '')
-          .split(/[\s,]+/) // Divide por espacios o comas
-          .map(k => k.trim().toLowerCase())
-          .filter(k => k.length > 0);
+      this.filteredAnswers = this.allAnswers.filter( answer => {
+        const answerKeywords = ( answer.keywords || '' )
+          .split( /[\s,]+/ ) // Divide por espacios o comas
+          .map( k => k.trim().toLowerCase() )
+          .filter( k => k.length > 0 );
 
-        return searchTerms.every(searchTerm =>
-          answerKeywords.some(answerKeyword => answerKeyword.includes(searchTerm))
+        return searchTerms.some( searchTerm =>
+          answerKeywords.some( answerKeyword => answerKeyword.includes( searchTerm ) )
         );
-      });
+      } );
     }
 
     // Aplica la ordenación a las respuestas filtradas (o a todas)
-    this.filteredAnswers.sort((a, b) => {
+    this.filteredAnswers.sort( ( a, b ) => {
       // Ordenación primaria: topAnswer (true va antes que false)
-      if (a.topAnswer && !b.topAnswer) {
+      if ( a.topAnswer && !b.topAnswer ) {
         return -1;
       }
-      if (!a.topAnswer && b.topAnswer) {
+      if ( !a.topAnswer && b.topAnswer ) {
         return 1;
       }
 
       // Ordenación secundaria: Si el estado topAnswer es el mismo, ordena por fecha ascendente (más antiguas primero)
-      const dateA = new Date(a.time!);
-      const dateB = new Date(b.time!);
+      const dateA = new Date( a.time! );
+      const dateB = new Date( b.time! );
       return dateA.getTime() - dateB.getTime();
-    });
+    } );
   }
 
   /**
